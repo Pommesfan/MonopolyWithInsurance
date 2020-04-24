@@ -1,11 +1,14 @@
+
 name          := "htwg-scala-seed"
 organization  := "de.htwg.se"
 version       := "0.0.1"
-scalaVersion  := "2.12.4"
+scalaVersion  := "2.12.7"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
 
 libraryDependencies += "junit" % "junit" % "4.8" % "test"
+
 
 //*******************************************************************************//
 //Libraries that we will use in later lectures compatible with this scala version
