@@ -1,4 +1,3 @@
-
 name          := "htwg-scala-seed"
 organization  := "de.htwg.se"
 version       := "0.0.1"
