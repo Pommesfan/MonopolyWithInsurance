@@ -4,7 +4,6 @@ case class Board() {
   val players: List[Player] = List[Player](Player("Player1", 0), Player("Player2", 1))
   var currentPlayerIndex: Int = 0
 
-  //def initializeBoard(namePlayer: List[String]): Unit = {
   val allfields: List[Field] = List[Field](
     SpecialField(0, "Los"),
     Street(1, "Badstrasse", NeighbourhoodTypes.Brown, 60, 2),
@@ -33,17 +32,18 @@ case class Board() {
     Street(24, "Opernplatz", NeighbourhoodTypes.Red, 240, 20),
     Street(25, "Nordbahnhof", NeighbourhoodTypes.Station, 200, 25),
     Street(26, "Lessingstrasse", NeighbourhoodTypes.Yellow, 260, 22),
-    Street(27, "Schillerstrasse0", NeighbourhoodTypes.Yellow, 260, 22),
+    Street(27, "Schillerstrasse", NeighbourhoodTypes.Yellow, 260, 22),
     Street(28, "Elektrizitätswerk", NeighbourhoodTypes.Utility, 150, 0),
     Street(29, "Goethestrasse", NeighbourhoodTypes.Yellow, 280, 24),
     Street(30, "Rathhausplatz", NeighbourhoodTypes.Green, 300, 26),
-    Street(31, "Hauptstrasse", NeighbourhoodTypes.Green, 300, 26),
-    ChanceCard(32, "Gemeinschaftsfeld"),
-    Street(33, "Bahnhofstrasse", NeighbourhoodTypes.Green, 320, 28),
-    Street(34, "Hauptbahnhof", NeighbourhoodTypes.Station, 200, 25),
-    ChanceCard(35, "Ereignisfeld"),
-    Street(36, "Parkstrasse", NeighbourhoodTypes.Purple, 350, 35),
-    Tax(37, "Zusatzsteuer", 100),
-    Street(38, "Schlossallee", NeighbourhoodTypes.Purple, 400, 50)
+    SpecialField(31, "Gehen Sie in das Gefägnis"),
+    Street(32, "Hauptstrasse", NeighbourhoodTypes.Green, 300, 26),
+    ChanceCard(33, "Gemeinschaftsfeld"),
+    Street(34, "Bahnhofstrasse", NeighbourhoodTypes.Green, 320, 28),
+    Street(35, "Hauptbahnhof", NeighbourhoodTypes.Station, 200, 25),
+    ChanceCard(36, "Ereignisfeld"),
+    Street(37, "Parkstrasse", NeighbourhoodTypes.Purple, 350, 35),
+    Tax(38, "Zusatzsteuer", 100),
+    Street(39, "Schlossallee", NeighbourhoodTypes.Purple, 400, 50)
   )
 }
