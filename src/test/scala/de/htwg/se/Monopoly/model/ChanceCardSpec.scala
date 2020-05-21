@@ -11,6 +11,12 @@ class ChanceCardSpec extends WordSpec with Matchers {
     "new" should {
       val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld")
       val chanceCard2 = ChanceCard(22, "Ereignisfeld")
+      "have parameter" in {
+        chanceCard1.GO_POSITION should be (0)
+        chanceCard1.MAYFAIR_POSITION should be (39)
+        chanceCard1.BANK_MONEY_BONUS should be (100)
+        chanceCard1.PRETTY_BONUS should be (50)
+      }
       "have a index and name, is a cummunity chest" in {
         chanceCard1.index should be(2)
         chanceCard1.name should be("Gemeinschaftsfeld")
@@ -36,6 +42,26 @@ class ChanceCardSpec extends WordSpec with Matchers {
         "test for unapply method" in {
           ChanceCard.unapply(chanceCard).get should be((2, "Gemeinschaftsfeld"))
         }
+      }
+    }
+    "generate 'bandIsGivingMoney' Card" should {
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
+      val player = new Player("Nicole")
+      "player get 100" in {
+        chanceCard.bankIsGivingMoney(player) should be(ChanceCard(2, "Gemeinschaftsfeld"))
+      }
+    }
+    "generate 'YouArePrettyGivingBonus' Card" should {
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
+      val player = new Player("Jessica")
+      "player get 50 " in {
+        chanceCard.youArePrettyGivingBonus(player) should be(ChanceCard(2, "Gemeinschaftsfeld"))
+      }
+    }
+    "unapply" should {
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
+      "test for unapply method" in {
+        ChanceCard.unapply(chanceCard)
       }
     }
   }

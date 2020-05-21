@@ -14,16 +14,16 @@ class SpecialFieldSpec extends WordSpec with Matchers {
       val goJail = SpecialField(30, "go to jail")
       val player = new Player("Yvonne")
       "start round" in {
-        start.actOnPlayer(player) should be ("You landed on Go \nCollect 200!")
+        start.actOnPlayer(player) should be (SpecialField(0, "Start"))
       }
       "visit jail" in {
-        visitJail.actOnPlayer(player) should be ("You are visiting your \ndear friend in Jails.")
+        visitJail.actOnPlayer(player) should be (SpecialField(10, "visit jail"))
       }
       "land on free parking" in {
-        freeParking.actOnPlayer(player) should be ("You landed on Free Parking. \nNothing happens.")
+        freeParking.actOnPlayer(player) should be (SpecialField(20, "free parking"))
       }
       "go to jail" in {
-        goJail.actOnPlayer(player) should be ("You are in jail! \nYou will skip the next three turns")
+        goJail.actOnPlayer(player) should be (SpecialField(30, "go to jail"))
       }
     }
     "unapply" should {

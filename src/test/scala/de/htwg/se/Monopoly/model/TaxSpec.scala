@@ -17,9 +17,9 @@ class TaxSpec extends WordSpec with Matchers {
     }
     "actOnPlayer" should {
       val tax = Tax(22, "DiesIstEineSteuer", 200)
-      val player = new Player("Yvonne")
-      "return a string" in {
-        tax.actOnPlayer(player) should be ("DiesIstEineSteuer: 200")
+      val player = Player(name = "Yvonne", 0, 0, inJail = false, 1500)
+      "return tax" in {
+        tax.actOnPlayer(player) should be (Tax(22, "DiesIstEineSteuer", 200))
       }
     }
     "unapply" should {

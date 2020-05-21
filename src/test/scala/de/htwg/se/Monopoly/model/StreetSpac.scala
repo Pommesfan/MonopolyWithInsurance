@@ -1,5 +1,7 @@
 package de.htwg.se.Monopoly.model
 
+import java.io.ByteArrayInputStream
+
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
@@ -23,14 +25,23 @@ class StreetSpec extends WordSpec with Matchers {
       val player2 = Player("Nicole", index = 1, currentPosition = 10, money = 1500)
       val street1 = Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2)
       val street2 = Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1)
-      "is available" in {
-        street1.actOnPlayer(player1) should be ("Badstraße is available \nfor purchase.")
+      "is available, but not bought" in {
+        val in = new ByteArrayInputStream("N".getBytes)
+        Console.withIn(in) {
+          street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2))
+        }
+      }
+      "is available and bought" in {
+        val in = new ByteArrayInputStream("J".getBytes)
+        Console.withIn(in) {
+          street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2, player1))
+        }
       }
       "is own street" in {
-        street2.actOnPlayer(player1) should be ("You already own Turmstraße.")
+        street2.actOnPlayer(player1) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
       }
       "is owned by another player" in {
-        street2.actOnPlayer(player2) should be ("Turmstraße\n is owned by Yvonne.\nYou paid him 4.")
+        street2.actOnPlayer(player2) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
       }
     }
   }

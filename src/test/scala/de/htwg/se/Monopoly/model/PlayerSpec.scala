@@ -40,11 +40,11 @@ class PlayerSpec extends WordSpec with Matchers {
       "set Position from 0 to 7" in {
         player1.setPosition(7) should be (Player("Yvonne", 0, currentPosition = 7))
       }
-      "Set Position from 0 to 38 (go 2 backwards)" in {
+      "Set Position from 0 to 39 (go 2 backwards)" in {
         player2.setPosition(-2) should be (Player("Nicole", 1, 38))
       }
       "Set Position to 3" in {
-        player3.setPosition(43) should be (Player("Jessica", 2, 3, money = 1700))
+        player3.setPosition(42) should be (Player("Jessica", 2, 3, money = 1700))
       }
     }
     "earn money" should {
