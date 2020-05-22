@@ -11,7 +11,7 @@ case class ChanceCardGenerator(){
   def listOfChanceCard(): List[Function[Player, String]] = List[Function[Player, String]](
     bankIsGivingMoney,
     youArePrettyGivingBonus,
-    giveAmountToOtherPlayers
+    //giveAmountToOtherPlayers
   )
 
   def bankIsGivingMoney(player: Player): String = {
@@ -24,12 +24,13 @@ case class ChanceCardGenerator(){
     "You have won a \nfashion contest. Receive 50."
   }
 
+  /**
   def giveAmountToOtherPlayers(player: Player): String = {
     val board = new Board
     board.players(player.index).decrementMoney(30)
     board.players((player.index + 1) % 2).incrementMoney(30)
     "The other player is smarter. \nGive him 30."
-  }
+  }*/
 
   def generateRandomCard(player: Player): String = {
     val list = Random.shuffle(listOfChanceCard())
