@@ -57,7 +57,7 @@ class BoardSpec extends WordSpec with Matchers {
       "have all fields" in {
         boardWithFields.allfields() should have length (40)
         boardWithFields.fields(3) should be(Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4))
-        boardWithFields.fields(31) should be(SpecialField(31, "Gefängnis: Gehen Sie ins Gefängnis"))
+        boardWithFields.fields(31) should be(SpecialField(31, "Gehen Sie ins Gefängnis"))
       }
       "change field" in {
         val board = boardWithFields.setField(Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4, player1))

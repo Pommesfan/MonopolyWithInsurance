@@ -4,20 +4,26 @@ import scala.collection.mutable
 
 case class Grid(board: Board) {
   def this(player: List[Player]) = this(new Board(player)) //wird beim starten aufgerufen
+  def this(board: Board, field: Field) = {
+    this(Board(board.players, board.fields, board.currentPlayerIndex))
+    //this.returnString = string
+  }
   val players: List[Player] = List[Player]()
-  var currentPlayerIndex: Int = 0
+  var returnString = ""
 
   def setPlayers(players: List[Player]): Grid = copy(board.setPlayers(players).init())
 
   def getActualPlayer: Player = board.getActualPlayer
 
   def roll: Grid = {
-    val newBoard = board.roll()
-    val player = newBoard.getActualPlayer
+    val newBord1 = board.roll()
+    val player = newBord1.getActualPlayer
     val position = player.currentPosition
     val field = board.fields.apply(position)
-    field.actOnPlayer(player)
-    copy(board = newBoard)
+    val returnField = field.actOnPlayer(player)
+    val newBoard2 = newBord1.setField(returnField)
+    val newBoard3 = newBoard2.changePlayerIndex()
+    new Grid(newBoard3, returnField)
   }
 
 
@@ -45,7 +51,7 @@ case class Grid(board: Board) {
       for (player <- board.players) {
         boardString ++= "%-6s %-25s %-10s %-5s\n".format(player.index, player.name, player.money, player.currentPosition)
       }
-
+      boardString ++= "%s".format(returnString)
     }
     boardString.toString()
   }

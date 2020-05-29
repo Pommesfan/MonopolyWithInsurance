@@ -1,9 +1,8 @@
 package de.htwg.se.Monopoly.model
 
-case class Board(players: List[Player], fields: List[Field]) {
-  def this(players: List[Player]) = this(players, null)
+case class Board(players: List[Player], fields: List[Field], currentPlayerIndex: Int) {
+  def this(players: List[Player]) = this(players, null, 0)
 
-  var currentPlayerIndex: Int = 0
 
   def allfields(): List[Field] = {
     List[Field](
@@ -38,7 +37,7 @@ case class Board(players: List[Player], fields: List[Field]) {
       Street(28, "Elektrizitätswerk", NeighbourhoodTypes.Utility, 150, 0),
       Street(29, "Goethestrasse", NeighbourhoodTypes.Yellow, 280, 24),
       Street(30, "Rathhausplatz", NeighbourhoodTypes.Green, 300, 26),
-      SpecialField(31, "Gehen Sie ins Gefägnis"),
+      SpecialField(31, "Gehen Sie ins Gefängnis"),
       Street(32, "Hauptstrasse", NeighbourhoodTypes.Green, 300, 26),
       ChanceCard(33, "Gemeinschaftsfeld"),
       Street(34, "Bahnhofstrasse", NeighbourhoodTypes.Green, 320, 28),
@@ -51,10 +50,10 @@ case class Board(players: List[Player], fields: List[Field]) {
   }
 
   def init(): Board = {
-    Board(players, allfields())
+    Board(players, allfields(), 0)
   }
 
-  def setPlayers(player: List[Player]): Board = copy(player ::: players)
+  def setPlayers(player: List[Player]): Board = copy(players ::: player)
 
   def getActualPlayer: Player = {
     var player: Player = null
@@ -64,9 +63,6 @@ case class Board(players: List[Player], fields: List[Field]) {
     player
   }
 
-  def setStreet(index: Int, field: Field): Board = {
-    copy(fields = Board.this.fields.updated(index, getStreet(index)))
-  }
 
   def getStreet(index: Int): Field = {
     var street: Field = null
@@ -76,9 +72,21 @@ case class Board(players: List[Player], fields: List[Field]) {
     street
   }
 
+  def changePlayerIndex(): Board = {
+    var index = currentPlayerIndex + 1
+    if (index == players.length) {
+      index = 0
+    }
+    copy(currentPlayerIndex = index)
+  }
+
   def roll(): Board = {
     val dice = new Dice
     val player = getActualPlayer
     copy(players.updated(currentPlayerIndex, player.setPosition(dice.roll + dice.roll + player.currentPosition)))
+  }
+
+  def setField(field: Field): Board = {
+    copy(fields = fields.updated(field.index, field))
   }
 }

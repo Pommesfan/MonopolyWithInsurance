@@ -12,7 +12,7 @@ case class Player(name: String,
 
    override def setPosition(newPosition: Int): Player = {
       if (newPosition < 0) {
-         val newCurrentPosition = newPosition + Variable.TOTAL_NUMBER_OF_FIELDS
+         val newCurrentPosition = newPosition + Variable.TOTAL_NUMBER_OF_FIELDS + 1
          copy(currentPosition = newCurrentPosition)
       } else {
          if (newPosition >= Variable.TOTAL_NUMBER_OF_FIELDS) {
