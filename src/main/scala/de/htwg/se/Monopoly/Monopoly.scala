@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly
 
 import de.htwg.se.Monopoly.aview.Tui
 import de.htwg.se.Monopoly.controller.Controller
-import de.htwg.se.Monopoly.model.{Board, Grid, Player}
+import de.htwg.se.Monopoly.model.Grid
 
 import scala.io.StdIn.readLine
 
@@ -13,10 +13,13 @@ object Monopoly {
 
   def main(args: Array[String]): Unit = {
     var input: String = ""
-
-    do {
-      input = readLine()
+    if (!input.isEmpty) {
       tui.processInputLine(input)
-    } while (input != "e")
+    } else {
+      do {
+        input = readLine()
+        tui.processInputLine(input)
+      } while (input != "e")
+    }
   }
 }

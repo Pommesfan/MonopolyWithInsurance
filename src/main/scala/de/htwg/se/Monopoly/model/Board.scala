@@ -63,7 +63,6 @@ case class Board(players: List[Player], fields: List[Field], currentPlayerIndex:
     player
   }
 
-
   def getStreet(index: Int): Field = {
     var street: Field = null
     for (i <- fields if i.index == index) {
