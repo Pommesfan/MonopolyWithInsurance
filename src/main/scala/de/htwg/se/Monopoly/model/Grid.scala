@@ -6,7 +6,6 @@ case class Grid(board: Board) {
   def this(player: List[Player]) = this(new Board(player)) //wird beim starten aufgerufen
   def this(board: Board, field: Field) = {
     this(Board(board.players, board.fields, board.currentPlayerIndex))
-    //this.returnString = string
   }
   val players: List[Player] = List[Player]()
   var returnString = ""
