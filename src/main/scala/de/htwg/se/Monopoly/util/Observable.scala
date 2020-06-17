@@ -1,7 +1,7 @@
 package de.htwg.se.Monopoly.util
 
 trait Observer {
-  def update: Unit
+  def update: Boolean
 }
 
 class Observable {

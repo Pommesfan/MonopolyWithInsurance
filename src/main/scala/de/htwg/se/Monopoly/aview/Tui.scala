@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.Controller
+import de.htwg.se.Monopoly.controller.{Controller, GameStatus}
 import de.htwg.se.Monopoly.model.{Grid, Player}
 import de.htwg.se.Monopoly.util.Observer
 
@@ -17,6 +17,8 @@ class Tui(controller: Controller) extends Observer {
       case "help" =>
         printf("%-10s%s\n%-10s%s\n", "e", "exit", "p", "new Players")
       case "e" => print("exit Game\n")
+      case "z" => controller.undo
+      case "y" => controller.redo
       case "d" => controller.roll()
       case pattern(input) =>
         val list = input.toString.split(" ")
@@ -31,5 +33,11 @@ class Tui(controller: Controller) extends Observer {
     }
     controller.remove(this)
   }
-  override def update: Unit = println(controller.gridToString)
+
+  override def update: Boolean = {
+    print(controller.gridToString)
+    print(GameStatus.message(controller.gameStatus))
+    controller.gameStatus=GameStatus.IDLE
+    true
+  }
 }
