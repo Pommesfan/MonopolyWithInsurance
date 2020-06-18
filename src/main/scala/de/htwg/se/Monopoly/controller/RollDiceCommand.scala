@@ -7,6 +7,7 @@ class RollDiceCommand(controller: Controller) extends Command{
   var board: Board = controller.board
   var players: Vector[Player] = controller.players
   var context: Context = controller.context
+  var currentPlayerIndex: Int = controller.currentPlayerIndex
 
   override def doStep: Unit = {
     val firstRolledNumber = Dice().roll
@@ -18,23 +19,29 @@ class RollDiceCommand(controller: Controller) extends Command{
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
     val newContext: Context = controller.context
+    val newCurrentPlayerIndex: Int = controller.currentPlayerIndex
     controller.board = board
     controller.players = players
     controller.context = context
+    controller.currentPlayerIndex = currentPlayerIndex
     board = newBoard
     players = newPlayers
     context = newContext
+    currentPlayerIndex = newCurrentPlayerIndex
   }
 
   override def redoStep: Unit = {
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
     val newContext: Context = controller.context
+    val newCurrentPlayerIndex: Int = controller.currentPlayerIndex
     controller.board = board
     controller.players = players
     controller.context  = context
+    controller.currentPlayerIndex = currentPlayerIndex
     board = newBoard
     players = newPlayers
     context  = newContext
+    currentPlayerIndex = newCurrentPlayerIndex
   }
 }

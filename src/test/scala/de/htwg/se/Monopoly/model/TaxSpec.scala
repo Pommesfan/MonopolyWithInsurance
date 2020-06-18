@@ -6,7 +6,6 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class TaxSpec extends WordSpec with Matchers {
-  /**
   "A Tax" when {
     "create" should {
       val tax = Tax(22, "DiesIstEineSteuer", 200)
@@ -18,9 +17,12 @@ class TaxSpec extends WordSpec with Matchers {
     }
     "actOnPlayer" should {
       val tax = Tax(22, "DiesIstEineSteuer", 200)
-      val player = Player(name = "Yvonne", 0, 0, inJail = false, 1500)
+      val player = Player(name = "Yvonne", 0, 0, inJail = 0, 1500)
       "return tax" in {
         tax.actOnPlayer(player) should be (Tax(22, "DiesIstEineSteuer", 200))
+      }
+      "return string" in {
+        tax.toString should be("22: DiesIstEineSteuer, Steuern: 200$")
       }
     }
     "unapply" should {
@@ -29,5 +31,5 @@ class TaxSpec extends WordSpec with Matchers {
         Tax.unapply(tax).get should be ((22, "DiesIstEineSteuer", 200))
       }
     }
-  }*/
+  }
 }

@@ -1,22 +1,19 @@
 package de.htwg.se.Monopoly.model
 
-
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ChanceCardSpec extends WordSpec with Matchers {
-  /**
   "A ChanceCard" when {
     "new" should {
-      val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld")
-      val chanceCard2 = ChanceCard(22, "Ereignisfeld")
+      val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
+      val chanceCard2 = ChanceCard(22, "Ereignisfeld", 0, 0, -1)
       "have parameter" in {
-        chanceCard1.GO_POSITION should be (0)
-        chanceCard1.MAYFAIR_POSITION should be (39)
         chanceCard1.BANK_MONEY_BONUS should be (100)
         chanceCard1.PRETTY_BONUS should be (50)
+        chanceCard1.GIVE_BONUS should be (30)
       }
       "have a index and name, is a cummunity chest" in {
         chanceCard1.index should be(2)
@@ -28,10 +25,10 @@ class ChanceCardSpec extends WordSpec with Matchers {
       }
     }
     "act on Player" should {
-      val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld")
-      val chanceCard2 = ChanceCard(22, "Ereignisfeld")
-      val player1 = Player("Yvonne", 0, 2, inJail = false, 1500)
-      val player2 = Player("Nicole", 1, 22, inJail = false, 1000)
+      val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
+      val chanceCard2 = ChanceCard(22, "Ereignisfeld", 0, 0, -1)
+      val player1 = Player("Player1", 0, 2, inJail = 0, 1500)
+      val player2 = Player("Player2", 1, 22, inJail = 0, 1000)
       "get a community chest" in {
         chanceCard1.actOnPlayer(player1)
       }
@@ -39,32 +36,42 @@ class ChanceCardSpec extends WordSpec with Matchers {
         chanceCard2.actOnPlayer(player2)
       }
       "unapply" should {
-        val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
+        val chanceCard = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
         "test for unapply method" in {
-          ChanceCard.unapply(chanceCard).get should be((2, "Gemeinschaftsfeld"))
+          ChanceCard.unapply(chanceCard).get should be((2, "Gemeinschaftsfeld", 0, 0, -1))
         }
       }
     }
-    "generate 'bandIsGivingMoney' Card" should {
-      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
-      val player = new Player("Nicole")
+    "generate 'bankIsGivingMoney' Card" should {
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
+      val player = new Player("Player1")
       "player get 100" in {
-        chanceCard.bankIsGivingMoney(player) should be(ChanceCard(2, "Gemeinschaftsfeld"))
+        chanceCard.bankIsGivingMoney(player) should be(ChanceCard(2, "Gemeinschaftsfeld", 100, 0, -1))
       }
     }
     "generate 'YouArePrettyGivingBonus' Card" should {
-      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
-      val player = new Player("Jessica")
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
+      val player = new Player("Player1")
       "player get 50 " in {
-        chanceCard.youArePrettyGivingBonus(player) should be(ChanceCard(2, "Gemeinschaftsfeld"))
+        chanceCard.youArePrettyGivingBonus(player) should be(ChanceCard(2, "Gemeinschaftsfeld", 50, 0, -1))
+      }
+    }
+    "generate 'giveAmountToOtherPlayers' Card" should {
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
+      val player = new Player("Player1")
+      val player2 = new Player("Player2")
+      "player get 50 " in {
+        chanceCard.giveAmountToOtherPlayers(player) should be(ChanceCard(2, "Gemeinschaftsfeld", -30, 30, 1))
+      }
+      "return string" in {
+        chanceCard.giveAmountToOtherPlayers(player).toString should be("2: Gemeinschaftsfeld, Du bekommst/musst Zahlen: -30$, an 1")
       }
     }
     "unapply" should {
-      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld")
+      val chanceCard = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, -1)
       "test for unapply method" in {
         ChanceCard.unapply(chanceCard)
       }
     }
   }
-  */
 }

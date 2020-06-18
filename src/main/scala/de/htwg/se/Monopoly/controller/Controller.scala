@@ -1,6 +1,5 @@
 package de.htwg.se.Monopoly.controller
 
-import de.htwg.se.Monopoly.controller.GameStatus._
 import de.htwg.se.Monopoly.model._
 import de.htwg.se.Monopoly.util.{Observable, UndoManager}
 
@@ -9,7 +8,6 @@ import scala.collection.mutable.ListBuffer
 
 class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Observable{
 
-  var gameStatus: GameStatus = IDLE
   private val undoManager = new UndoManager
   var currentPlayerIndex: Int = 0
   var actualField: Field = SpecialField(0, "Los")
@@ -42,6 +40,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def decrementJailCounter(p: Player): Field = {
     players = players.updated(p.index, p.decrementJailCounter())
+    nextPlayer()
     board.fields(p.currentPosition)
   }
 
@@ -71,7 +70,6 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
         players = players.updated(s.owner.index, s.owner.incrementMoney(s.rent))
         nextPlayer()
-      case _ =>
     }
   }
 

@@ -6,7 +6,6 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class DiceSpec extends WordSpec with Matchers {
-  /**
   "A Dice" when {
     "new" should {
       val dice = new Dice
@@ -21,5 +20,4 @@ class DiceSpec extends WordSpec with Matchers {
       }
     }
   }
-   */
 }

@@ -39,6 +39,6 @@ case class ChanceCard(override val index: Int, override val name: String,
     ChanceCard(index, name, (- GIVE_BONUS), GIVE_BONUS, playerIndex)
   }
   override def toString: String = {
-    "%d: %s, Du bekommst/musst Zahlen: %s$, an %s$".format(index, name, getMoney, otherPlayerIndex)
+    "%d: %s, Du bekommst/musst Zahlen: %s$, an %s".format(index, name, getMoney, otherPlayerIndex)
     }
 }

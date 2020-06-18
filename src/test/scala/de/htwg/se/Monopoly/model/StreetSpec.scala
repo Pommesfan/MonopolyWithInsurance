@@ -8,7 +8,6 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class StreetSpec extends WordSpec with Matchers {
-  /**
   "A Street" when {
     "new" should {
       val street = Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2)
@@ -26,17 +25,8 @@ class StreetSpec extends WordSpec with Matchers {
       val player2 = Player("Nicole", index = 1, currentPosition = 10, money = 1500)
       val street1 = Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2)
       val street2 = Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1)
-      "is available, but not bought" in {
-        val in = new ByteArrayInputStream("N".getBytes)
-        Console.withIn(in) {
-          street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2))
-        }
-      }
-      "is available and bought" in {
-        val in = new ByteArrayInputStream("J".getBytes)
-        Console.withIn(in) {
-          street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2, player1))
-        }
+      "is available" in {
+        street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2))
       }
       "is own street" in {
         street2.actOnPlayer(player1) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
@@ -45,5 +35,6 @@ class StreetSpec extends WordSpec with Matchers {
         street2.actOnPlayer(player2) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
       }
     }
-  }*/
+  }
 }
+
