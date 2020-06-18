@@ -1,10 +1,7 @@
 package de.htwg.se.Monopoly.aview
 
 import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, NextPlayerState, StartState}
-import de.htwg.se.Monopoly.model.Player
 import de.htwg.se.Monopoly.util.Observer
-
-import scala.collection.mutable.ListBuffer
 
 class Tui(controller: Controller) extends Observer {
 
@@ -41,13 +38,7 @@ class Tui(controller: Controller) extends Observer {
 
   def setPlayers(input: String): Unit = {
     val list = input.split(" ")
-    var player = new ListBuffer[Player]()
-    var num = 0
-    for (i <- list if i != "p") {
-      player += Player(i.toString, num)
-      num += 1
-    }
-    controller.setPlayers(player.toVector)
+    controller.setPlayers(list)
   }
 
   override def update: Boolean = {

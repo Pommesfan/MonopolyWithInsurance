@@ -3,7 +3,6 @@ package de.htwg.se.Monopoly.model
 import scala.collection.mutable
 
 case class Board(fields: Vector[Field]) {
-  def this() = this(Variable.START_BOARD)
 
   def getField(player: Player, newPosition: Int): Field = {
     fields(newPosition).actOnPlayer(player)

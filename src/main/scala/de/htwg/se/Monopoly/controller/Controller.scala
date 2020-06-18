@@ -5,6 +5,7 @@ import de.htwg.se.Monopoly.model._
 import de.htwg.se.Monopoly.util.{Observable, UndoManager}
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Observable{
 
@@ -14,9 +15,15 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   var actualField: Field = SpecialField(0, "Los")
   var context = new Context()
 
-  def setPlayers(player: Vector[Player]): Unit = {
+  def setPlayers(list: Array[String]): Unit = {
+    var player = new ListBuffer[Player]()
+    var num = 0
+    for (i <- list if i != "p") {
+      player += NewPlayerFactoryMethod.createNewPlayer(i.toString, num)
+      num += 1
+    }
     context.setPlayer()
-    players = player
+    players = player.toVector
     notifyObservers
   }
 
