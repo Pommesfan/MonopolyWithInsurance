@@ -27,7 +27,7 @@ class Tui(controller: Controller) extends Observer {
           setPlayers(input.toString)
         }
       case "J" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
-        controller.buyStreet()
+        controller.buyField()
       }
       case "N" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
         controller.nextPlayer()

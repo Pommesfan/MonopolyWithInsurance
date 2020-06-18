@@ -30,20 +30,28 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     movePlayer(firstRolledNumber + secondRolledNumber)
   }
 
-  def movePlayer(int: Int): Field = {
+  def movePlayer(rolledEyes: Int): Field = {
     val actualPlayer = players(currentPlayerIndex)
     if (actualPlayer.inJail != 0) {
-      players = players.updated(currentPlayerIndex, actualPlayer.decrementJailCounter())
-      board.fields(actualPlayer.currentPosition)
+      decrementJailCounter(actualPlayer)
     } else {
-      players = players.updated(currentPlayerIndex, actualPlayer.setPosition(actualPlayer.currentPosition + int))
-      val (field, gameState) = board.move(players(currentPlayerIndex),
-        players(currentPlayerIndex).currentPosition)
-      actualField = field
-      print("\n You landet on " + field + "\n")
-      handleNewPosition(gameStatus, field)
-      field
+      setPlayer(actualPlayer, rolledEyes)
     }
+  }
+
+  def decrementJailCounter(p: Player): Field = {
+    players = players.updated(p.index, p.decrementJailCounter())
+    board.fields(p.currentPosition)
+  }
+
+  def setPlayer(p: Player, n: Int): Field = {
+    players = players.updated(p.index, p.setPosition(p.currentPosition + n))
+    val  (field, gameState) = board.move(players(currentPlayerIndex),
+      players(currentPlayerIndex).currentPosition)
+    actualField = field
+    print("\n You landed on " + field + "\n")
+    handleNewPosition(gameState, field)
+    field
   }
 
   def handleNewPosition(status: GameStatus, field: Field): Unit = {
