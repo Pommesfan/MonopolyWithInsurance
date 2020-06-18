@@ -8,6 +8,7 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class MonopolySpec extends WordSpec with Matchers {
+  /*
   "Monopoly" when {
     "new" should {
       val monopoly = Monopoly
@@ -30,5 +31,5 @@ class MonopolySpec extends WordSpec with Matchers {
         }
       }
     }
-  }
+  }*/
 }

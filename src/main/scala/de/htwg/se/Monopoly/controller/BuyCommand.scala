@@ -1,42 +1,47 @@
 package de.htwg.se.Monopoly.controller
 
-import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
-import de.htwg.se.Monopoly.model.{Board, Player}
+import de.htwg.se.Monopoly.model.{Board, Player, Street}
 import de.htwg.se.Monopoly.util.Command
 
 class BuyCommand(controller: Controller) extends Command{
 
   var board: Board = controller.board
   var players: Vector[Player] = controller.players
-  var gameStatus: GameStatus = controller.gameStatus
+  var context: Context = controller.context
 
   override def doStep: Unit = {
-    controller.buyStreet()
+    controller.actualField match {
+      case s: Street =>
+        controller.players = players.updated(controller.currentPlayerIndex, players(controller.currentPlayerIndex).decrementMoney(s.price))
+        val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, players(controller.currentPlayerIndex))
+        controller.board = Board(board.fields.updated(s.index, street))
+    }
+    controller.nextPlayer()
   }
 
   override def undoStep: Unit = {
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
-    val newGameState: GameStatus = controller.gameStatus
+    val newContext: Context = controller.context
 
     controller.board = board
     controller.players = players
-    controller.gameStatus = gameStatus
+    controller.context  = context
     board = newBoard
     players = newPlayers
-    gameStatus = newGameState
+    context  = newContext
   }
 
   override def redoStep: Unit = {
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
-    val newGameState: GameStatus = controller.gameStatus
+    val newContext: Context = controller.context
 
     controller.board = board
     controller.players = players
-    controller.gameStatus = gameStatus
+    controller.context  = context
     board = newBoard
     players = newPlayers
-    gameStatus = newGameState
+    context  = newContext
   }
 }

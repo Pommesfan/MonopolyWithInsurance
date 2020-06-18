@@ -1,7 +1,7 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{Controller, GameStatus}
-import de.htwg.se.Monopoly.model.{Player}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, NextPlayerState, StartState}
+import de.htwg.se.Monopoly.model.Player
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.collection.mutable.ListBuffer
@@ -19,19 +19,22 @@ class Tui(controller: Controller) extends Observer {
       case "e" => print("exit Game\n")
       case "z" => controller.undo
       case "y" => controller.redo
-      case "d" => if (controller.gameStatus == GameStatus.NEXT_PLAYER) {
-        controller.rollDice()
-      }
+      case "d" =>
+        if (controller.context.state.isInstanceOf[NextPlayerState]) {
+          controller.rollDice()
+        }
       case pattern(input) =>
-        if (controller.gameStatus == GameStatus.IDLE) {
+        if (controller.context.state.isInstanceOf[StartState]) {
           setPlayers(input.toString)
         }
-      case "J" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
-        controller.buyField()
-      }
-      case "N" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
-        controller.nextPlayer()
-      }
+      case "J" =>
+        if (controller.context.state.isInstanceOf[BuyStreet]) {
+          controller.buyStreet()
+        }
+      case "N" =>
+        if (controller.context.state.isInstanceOf[BuyStreet]) {
+          controller.nextPlayer()
+        }
       case _ => print("Kein Pattern matching!")
     }
   }
@@ -49,10 +52,10 @@ class Tui(controller: Controller) extends Observer {
 
   override def update: Boolean = {
     var output = ""
-    if (controller.gameStatus == GameStatus.NEXT_PLAYER) {
+    if(controller.context.state.isInstanceOf[NextPlayerState]) {
       print(controller.gameToString)
     }
-    output += GameStatus.map(controller.gameStatus) + controller.currentPlayerIndex + "\n"
+    output += "Aktueller Spieler: " + controller.currentPlayerIndex + "\n"
     print(output)
     true
   }

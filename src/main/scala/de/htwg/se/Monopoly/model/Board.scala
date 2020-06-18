@@ -1,13 +1,11 @@
 package de.htwg.se.Monopoly.model
 
-import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
-
 import scala.collection.mutable
 
 case class Board(fields: Vector[Field]) {
   def this() = this(Variable.START_BOARD)
 
-  def move(player: Player, newPosition: Int): (Field, GameStatus) = {
+  def getField(player: Player, newPosition: Int): Field = {
     fields(newPosition).actOnPlayer(player)
   }
 

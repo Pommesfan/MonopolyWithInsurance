@@ -6,6 +6,7 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class PlayerSpec extends WordSpec with Matchers {
+  /**
   "A Player" when {
     "new" should {
       val player1 = new Player("Yvonne")
@@ -70,5 +71,5 @@ class PlayerSpec extends WordSpec with Matchers {
     }
   }
 
-
+*/
 }

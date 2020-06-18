@@ -7,6 +7,7 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ChanceCardSpec extends WordSpec with Matchers {
+  /**
   "A ChanceCard" when {
     "new" should {
       val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld")
@@ -65,4 +66,5 @@ class ChanceCardSpec extends WordSpec with Matchers {
       }
     }
   }
+  */
 }

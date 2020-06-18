@@ -1,8 +1,5 @@
 package de.htwg.se.Monopoly.model
 
-import de.htwg.se.Monopoly.controller.GameStatus
-import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
-
 import scala.util.Random
 
 case class ChanceCard(override val index: Int, override val name: String,
@@ -12,12 +9,12 @@ case class ChanceCard(override val index: Int, override val name: String,
   val PRETTY_BONUS = 50
   val GIVE_BONUS = 30
 
-  override def actOnPlayer(player: Player): (ChanceCard, GameStatus) = generateRandomCard(player)
+  override def actOnPlayer(player: Player): ChanceCard = generateRandomCard(player)
 
-  def generateRandomCard(player: Player): (ChanceCard, GameStatus) = {
+  def generateRandomCard(player: Player): ChanceCard = {
     val list = Random.shuffle(listOfChanceCard())
-    val randomChanceCard: Function[Player, ChanceCard]  = list(0)
-    (randomChanceCard(player), GameStatus.CHANCE_CARD)
+    val randomChanceCard: Function[Player, ChanceCard]  = list.head
+    randomChanceCard(player)
   }
 
   def listOfChanceCard(): List[Function[Player, ChanceCard]] = List[Function[Player, ChanceCard]](
@@ -42,6 +39,6 @@ case class ChanceCard(override val index: Int, override val name: String,
     ChanceCard(index, name, (- GIVE_BONUS), GIVE_BONUS, playerIndex)
   }
   override def toString: String = {
-    "%d: %s, Du bekommst/musst Zahlen: %s$, an %s$".format(index, name, getMoney, giveMoney)
+    "%d: %s, Du bekommst/musst Zahlen: %s$, an %s$".format(index, name, getMoney, otherPlayerIndex)
     }
 }

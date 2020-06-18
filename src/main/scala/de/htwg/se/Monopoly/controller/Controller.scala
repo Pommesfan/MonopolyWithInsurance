@@ -12,22 +12,16 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   private val undoManager = new UndoManager
   var currentPlayerIndex: Int = 0
   var actualField: Field = SpecialField(0, "Los")
+  var context = new Context()
 
   def setPlayers(player: Vector[Player]): Unit = {
-    gameStatus = NEXT_PLAYER
+    context.setPlayer()
     players = player
     notifyObservers
   }
 
-  def rollDicePrivate(): Unit = {
-    val firstRolledNumber = Dice().roll
-    val secondRolledNumber = Dice().roll
-    if (firstRolledNumber == secondRolledNumber) {
-      gameStatus = DOUBLETS
-    } else {
-      gameStatus = ROLLED
-    }
-    movePlayer(firstRolledNumber + secondRolledNumber)
+  def rollDice(): Unit = {
+    undoManager.doStep(new RollDiceCommand(this))
   }
 
   def movePlayer(rolledEyes: Int): Field = {
@@ -46,70 +40,66 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def setPlayer(p: Player, n: Int): Field = {
     players = players.updated(p.index, p.setPosition(p.currentPosition + n))
-    val  (field, gameState) = board.move(players(currentPlayerIndex),
+    val field = board.getField(players(currentPlayerIndex),
       players(currentPlayerIndex).currentPosition)
     actualField = field
+    context.rollDice(this)
     print("\n You landed on " + field + "\n")
-    handleNewPosition(gameState, field)
+    field match {
+      case s: Street => handleStreet(s)
+      case c: ChanceCard => handleChanceCard(c)
+      case sp: SpecialField => handleSpecialField(sp)
+      case t: Tax => handleTax(t)
+    }
     field
   }
 
-  def handleNewPosition(status: GameStatus, field: Field): Unit = {
-    gameStatus = NEXT_PLAYER
-    field match {
-      case s: Street =>
-        if (status == ALREADY_OWNED) {
-          nextPlayer()
-        } else if (status == CAN_BE_BOUGHT) {
-          gameStatus = status
-          notifyObservers
-        } else if (status == OWNED_BY_OTHER_PLAYER) {
-          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
-          players = players.updated(s.owner.index, s.owner.incrementMoney(s.rent))
-          nextPlayer()
-        }
-      case c: ChanceCard =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
-        if (c.otherPlayerIndex != -1) {
-          players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
-        }
+  def handleStreet(s: Street): Unit = {
+    context.state match {
+      case _: NextPlayerState =>
         nextPlayer()
-      case sp: SpecialField =>
-        if(status == GO_TO_JAIL) {
-          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
-        }
+      case _: BuyStreet =>
+        notifyObservers
+      case _: PayOtherPlayer =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
+        players = players.updated(s.owner.index, s.owner.incrementMoney(s.rent))
         nextPlayer()
-      case t: Tax =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
-        nextPlayer()
+      case _ =>
     }
   }
 
+  def handleChanceCard(c: ChanceCard) : Unit = {
+    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
+    if (c.otherPlayerIndex != -1) {
+      players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
+    }
+    nextPlayer()
+  }
+
+  def handleSpecialField(sp: SpecialField): Unit = {
+    context.state match {
+      case _: LandedOnGo =>
+      case _: VisitJail =>
+      case _: FreeParking =>
+      case _: GoToJail =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+    }
+    nextPlayer()
+  }
+
+  def handleTax(t: Tax): Unit = {
+    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
+    nextPlayer()
+  }
 
   def nextPlayer(): Unit = {
     if (currentPlayerIndex + 1 < players.length) {
       currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
-    gameStatus = NEXT_PLAYER
+    context.nextPlayer()
     notifyObservers
   }
 
-  def buyStreet(): Unit =  {
-    actualField match {
-      case s: Street =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.price))
-        val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent,
-          players(currentPlayerIndex))
-        board = Board(board.fields.updated(s.index, street))
-    }
-    nextPlayer()
-    notifyObservers
-  }
-
-  def rollDice(): Unit = {
-    undoManager.doStep(new RollDiceCommand(this))
-  }
-
-  def buyField(): Unit = {
+  def buyStreet(): Unit = {
     undoManager.doStep(new BuyCommand(this))
   }
 
