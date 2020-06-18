@@ -2,29 +2,30 @@ package de.htwg.se.Monopoly.model
 
 import scala.collection.mutable
 
-case class Grid(board: Board) {
-  def this(player: List[Player]) = this(new Board(player)) //wird beim starten aufgerufen
-  def this(board: Board, field: Field) = {
-    this(Board(board.players, board.fields, board.currentPlayerIndex))
-  }
-  val players: List[Player] = List[Player]()
-  var returnString = ""
+case class Grid(board: Board, players: List[Player], currentPlayerIndex: Int) {
+  def this(player: List[Player]) = this(new Board(), player, 0)
 
-  def setPlayers(players: List[Player]): Grid = copy(board.setPlayers(players).init())
+  def setPlayers(players: List[Player]): Grid = copy(players= players)
 
-  def getActualPlayer: Player = board.getActualPlayer
-
-  def roll: Grid = {
-    val newBord1 = board.roll()
-    val player = newBord1.getActualPlayer
-    val position = player.currentPosition
-    val field = board.fields.apply(position)
-    val returnField = field.actOnPlayer(player)
-    val newBoard2 = newBord1.setField(returnField)
-    val newBoard3 = newBoard2.changePlayerIndex()
-    new Grid(newBoard3, returnField)
+  def getActualPlayer: Player = {
+    var player: Player = null
+    for(i <- players if i.index == currentPlayerIndex) {
+      player = i
+    }
+    player
   }
 
+  def newMove: Grid = {
+    if (getActualPlayer.inJail == 0) {
+      val player = getActualPlayer.newPosition
+      val (newboard, newPlayers) = board.newMoveBoard(player, players, player.currentPosition)
+      Grid(newboard, newPlayers, incrementCurrentPlayerIndex())
+    } else {
+      Grid(board, players.updated(getActualPlayer.index, getActualPlayer.incrementJailCounter()), incrementCurrentPlayerIndex())
+    }
+  }
+
+  def incrementCurrentPlayerIndex(): Int = if (currentPlayerIndex + 1 < players.length) {currentPlayerIndex + 1} else {0}
 
   override def toString: String = {
     val boardString = new mutable.StringBuilder("")
@@ -47,10 +48,10 @@ case class Grid(board: Board) {
         }
       }
       boardString ++= "\nPlayers:\n%-6s %-25s %-10s %-5s\n".format("index", "name", "money", "position")
-      for (player <- board.players) {
+      for (player <- players) {
         boardString ++= "%-6s %-25s %-10s %-5s\n".format(player.index, player.name, player.money, player.currentPosition)
       }
-      boardString ++= "%s".format(returnString)
+      //boardString ++= "%s".format(returnString)
     }
     boardString.toString()
   }

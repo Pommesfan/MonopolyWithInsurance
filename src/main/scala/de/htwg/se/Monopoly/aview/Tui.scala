@@ -19,7 +19,7 @@ class Tui(controller: Controller) extends Observer {
       case "e" => print("exit Game\n")
       case "z" => controller.undo
       case "y" => controller.redo
-      case "d" => controller.roll()
+      case "d" => controller.newMove()
       case pattern(input) =>
         val list = input.toString.split(" ")
         var player = new ListBuffer[Player]()

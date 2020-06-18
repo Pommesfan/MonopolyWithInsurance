@@ -14,8 +14,8 @@ class Controller(var grid: Grid) extends Observable{
     notifyObservers
   }
 
-  def roll(): Unit = {
-    grid = grid.roll
+  def newMove(): Unit = {
+    grid = grid.newMove
     notifyObservers
   }
 
