@@ -2,12 +2,12 @@ package de.htwg.se.Monopoly
 
 import de.htwg.se.Monopoly.aview.Tui
 import de.htwg.se.Monopoly.controller.Controller
-import de.htwg.se.Monopoly.model.Grid
+import de.htwg.se.Monopoly.model.{Board, Player}
 
 import scala.io.StdIn.readLine
 
 object Monopoly {
-  val controller = new Controller(new Grid(List()))
+  val controller = new Controller(new Board(), Vector[Player]())
   val tui = new Tui(controller)
   controller.notifyObservers
 

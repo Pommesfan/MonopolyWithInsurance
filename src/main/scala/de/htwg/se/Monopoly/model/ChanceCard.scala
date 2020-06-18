@@ -1,49 +1,47 @@
 package de.htwg.se.Monopoly.model
 
+import de.htwg.se.Monopoly.controller.GameStatus
+import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
+
 import scala.util.Random
 
-case class ChanceCard(override val index: Int, override val name: String) extends Field(index, name) {
+case class ChanceCard(override val index: Int, override val name: String,
+                      getMoney: Int, giveMoney: Int, otherPlayerIndex: Int) extends Field(index, name) {
 
-  val GO_POSITION = 0
-  val MAYFAIR_POSITION = 39
   val BANK_MONEY_BONUS = 100
   val PRETTY_BONUS = 50
+  val GIVE_BONUS = 30
 
-  override def actOnPlayer(player: Player, players: List[Player]): (ChanceCard, List[Player]) = generateRandomCard(player, players)
+  override def actOnPlayer(player: Player): (ChanceCard, GameStatus) = generateRandomCard(player)
 
-  def generateRandomCard(player: Player, players: List[Player]): (ChanceCard, List[Player])  = {
+  def generateRandomCard(player: Player): (ChanceCard, GameStatus) = {
     val list = Random.shuffle(listOfChanceCard())
-    val randomChanceCard: (Player, List[Player]) => (ChanceCard, List[Player])  = list(0)
-    randomChanceCard(player, players)
+    val randomChanceCard: Function[Player, ChanceCard]  = list(0)
+    (randomChanceCard(player), GameStatus.CHANCE_CARD)
   }
 
-  def listOfChanceCard(): List[(Player, List[Player]) => (ChanceCard, List[Player])] =
-    List(
-      bankIsGivingMoney,
-      youArePrettyGivingBonus,
-      giveAmountToOtherPlayers
-    )
+  def listOfChanceCard(): List[Function[Player, ChanceCard]] = List[Function[Player, ChanceCard]](
+    bankIsGivingMoney,
+    youArePrettyGivingBonus,
+    giveAmountToOtherPlayers
+  )
 
-  def bankIsGivingMoney: (Player, List[Player]) => (ChanceCard, List[Player]) =
-    (player: Player, players: List[Player]) => {
-      val newPlayers = players.updated(player.index, player.incrementMoney(BANK_MONEY_BONUS))
-      println("The Bank is giving you 100. \nKeep it safe!")
-      (ChanceCard(index, name), newPlayers)
-    }
+  def bankIsGivingMoney(player: Player): ChanceCard = {
+    print("The Bank is giving you 100. \nKeep it safe!")
+    ChanceCard(index, name, BANK_MONEY_BONUS, 0, -1)
+  }
 
-  def youArePrettyGivingBonus: (Player, List[Player]) => (ChanceCard, List[Player]) =
-    (player: Player, players: List[Player]) => {
-      val newPlayers = players.updated(player.index, player.incrementMoney(PRETTY_BONUS))
-      println("You have won a \nfashion contest. Receive 50.")
-      (ChanceCard(index, name), newPlayers)
-    }
+  def youArePrettyGivingBonus(player: Player): ChanceCard = {
+    print("You have won a \nfashion contest. Receive 50.")
+    ChanceCard(index, name, PRETTY_BONUS, 0, -1)
+  }
 
-  def giveAmountToOtherPlayers: (Player, List[Player]) => (ChanceCard, List[Player]) =
-    (player: Player, players: List[Player]) => {
-      val playersNew = players.updated(player.index, player.decrementMoney(30))
-      val newPlayerIndex = (player. index + 1) % 2
-      val finalPlayers = playersNew.updated(newPlayerIndex, players(newPlayerIndex).incrementMoney(30))
-      println("Gib dem anderen Spieler 30")
-      (ChanceCard(index, name), finalPlayers)
+  def giveAmountToOtherPlayers(player: Player): ChanceCard = {
+    val playerIndex = (player. index + 1) % 2
+    print("Gib dem anderen Spieler 30")
+    ChanceCard(index, name, (- GIVE_BONUS), GIVE_BONUS, playerIndex)
+  }
+  override def toString: String = {
+    "%d: %s, Du bekommst/musst Zahlen: %s$, an %s$".format(index, name, getMoney, giveMoney)
     }
 }

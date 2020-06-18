@@ -1,7 +1,7 @@
 package de.htwg.se.Monopoly.aview
 
 import de.htwg.se.Monopoly.controller.{Controller, GameStatus}
-import de.htwg.se.Monopoly.model.{Grid, Player}
+import de.htwg.se.Monopoly.model.{Player}
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.collection.mutable.ListBuffer
@@ -19,25 +19,41 @@ class Tui(controller: Controller) extends Observer {
       case "e" => print("exit Game\n")
       case "z" => controller.undo
       case "y" => controller.redo
-      case "d" => controller.newMove()
+      case "d" => if (controller.gameStatus == GameStatus.NEXT_PLAYER) {
+        controller.rollDice()
+      }
       case pattern(input) =>
-        val list = input.toString.split(" ")
-        var player = new ListBuffer[Player]()
-        var num = 0
-        for (i <- list if i != "p") {
-          player += Player(i.toString, num)
-          num += 1
+        if (controller.gameStatus == GameStatus.IDLE) {
+          setPlayers(input.toString)
         }
-        controller.setPlayers(player.toList)
-      case _ => printf("kein pattern matching\n")
+      case "J" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
+        controller.buyStreet()
+      }
+      case "N" => if (controller.gameStatus == GameStatus.CAN_BE_BOUGHT) {
+        controller.nextPlayer()
+      }
+      case _ => print("Kein Pattern matching!")
     }
-    controller.remove(this)
+  }
+
+  def setPlayers(input: String): Unit = {
+    val list = input.split(" ")
+    var player = new ListBuffer[Player]()
+    var num = 0
+    for (i <- list if i != "p") {
+      player += Player(i.toString, num)
+      num += 1
+    }
+    controller.setPlayers(player.toVector)
   }
 
   override def update: Boolean = {
-    print(controller.gridToString)
-    print(GameStatus.message(controller.gameStatus))
-    controller.gameStatus=GameStatus.IDLE
+    var output = ""
+    if (controller.gameStatus == GameStatus.NEXT_PLAYER) {
+      print(controller.gameToString)
+    }
+    output += GameStatus.map(controller.gameStatus) + controller.currentPlayerIndex + "\n"
+    print(output)
     true
   }
 }

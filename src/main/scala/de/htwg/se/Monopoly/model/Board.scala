@@ -1,22 +1,31 @@
 package de.htwg.se.Monopoly.model
 
-case class Board(fields: List[Field]) {
+import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
+
+import scala.collection.mutable
+
+case class Board(fields: Vector[Field]) {
   def this() = this(Variable.START_BOARD)
 
-  def setField(field: Field): Board = {
-    copy(fields = Board.this.fields.updated(index, field))
+  def move(player: Player, newPosition: Int): (Field, GameStatus) = {
+    fields(newPosition).actOnPlayer(player)
   }
 
-  def getStreet(index: Int): Field = {
-    var street: Field = null
-    for (i <- fields if i.index == index) {
-      street = i
+  override def toString: String = {
+    val boardString = new mutable.StringBuilder("")
+    boardString ++= "%-6s %-25s %-10s %-5s %-5s %-20s\n".format("index", "name", "type", "price", "rent", "owner")
+    for (i <- 0 to 39) {
+      fields(i) match {
+        case Street(index, name, neighbourhoodTypes, price, rent, owner) =>
+          boardString ++= "%-6s %-25s %-10s %-5s %-5s %-20s\n".format(index, name, neighbourhoodTypes, price, rent, owner)
+        case ChanceCard(index, name, getMoney, giveMoney, otherPlayerIndex) =>
+          boardString ++= "%-6s %-25s\n".format(index, name)
+        case Tax(index, name, taxAmount) =>
+          boardString ++= "%-6s %-25s %14s\n".format(index, name, taxAmount)
+        case SpecialField(index, name) =>
+          boardString ++= "%-6s %-25s\n".format(index, name)
+      }
     }
-    street
-  }
-
-  def newMoveBoard(player: Player, players: List[Player], position: Int): (Board, List[Player]) = {
-    val (field, newPlayers) = getStreet(position).actOnPlayer(player, players)
-    (setStreet(position, field), newPlayers)
+    boardString.toString()
   }
 }

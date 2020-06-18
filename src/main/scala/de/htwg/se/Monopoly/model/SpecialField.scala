@@ -1,19 +1,22 @@
 package de.htwg.se.Monopoly.model
 
+import de.htwg.se.Monopoly.controller.GameStatus
+import de.htwg.se.Monopoly.controller.GameStatus.GameStatus
+
 case class SpecialField(override val index: Int, override val name: String) extends Field(index, name){
-  override def actOnPlayer(player: Player, players: List[Player]): (SpecialField, List[Player]) = {
+  override def actOnPlayer(player: Player): (SpecialField, GameStatus) = {
     if (index == 0){
-      println("You landed on Go \nCollect 200!")
-      (SpecialField(index, name), players.updated(player.index,player.incrementMoney(Variable.MONEY_NEW_ROUND)))
+      player.incrementMoney(Variable.MONEY_NEW_ROUND)
+      (SpecialField(index, name), GameStatus.LANDED_ON_GO)
     } else if (index == 10) {
-      println("You are visiting your \ndear friend in Jails.")
-      (SpecialField(index, name), players.updated(player.index, player.setPosition(index)))
+      (SpecialField(index, name), GameStatus.JAIL_VISIT)
     } else if (index == 20) {
-      println("You landed on Free Parking. \nNothing happens.")
-      (SpecialField(index, name), players.updated(player.index, player.setPosition(index)))
+      (SpecialField(index, name), GameStatus.FREE_PARKING)
     } else {
-      println("You are in jail! \nYou will skip the next three turns")
-      (SpecialField(index, name), players.updated(player.index, player.goToJail()))
+      (SpecialField(index, name), GameStatus.GO_TO_JAIL)
     }
+  }
+  override def toString: String = {
+    "%d: %s".format(index, name)
   }
 }
