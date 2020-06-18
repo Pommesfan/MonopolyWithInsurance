@@ -19,7 +19,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     notifyObservers
   }
 
-  def rollDice(): Unit = {
+  def rollDicePrivate(): Unit = {
     val firstRolledNumber = Dice().roll
     val secondRolledNumber = Dice().roll
     if (firstRolledNumber == secondRolledNumber) {
@@ -97,20 +97,13 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     notifyObservers
   }
 
-  def gameToString: String = {
-    val string = new mutable.StringBuilder("")
-    string ++= board.toString
-    string ++= "\nPlayers:\n%-6s %-25s %-10s %-5s\n".format("index", "name", "money", "position")
-    for (p <- players) {
-      string ++= "%-6s %-25s %-10s %-5s\n".format(p.index, p.name, p.money, p.currentPosition)
-    }
-    string.toString()
+  def rollDice(): Unit = {
+    undoManager.doStep(new RollDiceCommand(this))
   }
-/*
-  def solve: Unit = {
-    undoManager.doStep(new SolveCommand(this))
-    notifyObservers
-  }*/
+
+  def buyField(): Unit = {
+    undoManager.doStep(new BuyCommand(this))
+  }
 
   def undo: Unit = {
     undoManager.undoStep
@@ -122,4 +115,13 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     notifyObservers
   }
 
+  def gameToString: String = {
+    val string = new mutable.StringBuilder("")
+    string ++= board.toString
+    string ++= "\nPlayers:\n%-6s %-25s %-10s %-5s\n".format("index", "name", "money", "position")
+    for (p <- players) {
+      string ++= "%-6s %-25s %-10s %-5s\n".format(p.index, p.name, p.money, p.currentPosition)
+    }
+    string.toString()
+  }
 }
