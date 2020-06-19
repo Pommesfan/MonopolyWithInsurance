@@ -68,7 +68,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         notifyObservers
       case _: PayOtherPlayer =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
-        players = players.updated(s.owner.index, s.owner.incrementMoney(s.rent))
+        players = players.updated(s.owner.orNull.index, s.owner.orNull.incrementMoney(s.rent))
         nextPlayer()
     }
   }

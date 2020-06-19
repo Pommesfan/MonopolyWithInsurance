@@ -16,7 +16,7 @@ class StreetSpec extends WordSpec with Matchers {
         street.index should be (1)
         street.price should be (60)
         street.rent should be (2)
-        street.owner should be (null)
+        street.owner should be (None)
         street.neighbourhoodTypes should be (NeighbourhoodTypes.Brown)
       }
     }
@@ -24,15 +24,15 @@ class StreetSpec extends WordSpec with Matchers {
       val player1 = new Player("Yvonne")
       val player2 = Player("Nicole", index = 1, currentPosition = 10, money = 1500)
       val street1 = Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2)
-      val street2 = Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1)
+      val street2 = Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, Some(player1))
       "is available" in {
         street1.actOnPlayer(player1) should be(Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2))
       }
       "is own street" in {
-        street2.actOnPlayer(player1) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
+        street2.actOnPlayer(player1) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, Some(player1)))
       }
       "is owned by another player" in {
-        street2.actOnPlayer(player2) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1))
+        street2.actOnPlayer(player2) should be (Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, Some(player1)))
       }
     }
   }

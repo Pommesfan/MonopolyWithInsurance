@@ -40,9 +40,9 @@ class NextPlayerState() extends State {
     val players = controller.players
     controller.actualField match {
       case s: Street =>
-        if (s.owner == null) {
+        if (s.owner.isEmpty) {
           context.setState(new BuyStreet)
-        } else if (players(controller.currentPlayerIndex).index.equals(s.owner.index)) {
+        } else if (players(controller.currentPlayerIndex).index.equals(s.owner.orNull.index)) {
           context.setState(new NextPlayerState)
         } else {
           context.setState(new PayOtherPlayer)

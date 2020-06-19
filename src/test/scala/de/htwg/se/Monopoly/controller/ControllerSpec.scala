@@ -55,7 +55,7 @@ class ControllerSpec extends WordSpec with Matchers {
         observer.updated should be(true)
       }
       "notiy its Observer after move Player to Street(5, \"Südbahnhof\", NeighbourhoodTypes.Station, 200, 25, player1)" in {
-        controller.movePlayer(1) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Player("Player1", 0, 5, 0, 1500)))
+        controller.movePlayer(1) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Some(Player("Player1", 0, 5, 0, 1500))))
         observer.updated should be(true)
       }
       "notify its Observer after handle ChanceCard(7, \"Ereignisfeld\", (- 30), 30, 1)" in {
@@ -67,7 +67,7 @@ class ControllerSpec extends WordSpec with Matchers {
       "notify its Observer after handle own Street" in {
         controller.nextPlayer()
         controller.nextPlayer()
-        controller.movePlayer(39) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Player("Player1", 0, 5, 0, 1500)))
+        controller.movePlayer(39) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Some(Player("Player1", 0, 5, 0, 1500))))
         observer.updated should be(true)
       }
       "notify its Observer after move to field \"30: FreeParking\"" in {
