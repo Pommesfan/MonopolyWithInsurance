@@ -1,17 +1,19 @@
 package de.htwg.se.Monopoly.controller
 
 import de.htwg.se.Monopoly.model._
-import de.htwg.se.Monopoly.util.{Observable, UndoManager}
+import de.htwg.se.Monopoly.util.UndoManager
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.swing.Publisher
 
-class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Observable{
+class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Publisher {
 
   private val undoManager = new UndoManager
   var currentPlayerIndex: Int = 0
   var actualField: Field = SpecialField(0, "Los")
   var context = new Context()
+  var rolledNumber: (Int, Int) = (0, 0)
 
   def setPlayers(list: Array[String]): Unit = {
     var player = new ListBuffer[Player]()
@@ -22,7 +24,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     }
     context.setPlayer()
     players = player.toVector
-    notifyObservers
+   // notifyObservers
   }
 
   def rollDice(): Unit = {
@@ -65,7 +67,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       case _: NextPlayerState =>
         nextPlayer()
       case _: BuyStreet =>
-        notifyObservers
+      //  notifyObservers
       case _: PayOtherPlayer =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
         players = players.updated(s.owner.orNull.index, s.owner.orNull.incrementMoney(s.rent))
@@ -101,7 +103,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     if (currentPlayerIndex + 1 < players.length) {
       currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
     context.nextPlayer()
-    notifyObservers
+   // notifyObservers
   }
 
   def buyStreet(): Unit = {
@@ -110,12 +112,12 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def undo: Unit = {
     undoManager.undoStep
-    notifyObservers
+  //  notifyObservers
   }
 
   def redo: Unit = {
     undoManager.redoStep
-    notifyObservers
+  //  notifyObservers
   }
 
   def gameToString: String = {

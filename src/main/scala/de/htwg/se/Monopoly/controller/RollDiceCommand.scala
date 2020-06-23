@@ -12,6 +12,7 @@ class RollDiceCommand(controller: Controller) extends Command{
   override def doStep: Unit = {
     val firstRolledNumber = Dice().roll
     val secondRolledNumber = Dice().roll
+    controller.rolledNumber = (firstRolledNumber, secondRolledNumber)
     controller.movePlayer(firstRolledNumber + secondRolledNumber)
   }
 

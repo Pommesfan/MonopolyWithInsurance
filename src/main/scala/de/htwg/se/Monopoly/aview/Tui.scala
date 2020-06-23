@@ -1,11 +1,13 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, NextPlayerState, StartState}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, NextPlayerState, StartState, TestEvent}
 import de.htwg.se.Monopoly.util.Observer
 
-class Tui(controller: Controller) extends Observer {
+import scala.swing.Reactor
 
-  controller.add(this)
+class Tui(controller: Controller) extends Reactor {
+
+  listenTo(controller)
   var numPlayer: Int = 0
 
   def processInputLine(input: String): Unit = {
@@ -41,13 +43,16 @@ class Tui(controller: Controller) extends Observer {
     controller.setPlayers(list)
   }
 
-  override def update: Boolean = {
+  reactions += {
+    case event: TestEvent => printTui
+  }
+
+  def printTui: Unit = {
     var output = ""
     if(controller.context.state.isInstanceOf[NextPlayerState]) {
       print(controller.gameToString)
     }
     output += "Aktueller Spieler: " + controller.currentPlayerIndex + "\n"
     print(output)
-    true
   }
 }
