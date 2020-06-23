@@ -24,7 +24,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     }
     context.setPlayer()
     players = player.toVector
-   // notifyObservers
+    publish(new PlayerSet)
   }
 
   def rollDice(): Unit = {
@@ -44,6 +44,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     players = players.updated(p.index, p.decrementJailCounter())
     nextPlayer()
     board.fields(p.currentPosition)
+    //  publish()
   }
 
   def setPlayer(p: Player, n: Int): Field = {

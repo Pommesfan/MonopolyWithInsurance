@@ -1,16 +1,16 @@
 package de.htwg.se.Monopoly.aview.Gui
 
-import java.awt._
+import de.htwg.se.Monopoly.controller.{Controller, PlayerSet, TestEvent}
 
-import de.htwg.se.Monopoly.controller.{Controller, TestEvent}
+import java.awt.{Color, Image}
 
-import scala.swing._
-import javax.swing._
+import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
+import javax.swing.ImageIcon
 
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
-import scala.swing.{BoxPanel, Button, Dimension, FlowPanel, Frame, Graphics2D, Label, Orientation, Panel, ScrollPane, Swing, TextArea}
+import scala.swing.event.Key
 
-class SwingGui(controller: Controller) extends Frame {
+class SwingGui(controller: Controller) extends MainFrame {
   listenTo(controller)
   val pathCar = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Car.png"
   val pathCat = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Cat.png"
@@ -25,6 +25,7 @@ class SwingGui(controller: Controller) extends Frame {
 
 
   title = "Monopoly"
+  preferredSize = new Dimension(1050, 770)
 
   def shapePanel(width: Int, height: Int, color: Color = Color.lightGray): Panel = new Panel {
     val ax = 0
@@ -48,14 +49,14 @@ class SwingGui(controller: Controller) extends Frame {
 
 
   def dicePanel: FlowPanel = new FlowPanel {
-    contents += new Button("Würfeln")
+    contents += new Button(Action("Würfeln") { })
     contents += Swing.HStrut(10)
     val dice1: String = rolledDice(controller.rolledNumber._1)
     val dice2: String = rolledDice(controller.rolledNumber._2)
     contents +=  new Label() {icon =scaledImage(dice1, 80, 80)}
     contents += Swing.HStrut(10)
     contents +=  new Label() {icon =scaledImage(dice2, 80, 80)}
-    border = EmptyBorder(10)
+    border = EmptyBorder(5)
   }
 
   def rolledDice(i: Int): String = {
@@ -80,7 +81,7 @@ class SwingGui(controller: Controller) extends Frame {
     editable = false
   }
 
-  def playerPanel(namePlayer: String, money: Int, jail: Boolean, figure: String): GridBagPanel = new GridBagPanel {
+  def playerPanel(namePlayer: String, money: Int, jail: Int, figure: String): GridBagPanel = new GridBagPanel {
     border = CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1))
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
@@ -102,20 +103,22 @@ class SwingGui(controller: Controller) extends Frame {
     }
 
     add(shapePanel(20, 20, color = Color.BLUE), constraints(0, 0))
-    add(new Label(namePlayer), constraints(1, 0, insets = new Insets(5, 10, 5, 10)))
-    add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(5, 10, 5, 10)))
-    add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(5, 10, 5, 10)))
-    add(new Label() {icon = scaledImage(figure, 30, 30)}, constraints(4, 0, insets = new Insets(5, 10, 5, 10)))
+    add(new Label(namePlayer), constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {icon = scaledImage(figure, 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
   }
 
 
-  def controllPanel: BoxPanel = new BoxPanel(Orientation.Vertical) {
+  def controllPanel() = new BoxPanel(Orientation.Vertical) {
     contents += dicePanel
-    contents += Swing.VStrut(10)
+    contents += Swing.VStrut(2)
     contents += new ScrollPane(gameHistoryField) {border = CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1) )}
-    contents += Swing.VStrut(10)
-    contents += playerPanel(namePlayer = "Yvonne", money = 1500, jail = true, figure = pathCar)
     border = LineBorder(java.awt.Color.BLACK, 1)
+    for(n <- controller.players) {
+      //  contents += Swing.VStrut(5)
+      contents += playerPanel(n.name, n.money, n.inJail, figure = pathCar)
+    }
   }
 
   def board: BoxPanel = new BoxPanel(Orientation.Horizontal) {
@@ -177,14 +180,41 @@ class SwingGui(controller: Controller) extends Frame {
     add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
   }
 
-  contents = new FlowPanel {
+  val mainPanel = new FlowPanel {
     contents += boardPanel
     contents += controllPanel
+  }
+
+  contents = mainPanel
+
+  menuBar = new MenuBar { menu =>
+    contents += new Menu("File") {
+      mnemonic = Key.F
+      contents += new MenuItem(Action("New") {AddPlayerDialog(SwingGui.this, controller)})
+      contents += new MenuItem(Action("Open") { })
+      contents += new MenuItem(Action("Save") { })
+      contents += new MenuItem(Action("Exit") { System.exit(0) })
+    }
+    contents += new Menu("Edit") {
+      mnemonic = Key.E
+      contents += new MenuItem(Action("Undo") { controller.undo })
+      contents += new MenuItem(Action("Redo") { controller.redo })
+    }
   }
 
   visible = true
 
   reactions += {
     case event: TestEvent =>
+    case event: PlayerSet => redraw
+  }
+
+  def redraw: Unit = {
+    mainPanel.contents.clear()
+    contents = new FlowPanel {
+      contents += boardPanel
+      contents += controllPanel
+    }
+    repaint()
   }
 }
