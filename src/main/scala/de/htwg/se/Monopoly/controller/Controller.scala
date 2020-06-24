@@ -31,7 +31,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     undoManager.doStep(new RollDiceCommand(this))
   }
 
-  def movePlayer(rolledEyes: Int): Field = {
+  def movePlayer(rolledEyes: Int): Unit = {
     val actualPlayer = players(currentPlayerIndex)
     if (actualPlayer.inJail != 0) {
       decrementJailCounter(actualPlayer)
@@ -40,11 +40,11 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     }
   }
 
-  def decrementJailCounter(p: Player): Field = {
+  def decrementJailCounter(p: Player): Unit = {
     players = players.updated(p.index, p.decrementJailCounter())
     nextPlayer()
     board.fields(p.currentPosition)
-    //  publish()
+    publish(new DecrementJailCounter)
   }
 
   def setPlayer(p: Player, n: Int): Field = {
@@ -66,13 +66,16 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   def handleStreet(s: Street): Unit = {
     context.state match {
       case _: NextPlayerState =>
-        nextPlayer()
+        publish(new OwnStreet)
+        publish(new WaitForNextPlayer)
       case _: BuyStreet =>
-      //  notifyObservers
+        publish(new HandleStreet)
       case _: PayOtherPlayer =>
+        publish(MoneyTransaction(s.rent))
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
         players = players.updated(s.owner.orNull.index, s.owner.orNull.incrementMoney(s.rent))
-        nextPlayer()
+        publish(new WaitForNextPlayer)
+      case _ =>
     }
   }
 
@@ -81,7 +84,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     if (c.otherPlayerIndex != -1) {
       players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
     }
-    nextPlayer()
+    publish(new WaitForNextPlayer)
   }
 
   def handleSpecialField(sp: SpecialField): Unit = {
@@ -92,19 +95,19 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       case _: GoToJail =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
     }
-    nextPlayer()
+    publish(new WaitForNextPlayer)
   }
 
   def handleTax(t: Tax): Unit = {
     players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
-    nextPlayer()
+    publish(new WaitForNextPlayer)
   }
 
   def nextPlayer(): Unit = {
     if (currentPlayerIndex + 1 < players.length) {
       currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
     context.nextPlayer()
-   // notifyObservers
+    publish(new NextPlayer)
   }
 
   def buyStreet(): Unit = {

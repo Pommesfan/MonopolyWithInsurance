@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, NextPlayerState, StartState, TestEvent}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, OwnStreet, PlayerSet, StartState, WaitForNextPlayer}
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.swing.Reactor
@@ -22,6 +22,8 @@ class Tui(controller: Controller) extends Reactor {
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
           controller.rollDice()
         }
+      case "next" | "n" =>
+        controller.nextPlayer()
       case pattern(input) =>
         if (controller.context.state.isInstanceOf[StartState]) {
           setPlayers(input.toString)
@@ -34,6 +36,8 @@ class Tui(controller: Controller) extends Reactor {
         if (controller.context.state.isInstanceOf[BuyStreet]) {
           controller.nextPlayer()
         }
+      case "print TUI" =>
+        printTui
       case _ => print("Kein Pattern matching!")
     }
   }
@@ -44,8 +48,17 @@ class Tui(controller: Controller) extends Reactor {
   }
 
   reactions += {
-    case event: TestEvent => printTui
-    case event: PlayerSet => printTui
+    case event: NewGameEvent => print("Bitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
+    case event: PlayerSet => printTui; ; print("Spieler 1 darf Würfeln!\n(d)\n")
+    case event: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
+    case event: OwnStreet => print("You landed on your own Street.\nNext Players turn.\n")
+    case event: HandleStreet => print("Möchten Sie diese Straße kaufen? (J/N)\n")
+    case event: DiceRolled => print("Du hast eine " + controller.rolledNumber._1 + " und eine "
+      + controller.rolledNumber._2 +" gewürfelt.\n")
+    case event: MoneyTransaction => print("MoneyTransaktion" + event.money + "\n")
+    case event: DecrementJailCounter => print("DecrementJailCounter\n")
+    case event: NextPlayer => printTui; print("Nächster Spieler darf Würfeln!\n")
+    case event: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
   }
 
   def printTui: Unit = {

@@ -1,7 +1,6 @@
 package de.htwg.se.Monopoly.aview.Gui
 
-import de.htwg.se.Monopoly.controller.{Controller, PlayerSet, TestEvent}
-
+import de.htwg.se.Monopoly.controller.{Controller, DiceRolled, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
@@ -49,7 +48,7 @@ class SwingGui(controller: Controller) extends MainFrame {
 
 
   def dicePanel: FlowPanel = new FlowPanel {
-    contents += new Button(Action("Würfeln") { })
+    contents += new Button(Action("Würfeln") { controller.rollDice()})
     contents += Swing.HStrut(10)
     val dice1: String = rolledDice(controller.rolledNumber._1)
     val dice2: String = rolledDice(controller.rolledNumber._2)
@@ -103,7 +102,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     }
 
     add(shapePanel(20, 20, color = Color.BLUE), constraints(0, 0))
-    add(new Label(namePlayer), constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {text = namePlayer}, constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {icon = scaledImage(figure, 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
@@ -205,8 +204,9 @@ class SwingGui(controller: Controller) extends MainFrame {
   visible = true
 
   reactions += {
-    case event: TestEvent =>
     case event: PlayerSet => redraw
+    case event: DiceRolled => redraw; HandleFieldDialog(SwingGui.this, controller)
+    case event: WaitForNextPlayer => redraw
   }
 
   def redraw: Unit = {

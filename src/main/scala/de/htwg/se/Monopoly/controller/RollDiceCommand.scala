@@ -13,6 +13,7 @@ class RollDiceCommand(controller: Controller) extends Command{
     val firstRolledNumber = Dice().roll
     val secondRolledNumber = Dice().roll
     controller.rolledNumber = (firstRolledNumber, secondRolledNumber)
+    controller.publish(new DiceRolled)
     controller.movePlayer(firstRolledNumber + secondRolledNumber)
   }
 

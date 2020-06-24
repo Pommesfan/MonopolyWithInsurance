@@ -17,7 +17,7 @@ class BuyCommand(controller: Controller) extends Command{
         val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Some(players(controller.currentPlayerIndex)))
         controller.board = Board(board.fields.updated(s.index, street))
     }
-    controller.nextPlayer()
+    controller.publish(new WaitForNextPlayer)
   }
 
   override def undoStep: Unit = {
