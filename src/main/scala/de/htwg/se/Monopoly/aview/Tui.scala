@@ -34,7 +34,7 @@ class Tui(controller: Controller) extends Reactor {
         }
       case "N" =>
         if (controller.context.state.isInstanceOf[BuyStreet]) {
-          controller.nextPlayer()
+          controller.publish(new WaitForNextPlayer)
         }
       case "print TUI" =>
         printTui

@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview.Gui
 
-import de.htwg.se.Monopoly.controller.{Controller, DiceRolled, PlayerSet, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
@@ -47,7 +47,9 @@ class SwingGui(controller: Controller) extends MainFrame {
   }
 
 
+  val diceButton = new Button(Action("Würfeln") { controller.rollDice()})
   def dicePanel: FlowPanel = new FlowPanel {
+    contents += diceButton
     contents += new Button(Action("Würfeln") { controller.rollDice()})
     contents += Swing.HStrut(10)
     val dice1: String = rolledDice(controller.rolledNumber._1)
@@ -70,14 +72,30 @@ class SwingGui(controller: Controller) extends MainFrame {
     }
   }
 
-  def gameHistoryField: TextArea = new TextArea {
-    maximumSize = new Dimension(300, 100)
-    text = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+  val textArea: TextArea = new TextArea {
+    text = controller.actualField.toString
     resizable = false
-    rows = 10
+    rows = 1
     lineWrap = true
     wordWrap = true
     editable = false
+    border = LineBorder(java.awt.Color.BLACK,1)
+  }
+  val buyButton: Button = new Button(Action("Kaufen") {controller.buyStreet()}) {enabled = false}
+  val notBuyButton: Button = new Button(Action("Nicht Kaufen"){controller.publish(new WaitForNextPlayer)}) {enabled = false}
+  val nextPlayerButton: Button = new Button(Action("Zug beenden") {controller.nextPlayer()}) {enabled = false}
+
+  def interactionPanel: GridPanel = new GridPanel(3, 1) {
+    val buttonPanel: GridPanel = new GridPanel(1, 2) {
+      preferredSize = new Dimension(200, 30)
+      contents += buyButton
+      contents += notBuyButton
+      border = EmptyBorder(2, 0, 2, 0)
+    }
+    contents += textArea
+    contents += buttonPanel
+    contents += nextPlayerButton
+    border = CompoundBorder(CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1)), EmptyBorder(5))
   }
 
   def playerPanel(namePlayer: String, money: Int, jail: Int, figure: String): GridBagPanel = new GridBagPanel {
@@ -112,7 +130,7 @@ class SwingGui(controller: Controller) extends MainFrame {
   def controllPanel() = new BoxPanel(Orientation.Vertical) {
     contents += dicePanel
     contents += Swing.VStrut(2)
-    contents += new ScrollPane(gameHistoryField) {border = CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1) )}
+    contents += interactionPanel
     border = LineBorder(java.awt.Color.BLACK, 1)
     for(n <- controller.players) {
       //  contents += Swing.VStrut(5)
@@ -204,9 +222,16 @@ class SwingGui(controller: Controller) extends MainFrame {
   visible = true
 
   reactions += {
+    case event: NewGameEvent =>
     case event: PlayerSet => redraw
-    case event: DiceRolled => redraw; HandleFieldDialog(SwingGui.this, controller)
-    case event: WaitForNextPlayer => redraw
+    case event: LandedOnField =>
+    case event: OwnStreet =>
+    case event: HandleStreet => enableButtons(b1 = true, b2 = false, b3 = false)
+    case event: DiceRolled => redraw
+    case event: MoneyTransaction =>
+    case event: DecrementJailCounter =>
+    case event: NextPlayer => enableButtons(b1 = false, b2 = false, b3 = true)
+    case event: WaitForNextPlayer => redraw; enableButtons(b1 = false, b2 = true, b3 = false)
   }
 
   def redraw: Unit = {
@@ -216,5 +241,13 @@ class SwingGui(controller: Controller) extends MainFrame {
       contents += controllPanel
     }
     repaint()
+  }
+
+  def enableButtons(b1: Boolean, b2: Boolean, b3: Boolean): Unit = {
+    buyButton.enabled = b1
+    notBuyButton.enabled = b1
+    nextPlayerButton.enabled = b2
+    diceButton.enabled = b3
+    textArea.text = controller.actualField.toString
   }
 }
