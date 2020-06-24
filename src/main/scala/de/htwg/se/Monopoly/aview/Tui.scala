@@ -49,7 +49,7 @@ class Tui(controller: Controller) extends Reactor {
 
   reactions += {
     case event: NewGameEvent => print("Bitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
-    case event: PlayerSet => printTui; ; print("Spieler 1 darf Würfeln!\n(d)\n")
+    case event: PlayerSet => printTui; print("Spieler 1 darf Würfeln!\n(d)\n")
     case event: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
     case event: OwnStreet => print("You landed on your own Street.\nNext Players turn.\n")
     case event: HandleStreet => print("Möchten Sie diese Straße kaufen? (J/N)\n")

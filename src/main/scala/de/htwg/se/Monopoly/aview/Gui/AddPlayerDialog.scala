@@ -3,7 +3,7 @@ package de.htwg.se.Monopoly.aview.Gui
 import de.htwg.se.Monopoly.controller.{Controller, DialogClosed}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.swing.event.{ButtonClicked, EditDone}
+import scala.swing.event.{ButtonClicked, EditDone, SelectionChanged}
 import scala.swing.{BorderPanel, BoxPanel, Button, ComboBox, Dialog, Dimension, FlowPanel, GridPanel, Label, Orientation, Swing, TextField, Window}
 
 case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialog {
@@ -16,28 +16,30 @@ case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialo
   val okButton = new Button("Ok")
   val cancelButton = new Button("Cancel")
   val nameField1: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure1: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure1: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField2: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure2: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure2: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField3: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure3: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure3: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField4: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure4: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure4: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField5: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure5: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure5: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField6: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure6: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure6: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField7: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure7: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure7: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField8: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure8: ComboBox[String] = new ComboBox(List("Cat", "Dog")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure8: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+
+
 
 
   val newPlayerPanel = new GridPanel(9, 2) {
@@ -195,31 +197,43 @@ case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialo
     nameField6,
     nameField7,
     nameField8,
+    figure1.selection,
+    figure2.selection,
+    figure3.selection,
+    figure4.selection,
+    figure5.selection,
+    figure6.selection,
+    figure7.selection,
+    figure8.selection,
     okButton,
     cancelButton
   )
 
-  /**
-   * Beide Dialoge zu einem Zusammenfügen
-   * und bei okButton controller.setPlayer
-   */
 
   reactions += {
-    case EditDone(`nameField1`) => addPlayer(nameField1.text)
-    case EditDone(`nameField2`) => addPlayer(nameField2.text)
-    case EditDone(`nameField3`) => addPlayer(nameField3.text)
-    case EditDone(`nameField4`) => addPlayer(nameField4.text)
-    case EditDone(`nameField5`) => addPlayer(nameField5.text)
-    case EditDone(`nameField6`) => addPlayer(nameField6.text)
-    case EditDone(`nameField7`) => addPlayer(nameField7.text)
-    case EditDone(`nameField8`) => addPlayer(nameField8.text)
-    case EditDone(`figure1`) =>
+    case EditDone(`nameField1`) =>
+    case EditDone(`nameField2`) =>
+    case EditDone(`nameField3`) =>
+    case EditDone(`nameField4`) =>
+    case EditDone(`nameField5`) =>
+    case EditDone(`nameField6`) =>
+    case EditDone(`nameField7`) =>
+    case EditDone(`nameField8`) =>
+    case SelectionChanged(`figure1`) => addPlayer(nameField1.text, figure1.selection.item)
+    case SelectionChanged(`figure2`) => addPlayer(nameField2.text, figure2.selection.item)
+    case SelectionChanged(`figure3`) => addPlayer(nameField3.text, figure3.selection.item)
+    case SelectionChanged(`figure4`) => addPlayer(nameField4.text, figure4.selection.item)
+    case SelectionChanged(`figure5`) => addPlayer(nameField5.text, figure5.selection.item)
+    case SelectionChanged(`figure6`) => addPlayer(nameField6.text, figure6.selection.item)
+    case SelectionChanged(`figure7`) => addPlayer(nameField7.text, figure7.selection.item)
+    case SelectionChanged(`figure8`) => addPlayer(nameField8.text, figure8.selection.item)
     case ButtonClicked(`okButton`) => controller.setPlayers(players.toArray); DialogClosed(this, cancel = false); visible=false
     case ButtonClicked(`cancelButton`) => DialogClosed(this, cancel = true); visible=false
   }
 
-  def addPlayer(s: String): Unit = {
-    println(s)
-    players.append(s)
+  def addPlayer(playerName: String, figure: String): Unit = {
+    val temp = playerName + " " + figure
+    println(temp)
+    players.append(temp)
   }
 }

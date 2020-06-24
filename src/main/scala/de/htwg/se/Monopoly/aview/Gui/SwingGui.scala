@@ -1,7 +1,11 @@
 package de.htwg.se.Monopoly.aview.Gui
 
+import java.awt.geom.{GeneralPath, Rectangle2D}
+
 import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
+import java.awt.image.BufferedImage
+import java.io.File
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
@@ -40,23 +44,39 @@ class SwingGui(controller: Controller) extends MainFrame {
     }
   }
 
-  def scaledImage(path: String, width: Int, height: Int): ImageIcon = {
+  def scaledImageIcon(path: String, width: Int, height: Int): ImageIcon = {
     val orig = new ImageIcon(path)
     val scaledImage = orig.getImage.getScaledInstance(width, height, Image.SCALE_DEFAULT)
     new ImageIcon(scaledImage)
+  }
+
+  def scaledImage(path: String, width: Int, height: Int): Image = {
+    javax.imageio.ImageIO.read(new File(path)).getScaledInstance(width, height, Image.SCALE_DEFAULT)
+  }
+
+  def getPath(figure: String): String = {
+    figure match{
+      case "Car" => pathCar
+      case "Cat" => pathCat
+      case "Dog" => pathDog
+      case "Fingerhut" => pathFingerhut
+      case "Hut" => pathHut
+      case "Ship" => pathShip
+      case "Shoe" => pathShoe
+      case "Wheelbarrow" => pathWheelbarrow
+    }
   }
 
 
   val diceButton = new Button(Action("Würfeln") { controller.rollDice()})
   def dicePanel: FlowPanel = new FlowPanel {
     contents += diceButton
-    contents += new Button(Action("Würfeln") { controller.rollDice()})
     contents += Swing.HStrut(10)
     val dice1: String = rolledDice(controller.rolledNumber._1)
     val dice2: String = rolledDice(controller.rolledNumber._2)
-    contents +=  new Label() {icon =scaledImage(dice1, 80, 80)}
+    contents +=  new Label() {icon = scaledImageIcon(dice1, 80, 80)}
     contents += Swing.HStrut(10)
-    contents +=  new Label() {icon =scaledImage(dice2, 80, 80)}
+    contents +=  new Label() {icon = scaledImageIcon(dice2, 80, 80)}
     border = EmptyBorder(5)
   }
 
@@ -123,7 +143,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     add(new Label() {text = namePlayer}, constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
-    add(new Label() {icon = scaledImage(figure, 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {icon = scaledImageIcon(getPath(figure), 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
   }
 
 
@@ -134,12 +154,12 @@ class SwingGui(controller: Controller) extends MainFrame {
     border = LineBorder(java.awt.Color.BLACK, 1)
     for(n <- controller.players) {
       //  contents += Swing.VStrut(5)
-      contents += playerPanel(n.name, n.money, n.inJail, figure = pathCar)
+      contents += playerPanel(n.name, n.money, n.inJail, n.figure)
     }
   }
 
   def board: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    contents += new Label() {icon = scaledImage(pathBoard, 690, 690)}
+    contents += new Label() {icon = scaledImageIcon(pathBoard, 690, 690)}
   }
 
   def boardPanel: GridBagPanel = new GridBagPanel {
@@ -194,7 +214,55 @@ class SwingGui(controller: Controller) extends MainFrame {
     add(shapePanel(92, 56), constraints(0, 3))
     add(shapePanel(92, 56), constraints(0, 1))
 
+    add(panel, constraints(0 , 0, gridwidth= 11, gridheight = 11))
     add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
+  }
+
+  var paths = List[GeneralPath]()
+  var currentPath = new GeneralPath
+  val panel: Panel = new Panel {
+    preferredSize = new Dimension(690, 690)
+    minimumSize = new Dimension(690, 690)
+    border = LineBorder(java.awt.Color.BLACK, 1)
+    requestFocus()
+
+    val sI = scaledImage(pathCat, 70, 70)
+    var imgX = 10
+    var imgY = 10
+    val list: List[(Int, Int)] =
+      List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
+        (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
+        (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615),
+        (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
+    var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
+
+    def addFigures(): Unit = {
+      for(p <- controller.players) {
+        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), list(0)._1, list(0)._2)
+      }
+    }
+
+    override def paint(g: Graphics2D): Unit = {
+      for(path <- paths) {
+        g.draw(path)
+      }
+      g.draw(currentPath)
+      for(f <- figures) {
+        g.drawImage(f._1, f._2, f._3, null)
+      }
+    }
+
+    listenTo(controller)
+    reactions += {
+      case e: PlayerSet =>
+        addFigures()
+        repaint()
+      case e: LandedOnField =>
+        val oldField = controller.actualField
+        val index = controller.currentPlayerIndex
+        figures = figures.updated(index, (figures(index)._1, list(oldField.index)._1,  list(oldField.index)._2))
+        repaint()
+    }
   }
 
   val mainPanel = new FlowPanel {

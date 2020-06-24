@@ -31,8 +31,12 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     undoManager.doStep(new RollDiceCommand(this))
   }
 
+  def getActualPlayer(): Player = {
+    players(currentPlayerIndex)
+  }
+
   def movePlayer(rolledEyes: Int): Unit = {
-    val actualPlayer = players(currentPlayerIndex)
+    val actualPlayer = getActualPlayer()
     if (actualPlayer.inJail != 0) {
       decrementJailCounter(actualPlayer)
     } else {

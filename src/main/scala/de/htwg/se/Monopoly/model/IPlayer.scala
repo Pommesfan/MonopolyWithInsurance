@@ -5,6 +5,7 @@ trait IPlayer{
   val index: Int
   val inJail: Int
   val money: Int
+  val figure: String
 
   def setPosition(newPosition: Int): Player
 }
