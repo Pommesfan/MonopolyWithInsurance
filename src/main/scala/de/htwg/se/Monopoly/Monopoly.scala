@@ -12,6 +12,7 @@ object Monopoly {
   val tui = new Tui(controller)
   val gui = new SwingGui(controller)
   controller.publish(new NewGameEvent)
+
   def main(args: Array[String]): Unit = {
     var input: String = ""
     if (args.length > 0) input=args(0)

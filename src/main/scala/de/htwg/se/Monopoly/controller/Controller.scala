@@ -33,7 +33,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     undoManager.doStep(new RollDiceCommand(this))
   }
 
-  def getActualPlayer(): Player = {
+  def getActualPlayer: Player = {
     players(currentPlayerIndex)
   }
 
@@ -55,7 +55,6 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def decrementJailCounter(p: Player): Unit = {
     players = players.updated(p.index, p.decrementJailCounter())
-    nextPlayer()
     board.fields(p.currentPosition)
     context.nextPlayer()
     publish(DecrementJailCounter(players(currentPlayerIndex).inJail))
@@ -97,7 +96,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       players(currentPlayerIndex).currentPosition)
     actualField = field
     context.rollDice(this)
-    print("\n You landed on " + field + "\n")
+    publish(new LandedOnField)
     field match {
       case s: Street => handleStreet(s)
       case c: ChanceCard => handleChanceCard(c)
@@ -115,7 +114,6 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       case _: BuyStreet =>
         publish(new HandleStreet)
       case _: PayOtherPlayer =>
-
         var rent = s.rent
         if (s.name == "Elektrizitätswerk" || s.name == "Wasserwerk") {
           rent = (rolledNumber._1 + rolledNumber._2) * 4

@@ -4,6 +4,6 @@ case class Tax(override val index: Int, override val name: String, taxAmount: In
   override def actOnPlayer(player: Player): Tax = Tax(index, name, taxAmount)
 
   override def toString: String = {
-    "%d: %s, Steuern: %s$.\n".format(index, name, taxAmount)
+    "%d: %s: %s$.\n".format(index, name, taxAmount)
   }
 }

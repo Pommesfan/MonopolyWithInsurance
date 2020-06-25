@@ -16,7 +16,7 @@ class StreetSpec extends WordSpec with Matchers {
         street.index should be (1)
         street.price should be (60)
         street.rent should be (2)
-        street.owner should be (None)
+        street.owner should be (null)
         street.neighbourhoodTypes should be (NeighbourhoodTypes.Brown)
       }
     }

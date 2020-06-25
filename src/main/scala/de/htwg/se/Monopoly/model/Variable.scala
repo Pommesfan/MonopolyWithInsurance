@@ -5,7 +5,6 @@ object Variable extends Enumeration {
   val TOTAL_NUMBER_OF_FIELDS = 40
   val MONEY_NEW_ROUND = 200
 
-
   val START_BOARD: Vector[Field] = Vector[Field](
     SpecialField(0, "Los"),
     Street(1, "Badstrasse", NeighbourhoodTypes.Brown, 60, 2),

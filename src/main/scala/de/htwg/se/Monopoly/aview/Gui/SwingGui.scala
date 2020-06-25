@@ -209,6 +209,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
 
+
   def boardPanel: GridBagPanel = new GridBagPanel {
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
@@ -242,25 +243,25 @@ class SwingGui(controller: Controller) extends MainFrame {
     border = LineBorder(java.awt.Color.BLACK, 1)
     requestFocus()
 
-  val figurePosition: List[(Int, Int)] =
-    List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
-      (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
-      (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
-      (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
-  var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
+    val figurePosition: List[(Int, Int)] =
+      List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
+        (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
+        (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
+        (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
+    var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
 
-  val polygonPosition: List[(Int, Int)] =
-    List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
-      (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
-      (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
-      (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
-  var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
+    val polygonPosition: List[(Int, Int)] =
+      List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
+        (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
+        (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
+        (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
+    var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
 
-  def addFigures(): Unit = {
-    for(p <- controller.players) {
-      figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
+    def addFigures(): Unit = {
+      for(p <- controller.players) {
+        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
+      }
     }
-  }
 
     def addOwnerPolygon(): Unit = {
       for (field <- controller.board.fields) {
@@ -296,21 +297,21 @@ class SwingGui(controller: Controller) extends MainFrame {
       repaint()
     }
 
-  override def paint(g: Graphics2D): Unit = {
-    for(path <- paths) {
-      g.draw(path)
+    override def paint(g: Graphics2D): Unit = {
+      for(path <- paths) {
+        g.draw(path)
+      }
+      g.draw(currentPath)
+      for(f <- figures) {
+        g.drawImage(f._1, f._2, f._3, null)
+      }
+      for(p <- polygons) {
+        val x = p._2
+        val y = p._3
+        g.setColor(p._1)
+        g.fillPolygon(Array(x, x + 15, x), Array(y, y, y + 15), 3)
+      }
     }
-    g.draw(currentPath)
-    for(f <- figures) {
-      g.drawImage(f._1, f._2, f._3, null)
-    }
-    for(p <- polygons) {
-      val x = p._2
-      val y = p._3
-      g.setColor(p._1)
-      g.fillPolygon(Array(x, x + 15, x), Array(y, y, y + 15), 3)
-    }
-  }
 
     listenTo(controller, buyButton, goToJailButton)
     reactions += {
@@ -324,6 +325,11 @@ class SwingGui(controller: Controller) extends MainFrame {
       case e: RedoEvent => updatePlayer(); updateOwnerPolygon()
       case ButtonClicked(`goToJailButton`) => updatePlayer()
     }
+  }
+
+  val mainPanel = new FlowPanel {
+    contents += boardPanel
+    contents += controllPanel
   }
 
   case class GameOverDialog(parent: Window, controller: Controller) extends Dialog(parent) {
@@ -375,11 +381,6 @@ class SwingGui(controller: Controller) extends MainFrame {
       add(buttonPanel, BorderPanel.Position.South)
     }
 
-  }
-
-  val mainPanel = new FlowPanel {
-    contents += boardPanel
-    contents += controllPanel
   }
 
   contents = mainPanel

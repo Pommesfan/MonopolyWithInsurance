@@ -40,7 +40,6 @@ case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialo
   val figure8: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
 
-
   val newPlayerPanel = new GridPanel(9, 2) {
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += new BoxPanel(Orientation.Horizontal) {

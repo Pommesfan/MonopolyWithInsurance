@@ -37,3 +37,4 @@ class SpecialFieldSpec extends WordSpec with Matchers {
     }
   }
 }
+

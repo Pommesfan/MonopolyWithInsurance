@@ -11,7 +11,6 @@ object NewPlayerFactoryMethod {
     if (list.length != 1) {
       Player(list(0), index, figure = list(1), color = colors(index))
     } else {
-      Player(list(0), index, figure = figureList(index))
       Player(list(0), index, figure = figureList(index), color = colors(index))
     }
   }
