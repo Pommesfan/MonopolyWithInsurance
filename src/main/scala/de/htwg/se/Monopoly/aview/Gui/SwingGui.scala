@@ -1,10 +1,9 @@
 package de.htwg.se.Monopoly.aview.Gui
 
-import java.awt.geom.{GeneralPath, Rectangle2D}
+import java.awt.geom.GeneralPath
 
 import de.htwg.se.Monopoly.controller.{BoughtStreet, Controller, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GameOverState, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 import java.awt.{Color, Image}
-import java.awt.image.BufferedImage
 import java.io.File
 
 import de.htwg.se.Monopoly.model.Street
