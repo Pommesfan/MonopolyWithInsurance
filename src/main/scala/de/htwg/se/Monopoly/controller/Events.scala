@@ -15,3 +15,5 @@ case class DecrementJailCounter(counter: Int) extends Event
 class NextPlayer extends Event
 class WaitForNextPlayer extends Event
 class LandedOnField extends Event
+class GoToJailEvent extends Event
+class PayToLeave extends Event

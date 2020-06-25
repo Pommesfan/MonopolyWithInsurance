@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.{GeneralPath, Rectangle2D}
 
-import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PlayerSet, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, GoToJailEvent, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.awt.image.BufferedImage
 import java.io.File
@@ -105,16 +105,25 @@ class SwingGui(controller: Controller) extends MainFrame {
   val buyButton: Button = new Button(Action("Kaufen") {controller.buyStreet()}) {enabled = false}
   val notBuyButton: Button = new Button(Action("Nicht Kaufen"){controller.publish(new WaitForNextPlayer)}) {enabled = false}
   val nextPlayerButton: Button = new Button(Action("Zug beenden") {controller.nextPlayer()}) {enabled = false}
+  val goToJailButton: Button = new Button(Action("Gehe ins Gefängnis!") {controller.publish(new WaitForNextPlayer)}) {enabled = false}
+  val payReleaseButton: Button = new Button(Action("Freikaufen (50$)") {controller.payToLeaveJail(controller.getActualPlayer)}) {enabled = false}
 
-  def interactionPanel: GridPanel = new GridPanel(3, 1) {
-    val buttonPanel: GridPanel = new GridPanel(1, 2) {
+  def interactionPanel: GridPanel = new GridPanel(4, 1) {
+    val buyBottunPanel: GridPanel = new GridPanel(1, 2) {
       preferredSize = new Dimension(200, 30)
       contents += buyButton
       contents += notBuyButton
       border = EmptyBorder(2, 0, 2, 0)
     }
+    val jailButtonPanel: GridPanel = new GridPanel(1, 2) {
+      preferredSize = new Dimension(200, 30)
+      contents += goToJailButton
+      contents += payReleaseButton
+      border = EmptyBorder(2, 0, 2, 0)
+    }
     contents += textArea
-    contents += buttonPanel
+    contents += buyBottunPanel
+    contents += jailButtonPanel
     contents += nextPlayerButton
     border = CompoundBorder(CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1)), EmptyBorder(5))
   }
@@ -187,12 +196,14 @@ class SwingGui(controller: Controller) extends MainFrame {
     case e: PlayerSet => history = history :+ controller.getActualPlayer.name + "darf beginnen.\n"
     case e: DiceRolled => history = history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
     case e: HandleStreet => history = history :+ "Möchten Sie diese Straße kaufen?\n"
-    case e: OwnStreet => history = history :+ "You landed on your own Street.\nNext Players turn.\n"
+    case e: OwnStreet => history = history :+ "Diese Straße gehört dir.\n"
     case e: MoneyTransaction => history = history :+ "Transaktion" + e.money + "\n"
-    case e: DecrementJailCounter => history = history :+ "Du befindest dich im Gefängnis. Würfel einen Pasch oder warte " + e.counter + " Runden.\n"
+    case e: DecrementJailCounter => history = history :+ "Warte " + (e.counter +1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
     case e: NextPlayer => history = history :+ controller.getActualPlayer.name +" ist dran.\n"
     case e: WaitForNextPlayer => history = history :+ "Zug beenden?\n\n"
     case e: LandedOnField => history = history :+ "Du landest auf Feld Nummer " + controller.actualField
+    case e: GoToJailEvent => history = history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
+    case e: PayToLeave => history = history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
   }
 
   def boardPanel: GridBagPanel = new GridBagPanel {
@@ -270,7 +281,7 @@ class SwingGui(controller: Controller) extends MainFrame {
       }
     }
 
-    listenTo(controller, buyButton)
+    listenTo(controller, buyButton, goToJailButton)
     reactions += {
       case ButtonClicked(`buyButton`) =>
         addOwnerPolygon(controller.players(controller.currentPlayerIndex).color)
@@ -279,9 +290,13 @@ class SwingGui(controller: Controller) extends MainFrame {
         addFigures()
         repaint()
       case e: LandedOnField =>
-        val oldField = controller.actualField
+        val field = controller.actualField
         val index = controller.currentPlayerIndex
-        figures = figures.updated(index, (figures(index)._1, figurePosition(oldField.index)._1,  figurePosition(oldField.index)._2))
+        figures = figures.updated(index, (figures(index)._1, figurePosition(field.index)._1,  figurePosition(field.index)._2))
+        repaint()
+      case ButtonClicked(`goToJailButton`) =>
+        val index = controller.currentPlayerIndex
+        figures = figures.updated(index, (figures(index)._1, 600, 5))
         repaint()
     }
   }
@@ -315,12 +330,14 @@ class SwingGui(controller: Controller) extends MainFrame {
     case event: PlayerSet => redraw
     case event: LandedOnField => redraw
     case event: OwnStreet => redraw
-    case event: HandleStreet => enableButtons(b1 = true, b2 = false, b3 = false); redraw
+    case event: HandleStreet => enableButtons(b1 = true); redraw
     case event: DiceRolled => redraw
     case event: MoneyTransaction => redraw
     case event: DecrementJailCounter =>
-    case event: NextPlayer => enableButtons(b1 = false, b2 = false, b3 = true)
-    case event: WaitForNextPlayer => redraw; enableButtons(b1 = false, b2 = true, b3 = false)
+    case event: NextPlayer => enableButtons(b3 = true); redraw
+    case event: WaitForNextPlayer => redraw; enableButtons(b2 = true)
+    case event: GoToJailEvent => enableButtons(b4 = true); redraw
+    case event: PayToLeave => enableButtons(b2 = true, b5 = true)
   }
 
   def redraw: Unit = {
@@ -332,11 +349,13 @@ class SwingGui(controller: Controller) extends MainFrame {
     repaint()
   }
 
-  def enableButtons(b1: Boolean, b2: Boolean, b3: Boolean): Unit = {
+  def enableButtons(b1: Boolean = false, b2: Boolean = false, b3: Boolean = false, b4: Boolean = false, b5: Boolean = false): Unit = {
     buyButton.enabled = b1
     notBuyButton.enabled = b1
     nextPlayerButton.enabled = b2
     diceButton.enabled = b3
+    goToJailButton.enabled = b4
+    payReleaseButton.enabled = b5
     textArea.text = controller.actualField.name
   }
 }

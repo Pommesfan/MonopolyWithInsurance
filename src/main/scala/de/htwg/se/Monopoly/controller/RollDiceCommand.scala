@@ -14,7 +14,17 @@ class RollDiceCommand(controller: Controller) extends Command{
     val secondRolledNumber = Dice().roll
     controller.rolledNumber = (firstRolledNumber, secondRolledNumber)
     controller.publish(new DiceRolled)
-    controller.movePlayer(firstRolledNumber + secondRolledNumber)
+    if(firstRolledNumber == secondRolledNumber) {
+      controller.players = controller.players.updated(controller.currentPlayerIndex, controller.getActualPlayer.setPasch(controller.getActualPlayer.pasch + 1))
+    } else {
+      controller.players = controller.players.updated(controller.currentPlayerIndex, controller.getActualPlayer.setPasch(0))
+    }
+    if (controller.getActualPlayer.pasch == 3) {
+      context.goToJail(controller)
+      controller.publish(new GoToJailEvent)
+    } else {
+      controller.movePlayer(firstRolledNumber + secondRolledNumber)
+    }
   }
 
   override def undoStep: Unit = {

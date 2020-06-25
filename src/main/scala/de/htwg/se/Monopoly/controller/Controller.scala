@@ -36,10 +36,14 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   }
 
   def movePlayer(rolledEyes: Int): Unit = {
-    val actualPlayer = getActualPlayer()
-    if (actualPlayer.inJail != 0) {
+    val actualPlayer = getActualPlayer
+    if (actualPlayer.inJail != 0 & actualPlayer.pasch == 0) {
       decrementJailCounter(actualPlayer)
+      publish(new WaitForNextPlayer)
+    } else if (actualPlayer.inJail == 0) {
+      setPlayer(actualPlayer, rolledEyes)
     } else {
+      players = players.updated(actualPlayer.index, actualPlayer.setJailCounterZero())
       setPlayer(actualPlayer, rolledEyes)
     }
   }
@@ -48,7 +52,14 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     players = players.updated(p.index, p.decrementJailCounter())
     nextPlayer()
     board.fields(p.currentPosition)
+    context.nextPlayer()
     publish(DecrementJailCounter(players(currentPlayerIndex).inJail))
+  }
+
+  def payToLeaveJail(p: Player): Unit = {
+    context.nextPlayer()
+    players = players.updated(p.index, p.setJailCounterZero().decrementMoney(50))
+    movePlayer(rolledNumber._1 + rolledNumber._2)
   }
 
   def setPlayer(p: Player, n: Int): Field = {
@@ -87,32 +98,47 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(rent))
         players = players.updated(s.owner.orNull.index, players(s.owner.orNull.index).incrementMoney(rent))
         publish(new WaitForNextPlayer)
+      case _: GoToJail =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        publish(new GoToJailEvent)
       case _ =>
     }
   }
 
   def handleChanceCard(c: ChanceCard) : Unit = {
-    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
-    if (c.otherPlayerIndex != -1) {
-      players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
+    context.state match {
+      case _: GoToJail =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        publish(new GoToJailEvent)
+      case _ =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
+        if (c.otherPlayerIndex != -1) {
+          players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
+        }
+        publish(new WaitForNextPlayer)
     }
-    publish(new WaitForNextPlayer)
   }
 
   def handleSpecialField(sp: SpecialField): Unit = {
     context.state match {
-      case _: LandedOnGo =>
-      case _: VisitJail =>
-      case _: FreeParking =>
+      case _: LandedOnGo => publish(new WaitForNextPlayer)
+      case _: VisitJail => publish(new WaitForNextPlayer)
+      case _: FreeParking => publish(new WaitForNextPlayer)
       case _: GoToJail =>
-        //players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        publish(new GoToJailEvent)
     }
-    publish(new WaitForNextPlayer)
   }
 
   def handleTax(t: Tax): Unit = {
-    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
-    publish(new WaitForNextPlayer)
+    context.state match {
+      case _: GoToJail =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        publish(new GoToJailEvent)
+      case _ =>
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
+        publish(new WaitForNextPlayer)
+    }
   }
 
   def nextPlayer(): Unit = {
@@ -120,6 +146,10 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
     context.nextPlayer()
     publish(new NextPlayer)
+    if(getActualPlayer.inJail != 0) {
+      publish(new PayToLeave)
+      context.payForJail(this)
+    }
   }
 
   def ownAllFieldsOfType(street: Street): Boolean = {

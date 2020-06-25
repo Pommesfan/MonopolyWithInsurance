@@ -8,7 +8,8 @@ case class Player(name: String,
                   override val inJail: Int = 0,
                   override val money: Int = Variable.INITIAL_PLAYER_MONEY,
                   override val figure: String = "",
-                  override val color: Color = Color.WHITE) extends IPlayer {
+                  override val color: Color = Color.WHITE,
+                  override val pasch: Int = 0) extends IPlayer {
 
   def this(name: String) = this(name, 0, 0, 0, Variable.INITIAL_PLAYER_MONEY)
 
@@ -30,8 +31,10 @@ case class Player(name: String,
 
   def incrementMoney(amount: Int): Player = copy(money = money + amount, currentPosition = currentPosition)
    def decrementMoney(amount: Int): Player = copy(money = money - amount)
-  def goToJail(): Player = copy(currentPosition= 10, inJail = 3)
+  def goToJail(): Player = copy(currentPosition= 10, inJail = 2)
   def decrementJailCounter(): Player = copy(inJail= inJail - 1)
+  def setJailCounterZero(): Player = copy(inJail = 0)
+  def setPasch(i: Int): Player = copy(pasch = i)
    override def toString:String = name
 }
 

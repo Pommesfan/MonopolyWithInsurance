@@ -29,7 +29,7 @@ case class Board(fields: Vector[Field]) {
       fields(i) match {
         case Street(index, name, neighbourhoodTypes, price, rent, owner) =>
           boardString ++= "%-6s %-25s %-10s %-5s %-5s %-20s\n".format(index, name, neighbourhoodTypes, price, rent, owner)
-        case ChanceCard(index, name, getMoney, giveMoney, otherPlayerIndex) =>
+        case ChanceCard(index, name, cardIndex, getMoney, giveMoney, otherPlayerIndex) =>
           boardString ++= "%-6s %-25s\n".format(index, name)
         case Tax(index, name, taxAmount) =>
           boardString ++= "%-6s %-25s %14s\n".format(index, name, taxAmount)

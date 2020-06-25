@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.controller
 
-import de.htwg.se.Monopoly.model.{SpecialField, Street}
+import de.htwg.se.Monopoly.model.{ChanceCard, SpecialField, Street}
 
 class Context {
   var state: State = _
@@ -21,12 +21,21 @@ class Context {
   def setState(s: State): Unit = {
     state = s
   }
+  def goToJail(controller: Controller): Unit = {
+    state.goToJail(this, controller)
+  }
+
+  def payForJail(controller: Controller): Unit = {
+    state.payForJail(this)
+  }
 }
 
 trait State {
   def setPlayer(context: Context) {}
   def nextPlayer(context: Context) {}
   def handleField(context: Context, controller: Controller) {}
+  def goToJail(context: Context, controller: Controller) {}
+  def payForJail(context: Context) {}
 }
 
 class StartState() extends State {
@@ -40,7 +49,7 @@ class NextPlayerState() extends State {
     val players = controller.players
     controller.actualField match {
       case s: Street =>
-        if (s.owner.isEmpty) {
+        if (s.owner == null) {
           context.setState(new BuyStreet)
         } else if (players(controller.currentPlayerIndex).index.equals(s.owner.orNull.index)) {
           context.setState(new NextPlayerState)
@@ -57,8 +66,23 @@ class NextPlayerState() extends State {
         } else if (sp.index == 30) {
           context.setState(new GoToJail)
         }
+      case cc: ChanceCard =>
+        if (cc.cardIndex == 4) {
+          context.setState(new GoToJail)
+        }
       case _ => context.setState(new NextPlayerState)
     }
+  }
+
+  override def goToJail(context: Context, controller: Controller): Unit = {
+    val players = controller.players
+    if (players(controller.currentPlayerIndex).pasch == 3) {
+      context.setState(new GoToJail)
+    }
+  }
+
+  override def payForJail(context: Context): Unit = {
+    context.setState(new PayForJail)
   }
 }
 
@@ -77,6 +101,9 @@ class PayOtherPlayer() extends State {
 class GoToJail() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
+  }
+  override def goToJail(context: Context, controller: Controller): Unit = {
+    context.setState(new GoToJail)
   }
 }
 
@@ -98,4 +125,7 @@ class FreeParking() extends State {
   }
 }
 
-
+class PayForJail() extends State {
+  override def nextPlayer(context: Context): Unit =
+    context.setState(new NextPlayerState)
+}

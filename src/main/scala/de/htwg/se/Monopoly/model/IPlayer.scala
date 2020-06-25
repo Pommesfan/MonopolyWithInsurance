@@ -9,6 +9,7 @@ trait IPlayer{
   val money: Int
   val figure: String
   val color: Color
+  val pasch: Int
 
   def setPosition(newPosition: Int): Player
 }
