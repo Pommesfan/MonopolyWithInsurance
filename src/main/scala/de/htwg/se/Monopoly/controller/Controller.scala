@@ -18,7 +18,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   def setPlayers(list: Array[String]): Unit = {
     var player = new ListBuffer[Player]()
     var num = 0
-    for (i <- list if i != "p") {
+    for (i <- list if i != "p" if num < 8) {
       player += NewPlayerFactoryMethod.createNewPlayer(i.toString, num)
       num += 1
     }
