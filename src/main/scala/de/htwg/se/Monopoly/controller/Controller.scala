@@ -75,9 +75,17 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       case _: BuyStreet =>
         publish(new HandleStreet)
       case _: PayOtherPlayer =>
-        publish(MoneyTransaction(s.rent))
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.rent))
-        players = players.updated(s.owner.orNull.index, s.owner.orNull.incrementMoney(s.rent))
+
+        var rent = s.rent
+        if (s.name == "Elektrizitätswerk" || s.name == "Wasserwerk") {
+          rent = (rolledNumber._1 + rolledNumber._2) * 4
+          if (ownAllFieldsOfType(s)) {
+            rent = (rolledNumber._1 + rolledNumber._2) * 10
+          }
+        }
+        publish(MoneyTransaction(rent))
+        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(rent))
+        players = players.updated(s.owner.orNull.index, players(s.owner.orNull.index).incrementMoney(rent))
         publish(new WaitForNextPlayer)
       case _ =>
     }
