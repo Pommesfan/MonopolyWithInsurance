@@ -8,6 +8,20 @@ case class Board(fields: Vector[Field]) {
     fields(newPosition).actOnPlayer(player)
   }
 
+  def getFieldsSameNeighbourhoodType(nhT: NeighbourhoodTypes.Value): Vector[Street] = {
+    var sameNeighbourhood = Vector[Street] ()
+    for (f <- fields) {
+      f match {
+        case s: Street =>
+          if (s.neighbourhoodTypes == nhT) {
+            sameNeighbourhood = sameNeighbourhood :+ s
+          }
+        case _ =>
+      }
+    }
+    sameNeighbourhood
+  }
+
   override def toString: String = {
     val boardString = new mutable.StringBuilder("")
     boardString ++= "%-6s %-25s %-10s %-5s %-5s %-20s\n".format("index", "name", "type", "price", "rent", "owner")

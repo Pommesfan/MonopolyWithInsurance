@@ -97,7 +97,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       case _: VisitJail =>
       case _: FreeParking =>
       case _: GoToJail =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+        //players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
     }
     publish(new WaitForNextPlayer)
   }
@@ -112,6 +112,20 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
     context.nextPlayer()
     publish(new NextPlayer)
+  }
+
+  def ownAllFieldsOfType(street: Street): Boolean = {
+    val sameNeighbourhood = board.getFieldsSameNeighbourhoodType(street.neighbourhoodTypes)
+    val owner = getActualPlayer
+    var ownAllStreetTypes = true
+    for (s <- sameNeighbourhood if ownAllStreetTypes; if !street.equals(s); if s.owner == null | owner.equals(s.owner)) {
+      ownAllStreetTypes = false
+    }
+    for (s <- sameNeighbourhood if ownAllStreetTypes) {
+      val newStreet = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent * 2, Option(owner))
+      board = Board(board.fields.updated(s.index, newStreet))
+    }
+    ownAllStreetTypes
   }
 
   def buyStreet(): Unit = {

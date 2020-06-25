@@ -16,6 +16,7 @@ class BuyCommand(controller: Controller) extends Command{
         controller.players = players.updated(controller.currentPlayerIndex, players(controller.currentPlayerIndex).decrementMoney(s.price))
         val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Some(players(controller.currentPlayerIndex)))
         controller.board = Board(board.fields.updated(s.index, street))
+        controller.ownAllFieldsOfType(s)
     }
     controller.publish(new WaitForNextPlayer)
   }

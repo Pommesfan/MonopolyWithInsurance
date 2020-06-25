@@ -231,7 +231,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     val figurePosition: List[(Int, Int)] =
       List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
         (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
-        (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615),
+        (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
         (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
     var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
 
@@ -313,11 +313,11 @@ class SwingGui(controller: Controller) extends MainFrame {
   reactions += {
     case event: NewGameEvent =>
     case event: PlayerSet => redraw
-    case event: LandedOnField =>
-    case event: OwnStreet =>
+    case event: LandedOnField => redraw
+    case event: OwnStreet => redraw
     case event: HandleStreet => enableButtons(b1 = true, b2 = false, b3 = false); redraw
     case event: DiceRolled => redraw
-    case event: MoneyTransaction =>
+    case event: MoneyTransaction => redraw
     case event: DecrementJailCounter =>
     case event: NextPlayer => enableButtons(b1 = false, b2 = false, b3 = true)
     case event: WaitForNextPlayer => redraw; enableButtons(b1 = false, b2 = true, b3 = false)

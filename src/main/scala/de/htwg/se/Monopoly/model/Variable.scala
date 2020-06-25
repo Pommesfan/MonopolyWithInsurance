@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly.model
 
 object Variable extends Enumeration {
   val INITIAL_PLAYER_MONEY = 1500
-  val TOTAL_NUMBER_OF_FIELDS = 39
+  val TOTAL_NUMBER_OF_FIELDS = 40
   val MONEY_NEW_ROUND = 200
 
 
@@ -35,7 +35,7 @@ object Variable extends Enumeration {
     Street(25, "Nordbahnhof", NeighbourhoodTypes.Station, 200, 25),
     Street(26, "Lessingstrasse", NeighbourhoodTypes.Yellow, 260, 22),
     Street(27, "Schillerstrasse", NeighbourhoodTypes.Yellow, 260, 22),
-    Street(28, "Elektrizitätswerk", NeighbourhoodTypes.Utility, 150, 0),
+    Street(28, "Wasserwerk", NeighbourhoodTypes.Utility, 150, 0),
     Street(29, "Goethestrasse", NeighbourhoodTypes.Yellow, 280, 24),
     SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"),
     Street(31, "Rathhausplatz", NeighbourhoodTypes.Green, 300, 26),
