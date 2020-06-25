@@ -10,7 +10,7 @@ import scala.io.StdIn.readLine
 object Monopoly {
   val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
   val tui = new Tui(controller)
-  val gui = new SwingGui(controller)
+  //val gui = new SwingGui(controller)
   controller.publish(new NewGameEvent)
 
   def main(args: Array[String]): Unit = {

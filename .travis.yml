@@ -2,9 +2,6 @@ language: scala
 scala:
   - 2.12.7
 
-before_install:
-  - export DISPLAY=:0.0
-
 script:
   - sbt clean coverage test coverageReport
 
