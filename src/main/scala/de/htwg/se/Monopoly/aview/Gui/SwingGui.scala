@@ -11,7 +11,7 @@ import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graph
 import javax.swing.ImageIcon
 
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
-import scala.swing.event.Key
+import scala.swing.event.{ButtonClicked, Key}
 
 class SwingGui(controller: Controller) extends MainFrame {
   listenTo(controller)
@@ -118,7 +118,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     border = CompoundBorder(CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1)), EmptyBorder(5))
   }
 
-  def playerPanel(namePlayer: String, money: Int, jail: Int, figure: String): GridBagPanel = new GridBagPanel {
+  def playerPanel(namePlayer: String, index: Int, money: Int, jail: Int, figure: String, color: Color): GridBagPanel = new GridBagPanel {
     border = CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1))
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
@@ -139,7 +139,7 @@ class SwingGui(controller: Controller) extends MainFrame {
       c
     }
 
-    add(shapePanel(20, 20, color = Color.BLUE), constraints(0, 0))
+    add(shapePanel(20, 20, color = color), constraints(0, 0))
     add(new Label() {text = namePlayer}, constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
     add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
@@ -153,8 +153,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     contents += interactionPanel
     border = LineBorder(java.awt.Color.BLACK, 1)
     for(n <- controller.players) {
-      //  contents += Swing.VStrut(5)
-      contents += playerPanel(n.name, n.money, n.inJail, n.figure)
+      contents += playerPanel(n.name, n.index, n.money, n.inJail, n.figure, n.color)
     }
   }
 
@@ -182,38 +181,6 @@ class SwingGui(controller: Controller) extends MainFrame {
       c
     }
 
-    add(shapePanel(56, 92), constraints(1, 0))
-    add(shapePanel(56, 92), constraints(3, 0))
-    add(shapePanel(56, 92), constraints(5, 0))
-    add(shapePanel(56, 92), constraints(6, 0))
-    add(shapePanel(56, 92), constraints(8, 0))
-    add(shapePanel(72, 92), constraints(9, 0))
-
-    add(shapePanel(56, 56), constraints(10, 1))
-    add(shapePanel(56, 56), constraints(10, 2))
-    add(shapePanel(56, 56), constraints(10, 3))
-    add(shapePanel(56, 56), constraints(10, 4))
-    add(shapePanel(56, 56), constraints(10, 5))
-    add(shapePanel(56, 56), constraints(10, 6))
-    add(shapePanel(56, 56), constraints(10, 8))
-    add(shapePanel(56, 56), constraints(10, 9))
-
-    add(shapePanel(72, 60), constraints(9, 10))
-    add(shapePanel(56, 60), constraints(7, 10))
-    add(shapePanel(56, 60), constraints(6, 10))
-    add(shapePanel(56, 60), constraints(5, 10))
-    add(shapePanel(56, 60), constraints(4, 10))
-    add(shapePanel(56, 60), constraints(3, 10))
-    add(shapePanel(56, 60), constraints(2, 10))
-    add(shapePanel(56, 60), constraints(1, 10))
-
-    add(shapePanel(92, 72), constraints(0, 9))
-    add(shapePanel(92, 56), constraints(0, 8))
-    add(shapePanel(92, 112), constraints(0, 6))
-    add(shapePanel(92, 56), constraints(0, 5))
-    add(shapePanel(92, 56), constraints(0, 3))
-    add(shapePanel(92, 56), constraints(0, 1))
-
     add(panel, constraints(0 , 0, gridwidth= 11, gridheight = 11))
     add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
   }
@@ -226,20 +193,30 @@ class SwingGui(controller: Controller) extends MainFrame {
     border = LineBorder(java.awt.Color.BLACK, 1)
     requestFocus()
 
-    val sI = scaledImage(pathCat, 70, 70)
-    var imgX = 10
-    var imgY = 10
-    val list: List[(Int, Int)] =
+    val figurePosition: List[(Int, Int)] =
       List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
         (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
         (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615),
         (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
     var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
 
+    val polygonPosition: List[(Int, Int)] =
+      List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
+        (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
+        (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
+        (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
+    var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
+
     def addFigures(): Unit = {
       for(p <- controller.players) {
-        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), list(0)._1, list(0)._2)
+        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
       }
+    }
+
+    def addOwnerPolygon(color: Color): Unit = {
+      val fieldIndex = controller.actualField.index
+      val field = polygonPosition(fieldIndex)
+      polygons = polygons :+ (color, field._1, field._2)
     }
 
     override def paint(g: Graphics2D): Unit = {
@@ -250,17 +227,26 @@ class SwingGui(controller: Controller) extends MainFrame {
       for(f <- figures) {
         g.drawImage(f._1, f._2, f._3, null)
       }
+      for(p <- polygons) {
+        val x = p._2
+        val y = p._3
+        g.setColor(p._1)
+        g.fillPolygon(Array(x, x + 15, x), Array(y, y, y + 15), 3)
+      }
     }
 
-    listenTo(controller)
+    listenTo(controller, buyButton)
     reactions += {
+      case ButtonClicked(`buyButton`) =>
+        addOwnerPolygon(controller.players(controller.currentPlayerIndex).color)
+        repaint()
       case e: PlayerSet =>
         addFigures()
         repaint()
       case e: LandedOnField =>
         val oldField = controller.actualField
         val index = controller.currentPlayerIndex
-        figures = figures.updated(index, (figures(index)._1, list(oldField.index)._1,  list(oldField.index)._2))
+        figures = figures.updated(index, (figures(index)._1, figurePosition(oldField.index)._1,  figurePosition(oldField.index)._2))
         repaint()
     }
   }

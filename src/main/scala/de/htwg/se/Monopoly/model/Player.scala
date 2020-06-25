@@ -1,11 +1,14 @@
 package de.htwg.se.Monopoly.model
 
+import java.awt.Color
+
 case class Player(name: String,
                   override val index: Int,
                   override val currentPosition: Int = 0,
                   override val inJail: Int = 0,
                   override val money: Int = Variable.INITIAL_PLAYER_MONEY,
-                  override val figure: String = "") extends IPlayer {
+                  override val figure: String = "",
+                  override val color: Color = Color.WHITE) extends IPlayer {
 
   def this(name: String) = this(name, 0, 0, 0, Variable.INITIAL_PLAYER_MONEY)
 
