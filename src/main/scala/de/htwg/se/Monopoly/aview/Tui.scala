@@ -15,7 +15,9 @@ class Tui(controller: Controller) extends Reactor {
     input match {
       case "help" =>
         printf("%-10s%s\n%-10s%s\n", "e", "exit", "p", "new Players")
-      case "e" => print("exit Game\n")
+      case "exit" =>
+        print("exit Game\n")
+        System.exit(1)
       case "z" => controller.undo
       case "y" => controller.redo
       case "d" =>

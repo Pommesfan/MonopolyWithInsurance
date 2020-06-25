@@ -6,7 +6,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.swing.event.{ButtonClicked, EditDone, SelectionChanged}
 import scala.swing.{BorderPanel, BoxPanel, Button, ComboBox, Dialog, Dimension, FlowPanel, GridPanel, Label, Orientation, Swing, TextField, Window}
 
-case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialog {
+case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialog(parent) {
   title = "Add new Player"
   preferredSize = new Dimension(700, 500)
   visible = true

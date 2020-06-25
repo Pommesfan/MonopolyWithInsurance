@@ -304,7 +304,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     }
   }
 
-  case class GameOverDialog(parent: Window, controller: Controller) extends Dialog {
+  case class GameOverDialog(parent: Window, controller: Controller) extends Dialog(parent) {
     title = "Game Over"
     preferredSize = new Dimension(500, 700)
     visible = true

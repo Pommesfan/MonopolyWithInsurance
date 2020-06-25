@@ -21,7 +21,7 @@ object Monopoly {
       do {
         input = readLine()
         tui.processInputLine(input)
-      } while (input != "e")
+      } while (input != "exit")
     }
   }
 }
