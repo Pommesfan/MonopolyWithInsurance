@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GoToJail, GoToJailEvent, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, OwnStreet, PayForJail, PayToLeave, PlayerSet, StartState, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, OwnStreet, PayForJail, PayToLeave, PlayerSet, StartState, WaitForNextPlayer}
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.swing.Reactor
@@ -74,6 +74,7 @@ class Tui(controller: Controller) extends Reactor {
     case event: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
     case event: GoToJailEvent => print("Gehe ins Gefängnis (3xPasch /Feld \"Gehe ins Gefängnis\" /Ereigniskarte)\n(jail)\n")
     case event: PayToLeave => print("Du befindest dich im Gefägnis.\nPasch würfeln(d) oder Freikaufen(pay).\n")
+    case event: HandleChanceCard => print(event.message)
   }
 
   def printTui: Unit = {

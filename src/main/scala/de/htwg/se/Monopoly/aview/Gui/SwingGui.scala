@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.{GeneralPath, Rectangle2D}
 
-import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, GoToJailEvent, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.awt.image.BufferedImage
 import java.io.File
@@ -204,6 +204,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     case e: LandedOnField => history = history :+ "Du landest auf Feld Nummer " + controller.actualField
     case e: GoToJailEvent => history = history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
     case e: PayToLeave => history = history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
+    case e: HandleChanceCard => history = history :+ e.message
   }
 
   def boardPanel: GridBagPanel = new GridBagPanel {

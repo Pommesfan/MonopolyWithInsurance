@@ -3,7 +3,7 @@ package de.htwg.se.Monopoly.model
 import scala.util.Random
 
 case class ChanceCard(override val index: Int, override val name: String, cardIndex: Int,
-                      getMoney: Int, giveMoney: Int, otherPlayerIndex: Int) extends Field(index, name) {
+                      getMoney: Int, giveMoney: Int, otherPlayerIndex: Int, info: String = "") extends Field(index, name) {
 
   val BANK_MONEY_BONUS = 100
   val PRETTY_BONUS = 50
@@ -18,31 +18,31 @@ case class ChanceCard(override val index: Int, override val name: String, cardIn
   }
 
   def listOfChanceCard(): List[Function[Player, ChanceCard]] = List[Function[Player, ChanceCard]](
-    // bankIsGivingMoney,
-    // youArePrettyGivingBonus,
-    //  giveAmountToOtherPlayers,
+    bankIsGivingMoney,
+    youArePrettyGivingBonus,
+    giveAmountToOtherPlayers,
     goToJail
   )
 
   def bankIsGivingMoney(player: Player): ChanceCard = {
-    print("The Bank is giving you 100. \nKeep it safe!\n")
-    ChanceCard(index, name, 1, BANK_MONEY_BONUS, 0, -1)
+    val message = "Ereigniskarte: Die Bank gibt dir 100$.\n"
+    ChanceCard(index, name, 1, BANK_MONEY_BONUS, 0, -1, message)
   }
 
   def youArePrettyGivingBonus(player: Player): ChanceCard = {
-    print("You have won a \nfashion contest. Receive 50.\n")
-    ChanceCard(index, name, 2,  PRETTY_BONUS, 0, -1)
+    val message = "Ereigniskarte: Du hast eine Fashion-Wettbewerb gewonnen.\n Erhalte 50$.\n"
+    ChanceCard(index, name, 2,  PRETTY_BONUS, 0, -1, message)
   }
 
   def giveAmountToOtherPlayers(player: Player): ChanceCard = {
     val playerIndex = (player. index + 1) % 2
-    print("Gib dem anderen Spieler 30\n")
-    ChanceCard(index, name, 3, - GIVE_BONUS, GIVE_BONUS, playerIndex)
+    val message = "Ereigniskarte: Gib dem anderen Spieler 30.\n"
+    ChanceCard(index, name, 3, - GIVE_BONUS, GIVE_BONUS, playerIndex, message)
   }
 
   def goToJail(player: Player): ChanceCard = {
-    print("Gehe ins Gefängnis!\n")
-    ChanceCard(index, name, 4, 0, 0, -1)
+    val message = "Ereigniskarte: Gehe ins Gefängnis!\n"
+    ChanceCard(index, name, 4, 0, 0, -1, message)
   }
 
   override def toString: String = {

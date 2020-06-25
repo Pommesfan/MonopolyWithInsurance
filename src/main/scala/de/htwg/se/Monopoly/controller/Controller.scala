@@ -106,6 +106,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   }
 
   def handleChanceCard(c: ChanceCard) : Unit = {
+    publish(HandleChanceCard(c.info))
     context.state match {
       case _: GoToJail =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
