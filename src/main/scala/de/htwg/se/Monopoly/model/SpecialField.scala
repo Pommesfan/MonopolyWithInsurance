@@ -4,6 +4,6 @@ case class SpecialField(override val index: Int, override val name: String) exte
   override def actOnPlayer(player: Player): SpecialField = SpecialField(index, name)
 
   override def toString: String = {
-    "%d: %s".format(index, name)
+    "%d: %s\n".format(index, name)
   }
 }

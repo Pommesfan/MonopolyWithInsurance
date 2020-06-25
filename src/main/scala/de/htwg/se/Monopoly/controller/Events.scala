@@ -11,7 +11,7 @@ class DiceRolled extends Event
 class HandleStreet extends Event
 class OwnStreet extends Event
 case class MoneyTransaction(money: Int) extends Event
-class DecrementJailCounter extends Event
+case class DecrementJailCounter(counter: Int) extends Event
 class NextPlayer extends Event
 class WaitForNextPlayer extends Event
 class LandedOnField extends Event

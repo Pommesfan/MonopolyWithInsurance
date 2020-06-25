@@ -12,6 +12,10 @@ case class Street(override val index: Int,
   }
 
   override def toString: String = {
-    "%d: %s(%s), Kaufpreis %s$, %s$ Miete gehen an\n".format(index, name, neighbourhoodTypes, price, rent, owner)
+    if (owner == null) {
+      "%d: %s(%s), Kaufpreis %s$, Feld steht zum Verkauf und bringt %s$ Miete ein.\n".format(index, name, neighbourhoodTypes, price, rent)
+    } else {
+      "%d: %s(%s), Kaufpreis %s$, %s$ Miete gehen an %s.\n".format(index, name, neighbourhoodTypes, price, rent, owner)
+    }
   }
 }

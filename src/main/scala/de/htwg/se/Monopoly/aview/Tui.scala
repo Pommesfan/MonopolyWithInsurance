@@ -56,7 +56,8 @@ class Tui(controller: Controller) extends Reactor {
     case event: DiceRolled => print("Du hast eine " + controller.rolledNumber._1 + " und eine "
       + controller.rolledNumber._2 +" gewürfelt.\n")
     case event: MoneyTransaction => print("MoneyTransaktion" + event.money + "\n")
-    case event: DecrementJailCounter => print("DecrementJailCounter\n")
+    case event: DecrementJailCounter => print("Du befindest dich im Gefängnis. Würfel einen Pasch " +
+      "oder warte " + event.counter + " Runden.\n")
     case event: NextPlayer => printTui; print("Nächster Spieler darf Würfeln!\n")
     case event: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
   }

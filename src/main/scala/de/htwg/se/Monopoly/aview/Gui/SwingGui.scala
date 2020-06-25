@@ -9,6 +9,7 @@ import java.io.File
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
+import javax.swing.border.BevelBorder
 
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
 import scala.swing.event.{ButtonClicked, Key}
@@ -26,11 +27,11 @@ class SwingGui(controller: Controller) extends MainFrame {
 
   val pathBoard = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Monopoly_board.jpg"
 
-
+  val transparent = new Color(0, 0, 0, 0)
   title = "Monopoly"
   preferredSize = new Dimension(1050, 770)
 
-  def shapePanel(width: Int, height: Int, color: Color = Color.lightGray): Panel = new Panel {
+  def shapePanel(width: Int, height: Int, color: Color = transparent): Panel = new Panel {
     val ax = 0
     val bx = 15
     val cy = 0
@@ -93,7 +94,7 @@ class SwingGui(controller: Controller) extends MainFrame {
   }
 
   val textArea: TextArea = new TextArea {
-    text = controller.actualField.toString
+    text = "%s".format(controller.actualField.name)
     resizable = false
     rows = 1
     lineWrap = true
@@ -119,7 +120,11 @@ class SwingGui(controller: Controller) extends MainFrame {
   }
 
   def playerPanel(namePlayer: String, index: Int, money: Int, jail: Int, figure: String, color: Color): GridBagPanel = new GridBagPanel {
-    border = CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1))
+    if (controller.currentPlayerIndex == index) {
+      border = CompoundBorder(EmptyBorder(10), new BevelBorder(BevelBorder.RAISED))
+    } else {
+      border = CompoundBorder(EmptyBorder(10), EmptyBorder(1))
+    }
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
                     gridwidth: Int = 1, gridheight: Int = 1,
@@ -161,6 +166,35 @@ class SwingGui(controller: Controller) extends MainFrame {
     contents += new Label() {icon = scaledImageIcon(pathBoard, 690, 690)}
   }
 
+  def gameHistory(v: Vector[String]) = new TextArea(10, 45) {
+    maximumSize = new Dimension(200, 300)
+    minimumSize = new Dimension(200, 300)
+    for(v <- v) {
+      text += v
+    }
+    resizable = false
+    lineWrap = true
+    wordWrap = true
+    editable = false
+
+    background = Color.WHITE
+  }
+
+  var history: Vector[String] = Vector[String]()
+
+  reactions += {
+    case e: NewGameEvent => history = history :+ "Wilkommen zu einer neuen Runde Monopoly!\n"
+    case e: PlayerSet => history = history :+ controller.getActualPlayer.name + "darf beginnen.\n"
+    case e: DiceRolled => history = history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
+    case e: HandleStreet => history = history :+ "Möchten Sie diese Straße kaufen?\n"
+    case e: OwnStreet => history = history :+ "You landed on your own Street.\nNext Players turn.\n"
+    case e: MoneyTransaction => history = history :+ "Transaktion" + e.money + "\n"
+    case e: DecrementJailCounter => history = history :+ "Du befindest dich im Gefängnis. Würfel einen Pasch oder warte " + e.counter + " Runden.\n"
+    case e: NextPlayer => history = history :+ controller.getActualPlayer.name +" ist dran.\n"
+    case e: WaitForNextPlayer => history = history :+ "Zug beenden?\n\n"
+    case e: LandedOnField => history = history :+ "Du landest auf Feld Nummer " + controller.actualField
+  }
+
   def boardPanel: GridBagPanel = new GridBagPanel {
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
@@ -180,7 +214,8 @@ class SwingGui(controller: Controller) extends MainFrame {
       c.insets = insets
       c
     }
-
+    add(shapePanel(120, 220), constraints(0, 0))
+    add(new ScrollPane(gameHistory(history)), constraints(1, 1))
     add(panel, constraints(0 , 0, gridwidth= 11, gridheight = 11))
     add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
   }
@@ -280,7 +315,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     case event: PlayerSet => redraw
     case event: LandedOnField =>
     case event: OwnStreet =>
-    case event: HandleStreet => enableButtons(b1 = true, b2 = false, b3 = false)
+    case event: HandleStreet => enableButtons(b1 = true, b2 = false, b3 = false); redraw
     case event: DiceRolled => redraw
     case event: MoneyTransaction =>
     case event: DecrementJailCounter =>
@@ -302,6 +337,6 @@ class SwingGui(controller: Controller) extends MainFrame {
     notBuyButton.enabled = b1
     nextPlayerButton.enabled = b2
     diceButton.enabled = b3
-    textArea.text = controller.actualField.toString
+    textArea.text = controller.actualField.name
   }
 }

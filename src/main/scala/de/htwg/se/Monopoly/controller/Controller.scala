@@ -48,7 +48,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     players = players.updated(p.index, p.decrementJailCounter())
     nextPlayer()
     board.fields(p.currentPosition)
-    publish(new DecrementJailCounter)
+    publish(DecrementJailCounter(players(currentPlayerIndex).inJail))
   }
 
   def setPlayer(p: Player, n: Int): Field = {
