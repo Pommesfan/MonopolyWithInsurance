@@ -13,10 +13,15 @@ class BuyCommand(controller: Controller) extends Command{
   override def doStep: Unit = {
     controller.actualField match {
       case s: Street =>
-        controller.players = players.updated(controller.currentPlayerIndex, players(controller.currentPlayerIndex).decrementMoney(s.price))
-        val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Some(players(controller.currentPlayerIndex)))
-        controller.board = Board(board.fields.updated(s.index, street))
-        controller.ownAllFieldsOfType(s)
+        if (players(controller.currentPlayerIndex).money - s.price < 0){
+          controller.publish(new NotEnoughMoney)
+        } else {
+          controller.players = players.updated(controller.currentPlayerIndex, players(controller.currentPlayerIndex).decrementMoney(s.price))
+          val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Some(players(controller.currentPlayerIndex)))
+          controller.board = Board(board.fields.updated(s.index, street))
+          controller.ownAllFieldsOfType(s)
+          controller.publish(new BoughtStreet)
+        }
     }
     controller.publish(new WaitForNextPlayer)
   }

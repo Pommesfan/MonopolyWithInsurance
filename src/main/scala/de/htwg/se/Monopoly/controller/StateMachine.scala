@@ -28,6 +28,10 @@ class Context {
   def payForJail(controller: Controller): Unit = {
     state.payForJail(this)
   }
+
+  def gameOver(controller: Controller): Unit = {
+    state.gameOver(this)
+  }
 }
 
 trait State {
@@ -36,6 +40,7 @@ trait State {
   def handleField(context: Context, controller: Controller) {}
   def goToJail(context: Context, controller: Controller) {}
   def payForJail(context: Context) {}
+  def gameOver(context: Context) {}
 }
 
 class StartState() extends State {
@@ -84,6 +89,10 @@ class NextPlayerState() extends State {
   override def payForJail(context: Context): Unit = {
     context.setState(new PayForJail)
   }
+
+  override def gameOver(context: Context): Unit = {
+    context.setState(new GameOverState)
+  }
 }
 
 class BuyStreet() extends State {
@@ -95,6 +104,10 @@ class BuyStreet() extends State {
 class PayOtherPlayer() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
+  }
+
+  override def gameOver(context: Context): Unit = {
+    context.setState(new GameOverState)
   }
 }
 
@@ -128,4 +141,7 @@ class FreeParking() extends State {
 class PayForJail() extends State {
   override def nextPlayer(context: Context): Unit =
     context.setState(new NextPlayerState)
+}
+
+class GameOverState() extends State {
 }

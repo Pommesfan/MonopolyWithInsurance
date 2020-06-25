@@ -9,6 +9,7 @@ class PlayerSet extends Event
 case class DialogClosed(dialog: AddPlayerDialog, cancel:Boolean) extends Event
 class DiceRolled extends Event
 class HandleStreet extends Event
+class BoughtStreet extends Event
 class OwnStreet extends Event
 case class MoneyTransaction(money: Int) extends Event
 case class DecrementJailCounter(counter: Int) extends Event
@@ -18,3 +19,6 @@ class LandedOnField extends Event
 class GoToJailEvent extends Event
 class PayToLeave extends Event
 case class HandleChanceCard(message: String) extends Event
+case class NotEnoughMoney() extends Event
+case class GameOver() extends Event
+class ExitGame() extends Event

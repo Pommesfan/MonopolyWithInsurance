@@ -62,6 +62,30 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     movePlayer(rolledNumber._1 + rolledNumber._2)
   }
 
+  def gameOver(player: Player): Boolean = {
+    if (player.money > 0) {
+      return true
+    }
+    context.gameOver(this)
+    calculateAssets(player)
+    publish(new GameOver)
+    false
+  }
+
+  def calculateAssets(player: Player): Unit = {
+    for (field <- board.fields){
+      field match {
+        case s: Street =>
+          if (s.owner != null & !player.equals(s.owner)) {
+            val owner: Player = players(s.owner.orNull.index)
+            players = players.updated(owner.index, owner.incrementMoney(s.price))
+          }
+        case _ =>
+      }
+    }
+    players = players.sortWith(_.money > _.money)
+  }
+
   def setPlayer(p: Player, n: Int): Field = {
     players = players.updated(p.index, p.setPosition(p.currentPosition + n))
     val field = board.getField(players(currentPlayerIndex),
@@ -97,6 +121,9 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         publish(MoneyTransaction(rent))
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(rent))
         players = players.updated(s.owner.orNull.index, players(s.owner.orNull.index).incrementMoney(rent))
+        if (!gameOver(players(currentPlayerIndex))) {
+          return
+        }
         publish(new WaitForNextPlayer)
       case _: GoToJail =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
@@ -115,6 +142,9 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
         if (c.otherPlayerIndex != -1) {
           players = players.updated(c.otherPlayerIndex, players(c.otherPlayerIndex).incrementMoney(c.giveMoney))
+        }
+        if (!gameOver(players(currentPlayerIndex))) {
+          return
         }
         publish(new WaitForNextPlayer)
     }
@@ -138,6 +168,9 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         publish(new GoToJailEvent)
       case _ =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
+        if (!gameOver(players(currentPlayerIndex))) {
+          return
+        }
         publish(new WaitForNextPlayer)
     }
   }

@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.{GeneralPath, Rectangle2D}
 
-import de.htwg.se.Monopoly.controller.{Controller, DecrementJailCounter, DiceRolled, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BoughtStreet, Controller, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GameOverState, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.awt.image.BufferedImage
 import java.io.File
@@ -26,6 +26,7 @@ class SwingGui(controller: Controller) extends MainFrame {
   val pathWheelbarrow = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/wheelbarrow.png"
 
   val pathBoard = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Monopoly_board.jpg"
+  val gameOverPath = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/GameOver.png"
 
   val transparent = new Color(0, 0, 0, 0)
   title = "Monopoly"
@@ -129,7 +130,7 @@ class SwingGui(controller: Controller) extends MainFrame {
   }
 
   def playerPanel(namePlayer: String, index: Int, money: Int, jail: Int, figure: String, color: Color): GridBagPanel = new GridBagPanel {
-    if (controller.currentPlayerIndex == index) {
+    if (controller.currentPlayerIndex == index & !controller.context.state.isInstanceOf[GameOverState]) {
       border = CompoundBorder(EmptyBorder(10), new BevelBorder(BevelBorder.RAISED))
     } else {
       border = CompoundBorder(EmptyBorder(10), EmptyBorder(1))
@@ -205,6 +206,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     case e: GoToJailEvent => history = history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
     case e: PayToLeave => history = history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
     case e: HandleChanceCard => history = history :+ e.message
+    case e: NotEnoughMoney => history = history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
 
   def boardPanel: GridBagPanel = new GridBagPanel {
@@ -284,7 +286,7 @@ class SwingGui(controller: Controller) extends MainFrame {
 
     listenTo(controller, buyButton, goToJailButton)
     reactions += {
-      case ButtonClicked(`buyButton`) =>
+      case e: BoughtStreet =>
         addOwnerPolygon(controller.players(controller.currentPlayerIndex).color)
         repaint()
       case e: PlayerSet =>
@@ -300,6 +302,57 @@ class SwingGui(controller: Controller) extends MainFrame {
         figures = figures.updated(index, (figures(index)._1, 600, 5))
         repaint()
     }
+  }
+
+  case class GameOverDialog(parent: Window, controller: Controller) extends Dialog {
+    title = "Game Over"
+    preferredSize = new Dimension(500, 700)
+    visible = true
+
+    val gameOverPanel:FlowPanel = new FlowPanel {
+      contents += new Label {icon = scaledImageIcon(gameOverPath, 300, 150)}
+    }
+
+    val sortedPlayerPanel: GridBagPanel = new GridBagPanel {
+      def constraints(x: Int, y: Int,
+                      insets: Insets = new Insets(0, 0, 0, 0),
+                      gridwidth: Int = 1, gridheight: Int = 1,
+                      weightx: Double = 0.0, weighty: Double = 0.0,
+                      fill: GridBagPanel.Fill.Value = GridBagPanel.Fill.None)
+      : Constraints = {
+        val c = new Constraints
+        c.gridx = x
+        c.gridy = y
+        c.gridwidth = gridwidth
+        c.gridheight = gridheight
+        c.weightx = weightx
+        c.weighty = weighty
+        c.fill = fill
+        c.anchor = GridBagPanel.Anchor.NorthWest
+        c.insets = insets
+        c
+      }
+      preferredSize = new Dimension(300, 500)
+      var place = 0
+      for(p <- controller.players) {
+        place += 1
+        add(new Label(place.toString + ". Platz"), constraints(0, place, fill = GridBagPanel.Fill.Both))
+        add(playerPanel(p.name, p.index, p.money, p.inJail, p.figure, p.color), constraints(1, place, fill = GridBagPanel.Fill.Both))
+      }
+    }
+
+    val buttonPanel: FlowPanel = new FlowPanel {
+      maximumSize = new Dimension(50, 150)
+      val exitButton = new Button(Action("Beenden") {dispose(); controller.publish(new ExitGame)})
+      contents += exitButton
+    }
+
+    contents = new BorderPanel {
+      add(gameOverPanel, BorderPanel.Position.North)
+      add(sortedPlayerPanel, BorderPanel.Position.Center)
+      add(buttonPanel, BorderPanel.Position.South)
+    }
+
   }
 
   val mainPanel = new FlowPanel {
@@ -327,18 +380,21 @@ class SwingGui(controller: Controller) extends MainFrame {
   visible = true
 
   reactions += {
-    case event: NewGameEvent =>
-    case event: PlayerSet => redraw
-    case event: LandedOnField => redraw
-    case event: OwnStreet => redraw
-    case event: HandleStreet => enableButtons(b1 = true); redraw
-    case event: DiceRolled => redraw
-    case event: MoneyTransaction => redraw
-    case event: DecrementJailCounter =>
-    case event: NextPlayer => enableButtons(b3 = true); redraw
-    case event: WaitForNextPlayer => redraw; enableButtons(b2 = true)
-    case event: GoToJailEvent => enableButtons(b4 = true); redraw
-    case event: PayToLeave => enableButtons(b2 = true, b5 = true)
+    case e: NewGameEvent =>
+    case e: PlayerSet => redraw
+    case e: LandedOnField => redraw
+    case e: OwnStreet => redraw
+    case e: HandleStreet =>
+      enableButtons(b1 = true); redraw
+    case e: DiceRolled => redraw
+    case e: MoneyTransaction => redraw
+    case e: DecrementJailCounter =>
+    case e: NextPlayer => enableButtons(b3 = true); redraw
+    case e: WaitForNextPlayer => redraw; enableButtons(b2 = true)
+    case e: GoToJailEvent => enableButtons(b4 = true); redraw
+    case e: PayToLeave => enableButtons(b2 = true, b5 = true)
+    case e: GameOver => GameOverDialog(SwingGui.this, controller)
+    case e: ExitGame => System.exit(1)
   }
 
   def redraw: Unit = {

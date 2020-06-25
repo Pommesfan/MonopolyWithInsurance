@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, OwnStreet, PayForJail, PayToLeave, PlayerSet, StartState, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GameOver, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, NotEnoughMoney, OwnStreet, PayForJail, PayToLeave, PlayerSet, StartState, WaitForNextPlayer}
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.swing.Reactor
@@ -60,21 +60,29 @@ class Tui(controller: Controller) extends Reactor {
   }
 
   reactions += {
-    case event: NewGameEvent => print("Bitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
-    case event: PlayerSet => printTui; print("Spieler 1 darf Würfeln!\n(d)\n")
-    case event: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
-    case event: OwnStreet => print("Diese Straße gehört dir.\n")
-    case event: HandleStreet => print("Möchten Sie diese Straße kaufen? (J/N)\n")
-    case event: DiceRolled => print("Du hast eine " + controller.rolledNumber._1 + " und eine "
-      + controller.rolledNumber._2 +" gewürfelt.\n")
-    case event: MoneyTransaction => print("Zahle " + event.money + "$\n")
-    case event: DecrementJailCounter => print("Warte " + (event.counter + 1) +
-      " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n")
-    case event: NextPlayer => printTui; print("Nächster Spieler darf Würfeln! (d)\n")
-    case event: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
-    case event: GoToJailEvent => print("Gehe ins Gefängnis (3xPasch /Feld \"Gehe ins Gefängnis\" /Ereigniskarte)\n(jail)\n")
-    case event: PayToLeave => print("Du befindest dich im Gefägnis.\nPasch würfeln(d) oder Freikaufen(pay).\n")
-    case event: HandleChanceCard => print(event.message)
+    case e: NewGameEvent => print("Bitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
+    case e: PlayerSet => printTui; print("Spieler 1 darf Würfeln!\n(d)\n")
+    case e: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
+    case e: OwnStreet => print("Diese Straße gehört dir.\n")
+    case e: HandleStreet => print("Möchten Sie diese Straße kaufen? (J/N)\n")
+    case e: DiceRolled => print("Du hast eine " + controller.rolledNumber._1 + " und eine "
+      + controller.rolledNumber._2 + " gewürfelt.\n")
+    case e: MoneyTransaction => print("Zahle " + e.money + "$\n")
+    case e: DecrementJailCounter => print("Warte " + (e.counter + 1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n")
+    case e: NextPlayer => printTui; print("Nächster Spieler darf Würfeln! (d)\n")
+    case e: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
+    case e: GoToJailEvent => print("Gehe ins Gefängnis (3xPasch /Feld \"Gehe ins Gefängnis\" /Ereigniskarte)\n(jail)\n")
+    case e: PayToLeave => print("Du befindest dich im Gefägnis.\nPasch würfeln(d) oder Freikaufen(pay).\n")
+    case e: HandleChanceCard => print(e.message)
+    case e: NotEnoughMoney => print("Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n")
+    case e: GameOver =>
+      var i = 0
+      print("GAME OVER!\n\n")
+      for (p <- controller.players) {
+        i += 1
+        print(i + ": " + p.name + "\t" + p.money + "\n")
+      }
+      print("\nSpiel beenden (exit)\n")
   }
 
   def printTui: Unit = {
