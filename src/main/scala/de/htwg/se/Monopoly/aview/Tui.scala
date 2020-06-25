@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GameOver, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, NotEnoughMoney, OwnStreet, PayForJail, PayToLeave, PlayerSet, StartState, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GameOver, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, NotEnoughMoney, OwnStreet, PayForJail, PayToLeave, PlayerSet, RedoEvent, StartState, UndoEvent, WaitForNextPlayer}
 import de.htwg.se.Monopoly.util.Observer
 
 import scala.swing.Reactor
@@ -18,8 +18,18 @@ class Tui(controller: Controller) extends Reactor {
       case "exit" =>
         print("exit Game\n")
         System.exit(1)
-      case "z" => controller.undo
-      case "y" => controller.redo
+      case "z" =>
+        if (controller.context.state.isInstanceOf[NextPlayerState]) {
+          controller.undo
+        } else {
+          print("Zurück ist derzeit nicht möglich.\nBitte erst den Spielzug beenden.\n")
+        }
+      case "y" =>
+        if (controller.context.state.isInstanceOf[NextPlayerState]) {
+          controller.redo
+        } else {
+          print("Vorwärts ist derzeit nicht möglich.\n")
+        }
       case "d" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
           controller.rollDice()
@@ -62,7 +72,9 @@ class Tui(controller: Controller) extends Reactor {
   }
 
   reactions += {
-    case e: NewGameEvent => print("Bitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
+    case e: NewGameEvent => print("Wilkommen zu einer neuen Runde Monopoly!\nBitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
+    case e: UndoEvent => printTui; print("Nächster Spieler darf Würfeln! (d)\n")
+    case e: RedoEvent => printTui
     case e: PlayerSet => printTui; print("Spieler 1 darf Würfeln!\n(d)\n")
     case e: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
     case e: OwnStreet => print("Diese Straße gehört dir.\n")

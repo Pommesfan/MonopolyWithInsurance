@@ -2,10 +2,12 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.{GeneralPath, Rectangle2D}
 
-import de.htwg.se.Monopoly.controller.{BoughtStreet, Controller, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GameOverState, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BoughtStreet, Controller, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GameOverState, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.awt.image.BufferedImage
 import java.io.File
+
+import de.htwg.se.Monopoly.model.Street
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
@@ -190,23 +192,21 @@ class SwingGui(controller: Controller) extends MainFrame {
     background = Color.WHITE
   }
 
-  var history: Vector[String] = Vector[String]()
-
   reactions += {
-    case e: NewGameEvent => history = history :+ "Wilkommen zu einer neuen Runde Monopoly!\n"
-    case e: PlayerSet => history = history :+ controller.getActualPlayer.name + "darf beginnen.\n"
-    case e: DiceRolled => history = history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
-    case e: HandleStreet => history = history :+ "Möchten Sie diese Straße kaufen?\n"
-    case e: OwnStreet => history = history :+ "Diese Straße gehört dir.\n"
-    case e: MoneyTransaction => history = history :+ "Zahle " + e.money + "$\n"
-    case e: DecrementJailCounter => history = history :+ "Warte " + (e.counter +1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
-    case e: NextPlayer => history = history :+ controller.getActualPlayer.name +" ist dran.\n"
-    case e: WaitForNextPlayer => history = history :+ "Zug beenden?\n\n"
-    case e: LandedOnField => history = history :+ "Du landest auf Feld Nummer " + controller.actualField
-    case e: GoToJailEvent => history = history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
-    case e: PayToLeave => history = history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
-    case e: HandleChanceCard => history = history :+ e.message
-    case e: NotEnoughMoney => history = history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
+    case e: NewGameEvent => controller.history = controller.history :+ "Wilkommen zu einer neuen Runde Monopoly!\n"
+    case e: PlayerSet => controller.history = controller.history :+ controller.getActualPlayer.name + "darf beginnen.\n"
+    case e: DiceRolled => controller.history = controller.history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
+    case e: HandleStreet => controller.history = controller.history :+ "Möchten Sie diese Straße kaufen?\n"
+    case e: OwnStreet => controller.history = controller.history :+ "Diese Straße gehört dir.\n"
+    case e: MoneyTransaction => controller.history = controller.history :+ "Zahle " + e.money + "$\n"
+    case e: DecrementJailCounter => controller.history = controller.history :+ "Warte " + (e.counter +1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
+    case e: NextPlayer => controller.history = controller.history :+ controller.getActualPlayer.name +" ist dran.\n"
+    case e: WaitForNextPlayer => controller.history = controller.history :+ "Zug beenden?\n\n"
+    case e: LandedOnField => controller.history = controller.history :+ "Du landest auf Feld Nummer " + controller.actualField
+    case e: GoToJailEvent => controller.history = controller.history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
+    case e: PayToLeave => controller.history = controller.history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
+    case e: HandleChanceCard => controller.history = controller.history :+ e.message
+    case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
 
   def boardPanel: GridBagPanel = new GridBagPanel {
@@ -229,7 +229,7 @@ class SwingGui(controller: Controller) extends MainFrame {
       c
     }
     add(shapePanel(120, 220), constraints(0, 0))
-    add(new ScrollPane(gameHistory(history)), constraints(1, 1))
+    add(new ScrollPane(gameHistory(controller.history)), constraints(1, 1))
     add(panel, constraints(0 , 0, gridwidth= 11, gridheight = 11))
     add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
   }
@@ -242,65 +242,87 @@ class SwingGui(controller: Controller) extends MainFrame {
     border = LineBorder(java.awt.Color.BLACK, 1)
     requestFocus()
 
-    val figurePosition: List[(Int, Int)] =
-      List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
-        (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
-        (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
-        (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
-    var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
+  val figurePosition: List[(Int, Int)] =
+    List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
+      (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
+      (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
+      (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
+  var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
 
-    val polygonPosition: List[(Int, Int)] =
-      List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
-        (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
-        (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
-        (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
-    var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
+  val polygonPosition: List[(Int, Int)] =
+    List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
+      (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
+      (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
+      (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
+  var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
 
-    def addFigures(): Unit = {
+  def addFigures(): Unit = {
+    for(p <- controller.players) {
+      figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
+    }
+  }
+
+    def addOwnerPolygon(): Unit = {
+      for (field <- controller.board.fields) {
+        val position = polygonPosition(field.index)
+        polygons = polygons :+ (transparent, position._1, position._2)
+      }
+      repaint()
+    }
+
+    def updatePlayer(): Unit = {
       for(p <- controller.players) {
-        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
+        if (p.inJail != 0) {
+          figures = figures.updated(p.index, (figures(p.index)._1, 590, 15))
+        } else {
+          figures = figures.updated(p.index, (figures(p.index)._1, figurePosition(p.currentPosition)._1, figurePosition(p.currentPosition)._2))
+        }
       }
+      repaint()
     }
 
-    def addOwnerPolygon(color: Color): Unit = {
-      val fieldIndex = controller.actualField.index
-      val field = polygonPosition(fieldIndex)
-      polygons = polygons :+ (color, field._1, field._2)
+    def updateOwnerPolygon(): Unit = {
+      for (field <- controller.board.fields) {
+        field match {
+          case s: Street =>
+            if(s.owner != null) {
+              polygons = polygons.updated(s.index, (s.owner.orNull.color, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
+            } else {
+              polygons = polygons.updated(s.index, (transparent, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
+            }
+          case _ =>
+        }
+      }
+      repaint()
     }
 
-    override def paint(g: Graphics2D): Unit = {
-      for(path <- paths) {
-        g.draw(path)
-      }
-      g.draw(currentPath)
-      for(f <- figures) {
-        g.drawImage(f._1, f._2, f._3, null)
-      }
-      for(p <- polygons) {
-        val x = p._2
-        val y = p._3
-        g.setColor(p._1)
-        g.fillPolygon(Array(x, x + 15, x), Array(y, y, y + 15), 3)
-      }
+  override def paint(g: Graphics2D): Unit = {
+    for(path <- paths) {
+      g.draw(path)
     }
+    g.draw(currentPath)
+    for(f <- figures) {
+      g.drawImage(f._1, f._2, f._3, null)
+    }
+    for(p <- polygons) {
+      val x = p._2
+      val y = p._3
+      g.setColor(p._1)
+      g.fillPolygon(Array(x, x + 15, x), Array(y, y, y + 15), 3)
+    }
+  }
 
     listenTo(controller, buyButton, goToJailButton)
     reactions += {
-      case e: BoughtStreet =>
-        addOwnerPolygon(controller.players(controller.currentPlayerIndex).color)
-        repaint()
+      case e: BoughtStreet => updateOwnerPolygon()
       case e: PlayerSet =>
         addFigures()
+        addOwnerPolygon()
         repaint()
-      case e: LandedOnField =>
-        val field = controller.actualField
-        val index = controller.currentPlayerIndex
-        figures = figures.updated(index, (figures(index)._1, figurePosition(field.index)._1,  figurePosition(field.index)._2))
-        repaint()
-      case ButtonClicked(`goToJailButton`) =>
-        val index = controller.currentPlayerIndex
-        figures = figures.updated(index, (figures(index)._1, 600, 5))
-        repaint()
+      case e: LandedOnField => updatePlayer()
+      case e: UndoEvent => updatePlayer(); updateOwnerPolygon()
+      case e: RedoEvent => updatePlayer(); updateOwnerPolygon()
+      case ButtonClicked(`goToJailButton`) => updatePlayer()
     }
   }
 
@@ -362,6 +384,9 @@ class SwingGui(controller: Controller) extends MainFrame {
 
   contents = mainPanel
 
+  val menuItemUndo: MenuItem = new MenuItem(Action("Undo") { controller.undo }) {enabled = false}
+  val menuItemRedo: MenuItem = new MenuItem(Action("Redo") { controller.redo }) {enabled = false}
+
   menuBar = new MenuBar { menu =>
     contents += new Menu("File") {
       mnemonic = Key.F
@@ -372,27 +397,29 @@ class SwingGui(controller: Controller) extends MainFrame {
     }
     contents += new Menu("Edit") {
       mnemonic = Key.E
-      contents += new MenuItem(Action("Undo") { controller.undo })
-      contents += new MenuItem(Action("Redo") { controller.redo })
+      contents += menuItemUndo
+      contents += menuItemRedo
     }
   }
 
   visible = true
 
   reactions += {
-    case e: NewGameEvent =>
+    case e: NewGameEvent => redraw
+    case e: UndoEvent => enableButtons(b3 = true); redraw
+    case e: RedoEvent => enableButtons(b2 = true); redraw
     case e: PlayerSet => redraw
     case e: LandedOnField => redraw
     case e: OwnStreet => redraw
-    case e: HandleStreet =>
-      enableButtons(b1 = true); redraw
+    case e: HandleStreet => redraw
+      enableButtons(b1 = true)
     case e: DiceRolled => redraw
     case e: MoneyTransaction => redraw
     case e: DecrementJailCounter =>
-    case e: NextPlayer => enableButtons(b3 = true); redraw
-    case e: WaitForNextPlayer => redraw; enableButtons(b2 = true)
+    case e: NextPlayer => enableButtons(b3 = true, b6 = true); redraw
+    case e: WaitForNextPlayer => enableButtons(b2 = true, b6 = true); redraw
     case e: GoToJailEvent => enableButtons(b4 = true); redraw
-    case e: PayToLeave => enableButtons(b2 = true, b5 = true)
+    case e: PayToLeave => enableButtons(b3 = true, b5 = true)
     case e: GameOver => GameOverDialog(SwingGui.this, controller)
     case e: ExitGame => System.exit(1)
   }
@@ -406,7 +433,8 @@ class SwingGui(controller: Controller) extends MainFrame {
     repaint()
   }
 
-  def enableButtons(b1: Boolean = false, b2: Boolean = false, b3: Boolean = false, b4: Boolean = false, b5: Boolean = false): Unit = {
+  def enableButtons(b1: Boolean = false, b2: Boolean = false, b3: Boolean = false, b4: Boolean = false,
+                    b5: Boolean = false, b6: Boolean = false): Unit = {
     buyButton.enabled = b1
     notBuyButton.enabled = b1
     nextPlayerButton.enabled = b2
@@ -414,5 +442,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     goToJailButton.enabled = b4
     payReleaseButton.enabled = b5
     textArea.text = controller.actualField.name
+    menuItemUndo.enabled = b6
+    menuItemRedo.enabled = b6
   }
 }

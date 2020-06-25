@@ -14,6 +14,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   var actualField: Field = SpecialField(0, "Los")
   var context = new Context()
   var rolledNumber: (Int, Int) = (0, 0)
+  var history: Vector[String] = Vector[String]()
 
   def setPlayers(list: Array[String]): Unit = {
     var player = new ListBuffer[Player]()
@@ -124,6 +125,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         if (!gameOver(players(currentPlayerIndex))) {
           return
         }
+        context.nextPlayer()
         publish(new WaitForNextPlayer)
       case _: GoToJail =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
@@ -177,7 +179,11 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def nextPlayer(): Unit = {
     if (currentPlayerIndex + 1 < players.length) {
-      currentPlayerIndex = currentPlayerIndex + 1} else {currentPlayerIndex = 0}
+      currentPlayerIndex = currentPlayerIndex + 1
+    } else {
+      currentPlayerIndex = 0
+    }
+    actualField = board.fields(players(currentPlayerIndex).currentPosition)
     context.nextPlayer()
     publish(new NextPlayer)
     if(getActualPlayer.inJail != 0) {
@@ -201,17 +207,31 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   }
 
   def buyStreet(): Unit = {
-    undoManager.doStep(new BuyCommand(this))
+    actualField match {
+      case s: Street =>
+        if (players(currentPlayerIndex).money - s.price < 0){
+          publish(new NotEnoughMoney)
+        } else {
+          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.price))
+          val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Option(players(currentPlayerIndex)))
+          board = Board(board.fields.updated(s.index, street))
+          ownAllFieldsOfType(s)
+          publish(new BoughtStreet)
+        }
+    }
+    context.nextPlayer()
+    publish(new WaitForNextPlayer)
   }
 
   def undo: Unit = {
     undoManager.undoStep
-  //  notifyObservers
+    publish(new UndoEvent)
   }
 
   def redo: Unit = {
     undoManager.redoStep
-  //  notifyObservers
+    publish(new RedoEvent)
+    publish(new WaitForNextPlayer)
   }
 
   def gameToString: String = {
@@ -221,6 +241,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     for (p <- players) {
       string ++= "%-6s %-25s %-10s %-5s\n".format(p.index, p.name, p.money, p.currentPosition)
     }
+    string ++= actualField.toString
     string.toString()
   }
 }

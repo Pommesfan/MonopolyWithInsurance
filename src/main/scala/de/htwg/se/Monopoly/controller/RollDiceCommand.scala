@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.controller
 
-import de.htwg.se.Monopoly.model.{Board, Dice, Player}
+import de.htwg.se.Monopoly.model.{Board, Dice, Field, Player}
 import de.htwg.se.Monopoly.util.Command
 
 class RollDiceCommand(controller: Controller) extends Command{
@@ -8,6 +8,10 @@ class RollDiceCommand(controller: Controller) extends Command{
   var players: Vector[Player] = controller.players
   var context: Context = controller.context
   var currentPlayerIndex: Int = controller.currentPlayerIndex
+  var playerIndex: Int = controller.currentPlayerIndex
+  var rolledNumber: (Int, Int) = controller.rolledNumber
+  private var actualField: Field = controller.actualField
+  var history = controller.history
 
   override def doStep: Unit = {
     val firstRolledNumber = Dice().roll
@@ -31,29 +35,46 @@ class RollDiceCommand(controller: Controller) extends Command{
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
     val newContext: Context = controller.context
-    val newCurrentPlayerIndex: Int = controller.currentPlayerIndex
+    val newPlayerIndex: Int = controller.currentPlayerIndex
+    val newRolledNumber: (Int, Int) = controller.rolledNumber
+    val newActualField: Field = controller.actualField
+    val newHistory: Vector[String] = controller.history
     controller.board = board
     controller.players = players
     controller.context = context
-    controller.currentPlayerIndex = currentPlayerIndex
+    controller.currentPlayerIndex = playerIndex
+    controller.rolledNumber = rolledNumber
+    controller.actualField = actualField
+    controller.history = history
     board = newBoard
     players = newPlayers
     context = newContext
-    currentPlayerIndex = newCurrentPlayerIndex
+    playerIndex = newPlayerIndex
+    rolledNumber = newRolledNumber
+    actualField = newActualField
+    history = newHistory
   }
 
   override def redoStep: Unit = {
     val newBoard: Board = controller.board
     val newPlayers: Vector[Player] = controller.players
     val newContext: Context = controller.context
-    val newCurrentPlayerIndex: Int = controller.currentPlayerIndex
+    val newPlayerIndex: Int = controller.currentPlayerIndex
+    val newRolledNumber: (Int, Int) = controller.rolledNumber
+    val newActualField: Field = controller.actualField
+    val newHistory: Vector[String] = controller.history
     controller.board = board
     controller.players = players
     controller.context  = context
-    controller.currentPlayerIndex = currentPlayerIndex
+    controller.rolledNumber = rolledNumber
+    controller.actualField = actualField
+    controller.history = history
     board = newBoard
     players = newPlayers
     context  = newContext
-    currentPlayerIndex = newCurrentPlayerIndex
+    playerIndex = newPlayerIndex
+    rolledNumber = newRolledNumber
+    actualField = newActualField
+    history = newHistory
   }
 }

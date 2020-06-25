@@ -16,29 +16,28 @@ case class AddPlayerDialog(parent: Window, controller: Controller) extends Dialo
   val okButton = new Button("Ok")
   val cancelButton = new Button("Cancel")
   val nameField1: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure1: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure1: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField2: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure2: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure2: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField3: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure3: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure3: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField4: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure4: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure4: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField5: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure5: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure5: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField6: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure6: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure6: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField7: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure7: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
+  val figure7: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
   val nameField8: TextField = new TextField(32) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-  val figure8: ComboBox[String] = new ComboBox(List("Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
-
+  val figure8: ComboBox[String] = new ComboBox(List("", "Car", "Cat", "Dog", "Fingerhut", "Hut", "Ship", "Shoe", "Wheelbarrow")) {maximumSize = new Dimension(Short.MaxValue, preferredSize.height)}
 
 
 
