@@ -26,7 +26,7 @@ class SpecialFieldSpec extends WordSpec with Matchers {
         goJail.actOnPlayer(player) should be (SpecialField(30, "go to jail"))
       }
       "return string" in {
-        start.toString should be("0: Los")
+        start.toString should be("0: Los.\n")
       }
     }
     "unapply" should {

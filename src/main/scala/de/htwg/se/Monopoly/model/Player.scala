@@ -20,7 +20,7 @@ case class Player(name: String,
     } else {
       if (newPosition >= Variable.TOTAL_NUMBER_OF_FIELDS) {
         print("You go over Go \nCollect 200!\n")
-        val newCurrentPosition = newPosition - Variable.TOTAL_NUMBER_OF_FIELDS
+        val newCurrentPosition = newPosition + Variable.TOTAL_NUMBER_OF_FIELDS
         val newMoney = money + Variable.MONEY_NEW_ROUND
         copy(currentPosition = newCurrentPosition, money = newMoney)
       } else {
@@ -33,7 +33,7 @@ case class Player(name: String,
    def decrementMoney(amount: Int): Player = copy(money = money - amount)
   def goToJail(): Player = copy(currentPosition= 10, inJail = 2)
   def decrementJailCounter(): Player = copy(inJail= inJail - 1)
-  def setJailCounterZero(): Player = copy(inJail = 0)
+  def setJailCounterZero(): Player = copy(inJail = 0, pasch = 0)
   def setPasch(i: Int): Player = copy(pasch = i)
    override def toString:String = name
 }

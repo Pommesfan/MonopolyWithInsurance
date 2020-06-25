@@ -17,7 +17,6 @@ class Tui(controller: Controller) extends Reactor {
         printf("%-10s%s\n%-10s%s\n", "e", "exit", "p", "new Players")
       case "exit" =>
         print("exit Game\n")
-        System.exit(1)
       case "z" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
           controller.undo

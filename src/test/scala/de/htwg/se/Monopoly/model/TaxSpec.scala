@@ -22,7 +22,7 @@ class TaxSpec extends WordSpec with Matchers {
         tax.actOnPlayer(player) should be (Tax(22, "DiesIstEineSteuer", 200))
       }
       "return string" in {
-        tax.toString should be("22: DiesIstEineSteuer, Steuern: 200$")
+        tax.toString should be("22: DiesIstEineSteuer: 200$.\n")
       }
     }
     "unapply" should {

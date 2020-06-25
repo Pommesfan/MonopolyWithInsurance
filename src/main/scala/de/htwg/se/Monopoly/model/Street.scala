@@ -5,7 +5,7 @@ case class Street(override val index: Int,
                   neighbourhoodTypes: NeighbourhoodTypes.Value,
                   price: Int,
                   rent: Int,
-                  owner: Option[Player] = None) extends Field(index, name){
+                  owner: Player = null) extends Field(index, name){
 
   override def actOnPlayer(player: Player): Street = {
     Street(index, name, neighbourhoodTypes, price, rent, owner)

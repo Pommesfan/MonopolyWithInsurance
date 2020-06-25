@@ -286,7 +286,7 @@ class SwingGui(controller: Controller) extends MainFrame {
         field match {
           case s: Street =>
             if(s.owner != null) {
-              polygons = polygons.updated(s.index, (s.owner.orNull.color, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
+              polygons = polygons.updated(s.index, (s.owner.color, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
             } else {
               polygons = polygons.updated(s.index, (transparent, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
             }

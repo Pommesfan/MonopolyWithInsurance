@@ -11,7 +11,8 @@ class RollDiceCommand(controller: Controller) extends Command{
   var playerIndex: Int = controller.currentPlayerIndex
   var rolledNumber: (Int, Int) = controller.rolledNumber
   private var actualField: Field = controller.actualField
-  var history = controller.history
+  var history: Vector[String] = controller.history
+  var undoJail: Boolean = controller.undoJail
 
   override def doStep: Unit = {
     val firstRolledNumber = Dice().roll
@@ -24,7 +25,7 @@ class RollDiceCommand(controller: Controller) extends Command{
       controller.players = controller.players.updated(controller.currentPlayerIndex, controller.getActualPlayer.setPasch(0))
     }
     if (controller.getActualPlayer.pasch == 3) {
-      context.goToJail(controller)
+      context.goToJail()
       controller.publish(new GoToJailEvent)
     } else {
       controller.movePlayer(firstRolledNumber + secondRolledNumber)
@@ -39,13 +40,18 @@ class RollDiceCommand(controller: Controller) extends Command{
     val newRolledNumber: (Int, Int) = controller.rolledNumber
     val newActualField: Field = controller.actualField
     val newHistory: Vector[String] = controller.history
+    val newUndoJail = controller.undoJail
     controller.board = board
     controller.players = players
     controller.context = context
+    if (controller.undoJail) {
+      controller.context.setState(new PayForJail)
+    }
     controller.currentPlayerIndex = playerIndex
     controller.rolledNumber = rolledNumber
     controller.actualField = actualField
     controller.history = history
+    controller.undoJail = undoJail
     board = newBoard
     players = newPlayers
     context = newContext
@@ -53,6 +59,7 @@ class RollDiceCommand(controller: Controller) extends Command{
     rolledNumber = newRolledNumber
     actualField = newActualField
     history = newHistory
+    undoJail = newUndoJail
   }
 
   override def redoStep: Unit = {
@@ -63,12 +70,14 @@ class RollDiceCommand(controller: Controller) extends Command{
     val newRolledNumber: (Int, Int) = controller.rolledNumber
     val newActualField: Field = controller.actualField
     val newHistory: Vector[String] = controller.history
+    val newUndoJail = controller.undoJail
     controller.board = board
     controller.players = players
     controller.context  = context
     controller.rolledNumber = rolledNumber
     controller.actualField = actualField
     controller.history = history
+    controller.undoJail = undoJail
     board = newBoard
     players = newPlayers
     context  = newContext
@@ -76,5 +85,6 @@ class RollDiceCommand(controller: Controller) extends Command{
     rolledNumber = newRolledNumber
     actualField = newActualField
     history = newHistory
+    undoJail = newUndoJail
   }
 }

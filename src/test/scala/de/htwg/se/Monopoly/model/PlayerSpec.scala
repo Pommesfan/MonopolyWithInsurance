@@ -14,7 +14,7 @@ class PlayerSpec extends WordSpec with Matchers {
         player1.name should be("Player1")
         player2.name should be("Player2")
       }
-      "have a index, e.g. second Player" in {
+      "have a index, e.g. first Player" in {
         player1.index should be (0)
       }
       "have a currentPosition" in {
@@ -37,11 +37,11 @@ class PlayerSpec extends WordSpec with Matchers {
       "set Position from 0 to 7" in {
         player1.setPosition(7) should be (Player("Player1", 0, currentPosition = 7))
       }
-      "Set Position from 0 to 39 (go 2 backwards)" in {
+      "Set Position from 0 to 38 (go 2 backwards)" in {
         player2.setPosition(-2) should be (Player("Player2", 1, 38))
       }
-      "Set Position to 3" in {
-        player3.setPosition(42) should be (Player("Player3", 2, 3, money = 1700))
+      "Set Position to 2" in {
+        player3.setPosition(42) should be (Player("Player3", 2, 2, money = 1700))
       }
     }
     "earn money" should {
@@ -69,11 +69,9 @@ class PlayerSpec extends WordSpec with Matchers {
       val player1 = Player("Player1", index = 0)
       val player1Jail = player1.goToJail()
       "go to Jail" in {
-        player1.goToJail() should be (Player("Player1", index = 0, currentPosition = 10, inJail = 3))
-        player1Jail.decrementJailCounter() should be (Player("Player1", index = 0, currentPosition = 10, inJail = 2))
+        player1.goToJail() should be (Player("Player1", index = 0, currentPosition = 10, inJail = 2))
+        player1Jail.decrementJailCounter() should be (Player("Player1", index = 0, currentPosition = 10, inJail = 1))
       }
     }
   }
-
-
 }

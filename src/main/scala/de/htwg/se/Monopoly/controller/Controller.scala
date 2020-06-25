@@ -10,6 +10,7 @@ import scala.swing.Publisher
 class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Publisher {
 
   private val undoManager = new UndoManager
+  var undoJail = false
   var currentPlayerIndex: Int = 0
   var actualField: Field = SpecialField(0, "Los")
   var context = new Context()
@@ -38,6 +39,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def movePlayer(rolledEyes: Int): Unit = {
     val actualPlayer = getActualPlayer
+    undoJail = false
     if (actualPlayer.inJail != 0 & actualPlayer.pasch == 0) {
       decrementJailCounter(actualPlayer)
       publish(new WaitForNextPlayer)
@@ -45,7 +47,9 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       setPlayer(actualPlayer, rolledEyes)
     } else {
       players = players.updated(actualPlayer.index, actualPlayer.setJailCounterZero())
-      setPlayer(actualPlayer, rolledEyes)
+      undoJail = true
+      context.nextPlayer()
+      setPlayer(getActualPlayer, rolledEyes)
     }
   }
 
@@ -60,7 +64,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
   def payToLeaveJail(p: Player): Unit = {
     context.nextPlayer()
     players = players.updated(p.index, p.setJailCounterZero().decrementMoney(50))
-    movePlayer(rolledNumber._1 + rolledNumber._2)
+    rollDice()
   }
 
   def gameOver(player: Player): Boolean = {
@@ -78,7 +82,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       field match {
         case s: Street =>
           if (s.owner != null & !player.equals(s.owner)) {
-            val owner: Player = players(s.owner.orNull.index)
+            val owner: Player = players(s.owner.index)
             players = players.updated(owner.index, owner.incrementMoney(s.price))
           }
         case _ =>
@@ -121,16 +125,12 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
         }
         publish(MoneyTransaction(rent))
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(rent))
-        players = players.updated(s.owner.orNull.index, players(s.owner.orNull.index).incrementMoney(rent))
+        players = players.updated(s.owner.index, players(s.owner.index).incrementMoney(rent))
         if (!gameOver(players(currentPlayerIndex))) {
           return
         }
         context.nextPlayer()
         publish(new WaitForNextPlayer)
-      case _: GoToJail =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
-        publish(new GoToJailEvent)
-      case _ =>
     }
   }
 
@@ -165,9 +165,6 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
 
   def handleTax(t: Tax): Unit = {
     context.state match {
-      case _: GoToJail =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
-        publish(new GoToJailEvent)
       case _ =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
         if (!gameOver(players(currentPlayerIndex))) {
@@ -200,7 +197,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
       ownAllStreetTypes = false
     }
     for (s <- sameNeighbourhood if ownAllStreetTypes) {
-      val newStreet = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent * 2, Option(owner))
+      val newStreet = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent * 2, owner)
       board = Board(board.fields.updated(s.index, newStreet))
     }
     ownAllStreetTypes
@@ -213,7 +210,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
           publish(new NotEnoughMoney)
         } else {
           players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.price))
-          val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, Option(players(currentPlayerIndex)))
+          val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, players(currentPlayerIndex))
           board = Board(board.fields.updated(s.index, street))
           ownAllFieldsOfType(s)
           publish(new BoughtStreet)

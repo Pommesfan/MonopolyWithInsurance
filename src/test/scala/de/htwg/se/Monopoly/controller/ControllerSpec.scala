@@ -1,5 +1,7 @@
 package de.htwg.se.Monopoly.controller
 
+import java.awt.Color
+
 import de.htwg.se.Monopoly.model.{Board, ChanceCard, NeighbourhoodTypes, Player, SpecialField, Street, Tax, Variable}
 import de.htwg.se.Monopoly.util.Observer
 import org.scalatest._

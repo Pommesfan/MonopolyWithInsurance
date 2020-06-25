@@ -1,4 +1,4 @@
-package de.htwg.se.Monopoly.unit
+package de.htwg.se.Monopoly.util
 
 import de.htwg.se.Monopoly.util.{Observable, Observer}
 import org.scalatest._
@@ -7,6 +7,7 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ObservableSpec extends WordSpec with Matchers {
+  /**
   "An Observable" should {
     val observable = new Observable
     val observer = new Observer {
@@ -29,5 +30,5 @@ class ObservableSpec extends WordSpec with Matchers {
     }
 
   }
-
+*/
 }

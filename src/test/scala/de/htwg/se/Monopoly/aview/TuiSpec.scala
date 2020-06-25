@@ -1,7 +1,9 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.Controller
-import de.htwg.se.Monopoly.model.{Player, StartBoardFactoryMethod}
+import java.awt.Color
+
+import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, GameOverState, GoToJail, NextPlayerState, PayForJail, StartState}
+import de.htwg.se.Monopoly.model.{Player, SpecialField, StartBoardFactoryMethod}
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
@@ -9,90 +11,167 @@ import org.scalatestplus.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class TuiSpec extends WordSpec with Matchers {
   "A Monopoly Tui" should {
-    "on input 'help' print string" in {
-      val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
-      val tui = new Tui(controller)
+    val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
+    val tui = new Tui(controller)
+    "print string on input 'help'" in {
       val stream = new java.io.ByteArrayOutputStream()
       tui.processInputLine("help") should be
       Console.withOut(stream) {
         print("e         exit\np         new Players\n")
       }
     }
-    "start game, set player, dice and not buy street" in {
-      val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
-      val tui = new Tui(controller)
+    "set players on input 'p player1 player2'" in {
       tui.processInputLine("p player1 player2")
-      controller.players should be(Vector[Player](Player("player1", 0), Player("player2", 1)))
-      val oldPlayer = controller.players(0)
+      controller.players should be (Vector[Player](Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
+    }
+    "roll dice  and not buy street on input'd' and 'N' for player1" in {
+      val old = controller.rolledNumber
       tui.processInputLine("d")
-      controller.players(0) should not be (oldPlayer)
-      var i = controller.players(0).currentPosition
+      controller.rolledNumber should not be (old)
+      var i = controller.getActualPlayer.currentPosition
       while (i != 3 & i != 5 & i != 6 & i != 8 & i != 9 & i != 11 & i != 12) {
+        tui.processInputLine("n")
         tui.processInputLine("z")
         tui.processInputLine("d")
         i = controller.players(0).currentPosition
       }
       tui.processInputLine("N")
+      tui.processInputLine("n")
       controller.currentPlayerIndex should be (1)
-      tui.processInputLine("e")
     }
-    "start game, set player, dice and buy street" in {
-      val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
-      val tui = new Tui(controller)
-      tui.processInputLine("p player1 player2")
-      controller.players should be(Vector[Player](Player("player1", 0), Player("player2", 1)))
-      val oldPlayer = controller.players(0)
-      tui.processInputLine("d")
-      controller.players(0) should not be (oldPlayer)
-      var i = controller.players(0).currentPosition
-      while (i != 3 & i != 5 & i != 6 & i != 8 & i != 9 & i != 11 & i != 12) {
-        tui.processInputLine("z")
-        tui.processInputLine("d")
-        i = controller.players(0).currentPosition
-      }
-      tui.processInputLine("J")
-      controller.currentPlayerIndex should be (1)
-      tui.processInputLine("e")
-    }
-    "start game, set player, dice, undo and redo" in {
-      val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
-      val tui = new Tui(controller)
-      tui.processInputLine("p player1 player2")
-      controller.players should be(Vector[Player](Player("player1", 0), Player("player2", 1)))
-      val old = controller.players(0)
-      tui.processInputLine("d")
-      val newController = controller
-      newController.players(0) should not be (old)
+    "roll dice  and buy street on input'd' and 'J' for player1" in {
       tui.processInputLine("z")
       controller.currentPlayerIndex should be (0)
-      controller.players(0) should be (old)
-      tui.processInputLine("y")
-      controller should be (newController)
-      val stream = new java.io.ByteArrayOutputStream()
-      tui.processInputLine("Kein Pattern Matching") should be
-      Console.withOut(stream) {
-        print("Kein Pattern matching!")
-      }
-    }
-    "start game, set player, dice, buy Street and undo and redo" in {
-      val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
-      val tui = new Tui(controller)
-      tui.processInputLine("p player1 player2")
-      controller.players should be(Vector[Player](Player("player1", 0), Player("player2", 1)))
-      val oldPlayer = controller.players(0)
+      val old = controller.rolledNumber
       tui.processInputLine("d")
-      controller.players(0) should not be (oldPlayer)
-      var i = controller.players(0).currentPosition
+      controller.rolledNumber should not be (old)
+      var i = controller.getActualPlayer.currentPosition
       while (i != 3 & i != 5 & i != 6 & i != 8 & i != 9 & i != 11 & i != 12) {
+        tui.processInputLine("n")
         tui.processInputLine("z")
         tui.processInputLine("d")
         i = controller.players(0).currentPosition
       }
       tui.processInputLine("J")
+      tui.processInputLine("n")
       controller.currentPlayerIndex should be (1)
+    }
+    "undo and redo on input 'z' and 'y'" in {
+      controller.currentPlayerIndex should be (1)
+      val old = controller
+      tui.processInputLine("d")
+      var i = controller.context.state.isInstanceOf[BuyStreet]
+      while (!controller.context.state.isInstanceOf[BuyStreet]) {
+        tui.processInputLine("n")
+        tui.processInputLine("z")
+        tui.processInputLine("d")
+        i = controller.context.state.isInstanceOf[BuyStreet]
+      }
+      val stream = new java.io.ByteArrayOutputStream()
+      tui.processInputLine("z") should be
+      Console.withOut(stream) {
+        print("Zurück ist derzeit nicht möglich.\nBitte erst den Spielzug beenden.\n")
+      }
+      tui.processInputLine("y") should be
+      Console.withOut(stream) {
+        print("Vorwärts ist derzeit nicht möglich.\n")
+      }
+      tui.processInputLine("J")
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (0)
+      val newController = controller
       tui.processInputLine("z")
+      controller should be (old)
+      controller.currentPlayerIndex should be (1)
       tui.processInputLine("y")
-      tui.processInputLine("e")
+      controller should be (newController)
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (0)
+    }
+  }
+  "A second Monopoly Tui" should {
+    val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
+    val tui = new Tui(controller)
+    "set players on input 'p player1 player2'" in {
+      tui.processInputLine("p player1 player2")
+      controller.players should be(Vector[Player](Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
+    }
+    "player1 go to jail on input 'jail' after he landed on field 'goToJail'" in {
+      controller.movePlayer(30)
+      controller.actualField should be (SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
+      controller.context.state.isInstanceOf[GoToJail] should be (true)
+      tui.processInputLine("jail")
+      controller.getActualPlayer should be (Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (1)
+    }
+    "player2 go to jail on input 'jail' after he landed on field 'goToJail'" in {
+      controller.movePlayer(30)
+      controller.actualField should be (SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
+      controller.context.state.isInstanceOf[GoToJail] should be (true)
+      tui.processInputLine("jail")
+      controller.getActualPlayer should be (Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (0)
+    }
+    "player1 in jail, pay to leave jail" in {
+      controller.context.state.isInstanceOf[PayForJail] should be (true)
+      tui.processInputLine("pay")
+      controller.getActualPlayer should not be (Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
+      controller.context.setState(new NextPlayerState)
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (1)
+    }
+    "player2 in jail, roll dice to leave jail: pasch" in {
+      controller.context.state.isInstanceOf[PayForJail] should be (true)
+      tui.processInputLine("d")
+      var i = controller.rolledNumber._1 == controller.rolledNumber._2
+      while (!i) {
+        controller.undo
+        tui.processInputLine("d")
+        i = controller.rolledNumber._1 == controller.rolledNumber._2
+      }
+      controller.getActualPlayer should not be (Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
+      controller.getActualPlayer.inJail should be (0)
+      controller.getActualPlayer.pasch should be (0)
+      if (controller.context.state.isInstanceOf[BuyStreet]) {
+        tui.processInputLine("J")
+      }
+      tui.processInputLine("n")
+      controller.undo
+      controller.currentPlayerIndex should be (1)
+    }
+    "player2 in jail, roll dice to leave jail: no pasch" in {
+      controller.context.state.isInstanceOf[PayForJail] should be (true)
+      tui.processInputLine("d")
+      var i = controller.rolledNumber._1 != controller.rolledNumber._2
+      while (!i) {
+        controller.undo
+        tui.processInputLine("d")
+        i = controller.rolledNumber._1 != controller.rolledNumber._2
+      }
+      controller.getActualPlayer should be (Player("player2", 1, 10, 1, 1500, "Cat", Color.ORANGE))
+      controller.context.setState(new NextPlayerState)
+      tui.processInputLine("n")
+      controller.currentPlayerIndex should be (0)
+    }
+  }
+  "A third Monopoly Tui" should {
+    val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
+    val tui = new Tui(controller)
+    "print tui on input 'print TUI'" in {
+      tui.processInputLine("print TUI")
+      controller.context.state.isInstanceOf[StartState] should be (true)
+    }
+    "print 'Kein Pattern matching!' on input 'falsche Eingabe'" in {
+      tui.processInputLine("falsche Eingabe")
+      controller.context.state.isInstanceOf[StartState] should be (true)
+    }
+    "game Over" in {
+      controller.players = Vector[Player](Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), Player("player2", 1, 0, 0, 10, "Cat", Color.ORANGE))
+      controller.context.setPlayer()
+      controller.movePlayer(4)
+      controller.context.state.isInstanceOf[GameOverState] should be (true)
     }
   }
 }

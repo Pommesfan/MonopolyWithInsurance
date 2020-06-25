@@ -21,8 +21,9 @@ class Context {
   def setState(s: State): Unit = {
     state = s
   }
-  def goToJail(controller: Controller): Unit = {
-    state.goToJail(this, controller)
+
+  def goToJail(): Unit = {
+    state.goToJail(this)
   }
 
   def payForJail(controller: Controller): Unit = {
@@ -38,7 +39,7 @@ trait State {
   def setPlayer(context: Context) {}
   def nextPlayer(context: Context) {}
   def handleField(context: Context, controller: Controller) {}
-  def goToJail(context: Context, controller: Controller) {}
+  def goToJail(context: Context) {}
   def payForJail(context: Context) {}
   def gameOver(context: Context) {}
 }
@@ -52,11 +53,15 @@ class StartState() extends State {
 class NextPlayerState() extends State {
   override def handleField(context: Context, controller: Controller): Unit = {
     val players = controller.players
+    if (players(controller.currentPlayerIndex).pasch == 3) {
+      context.setState(new GoToJail)
+      return
+    }
     controller.actualField match {
       case s: Street =>
         if (s.owner == null) {
           context.setState(new BuyStreet)
-        } else if (players(controller.currentPlayerIndex).index.equals(s.owner.orNull.index)) {
+        } else if (players(controller.currentPlayerIndex).index.equals(s.owner.index)) {
           context.setState(new NextPlayerState)
         } else {
           context.setState(new PayOtherPlayer)
@@ -79,11 +84,8 @@ class NextPlayerState() extends State {
     }
   }
 
-  override def goToJail(context: Context, controller: Controller): Unit = {
-    val players = controller.players
-    if (players(controller.currentPlayerIndex).pasch == 3) {
-      context.setState(new GoToJail)
-    }
+  override def goToJail(context: Context): Unit = {
+    context.setState(new GoToJail)
   }
 
   override def payForJail(context: Context): Unit = {
@@ -114,9 +116,6 @@ class PayOtherPlayer() extends State {
 class GoToJail() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
-  }
-  override def goToJail(context: Context, controller: Controller): Unit = {
-    context.setState(new GoToJail)
   }
 }
 
