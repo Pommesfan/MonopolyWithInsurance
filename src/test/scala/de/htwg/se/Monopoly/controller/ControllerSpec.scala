@@ -12,83 +12,119 @@ import org.scalatestplus.junit.JUnitRunner
 class ControllerSpec extends WordSpec with Matchers {
 
   "A Controller" when {
-    "observed by an Observer" should {
-      val board = Board(Variable.START_BOARD)
-      val controller = new Controller(board)
-      val observer = new Observer {
-        var updated: Boolean = false
-
-        def isUpdated: Boolean = updated
-
-        override def update: Boolean = {
-          updated = true; updated
-        }
-      }
-      controller.add(observer)
-      "notify its Observer after set players" in {
-        controller.setPlayers(Array[String]("Player1", "Player2", "Player3"))
-        observer.updated should be(true)
-        controller.players should have length (3)
-      }
-      "notify its Observer after move Player to Street(5, \"Südbahnhof\")" in {
-        controller.movePlayer(5) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25))
-        observer.updated should be(true)
-      }
-      "notify its Observer after player buys Street" in {
-        controller.buyStreet()
-        observer.updated should be(true)
-        controller.context.state.isInstanceOf[NextPlayerState] should be(true)
-      }
-      "notify its Observer after move player to SpecialField(30, \"Gefängnis: Gehen Sie ins Gefängnis\")" in {
-        controller.movePlayer(30) should be(SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
-        controller.players(controller.currentPlayerIndex - 1) should be(Player("Player2", 1, 10, 3, 1500))
-        observer.updated should be(true)
-      }
-      "notify its Observer after move Player to Tax(4, \"Einkommenssteuer\", 200)" in {
-        controller.movePlayer(4) should be(Tax(4, "Einkommenssteuer", 200))
-        observer.updated should be(true)
-      }
-      "notify its Observer after handle ChanceCard" in {
-        controller.movePlayer(2).isInstanceOf[ChanceCard] should be(true)
-        observer.updated should be(true)
-      }
-      "notiy its Observer after decrement jail counter" in {
-        controller.movePlayer(5) should be(SpecialField(10, "Gefängnis"))
-        observer.updated should be(true)
-      }
-      "notiy its Observer after move Player to Street(5, \"Südbahnhof\", NeighbourhoodTypes.Station, 200, 25, player1)" in {
-        controller.movePlayer(1) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Some(Player("Player1", 0, 5, 0, 1500))))
-        observer.updated should be(true)
-      }
-      "notify its Observer after handle ChanceCard(7, \"Ereignisfeld\", (- 30), 30, 1)" in {
-        val old = controller.players(controller.currentPlayerIndex)
-        controller.handleChanceCard(ChanceCard(7, "Ereignisfeld", (-30), 30, 1))
-        controller.players(controller.currentPlayerIndex - 1) should not be (old)
-        observer.updated should be(true)
-      }
-      "notify its Observer after handle own Street" in {
-        controller.nextPlayer()
-        controller.nextPlayer()
-        controller.movePlayer(39) should be(Street(5, "Südbahnhof", NeighbourhoodTypes.Station, 200, 25, Some(Player("Player1", 0, 5, 0, 1500))))
-        observer.updated should be(true)
-      }
-      "notify its Observer after move to field \"30: FreeParking\"" in {
-        controller.players = controller.players.updated(1, Player("Player2", 1, 10, 0, 1500))
-        val old = controller.players(controller.currentPlayerIndex)
-        controller.movePlayer(10)
-        controller.players(controller.currentPlayerIndex - 1) should not be (old)
-        controller.context.state.isInstanceOf[NextPlayerState] should be(true)
-        observer.updated should be(true)
-      }
-      "notify its Observer after move to field \"0: Go\"" in {
-        controller.movePlayer(34)
-        observer.updated should be(true)
-      }
-      "notify its Observer after move to field \"10: Jail\"" in {
-        controller.movePlayer(5)
-        observer.updated should be(true)
+    val board = Board(Variable.START_BOARD)
+    val controller = new Controller(board)
+    "set Players" should {
+      val list = Array[String]("player1 Car", "player2 Hut")
+      "createNewPlayer not with difault figures" in {
+        controller.setPlayers(list)
       }
     }
+    "buy Street without enough money" in {
+      controller.players = Vector[Player](Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), Player("player2", 1, 0, 0, 2, "Cat", Color.ORANGE))
+      controller.context.setPlayer()
+      controller.movePlayer(3)
+      controller.context.state.isInstanceOf[BuyStreet] should be (true)
+      controller.buyStreet()
+      controller.board.fields should be (board.fields)
+      controller.context.state.isInstanceOf[NextPlayerState] should be (true)
+      controller.nextPlayer()
+    }
+    "land on street from other Player, can't pay rent" in {
+      val street = Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4, Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE))
+      controller.board = Board(controller.board.fields.updated(3, street))
+      controller.currentPlayerIndex should be (1)
+      controller.movePlayer(3)
+      controller.context.state.isInstanceOf[GameOverState] should be (true)
+    }
+  }
+  "A second Controller" when {
+    val board = Board(Variable.START_BOARD)
+    val controller = new Controller(board)
+    controller.players = Vector[Player](Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE), Player("player2", 1, 0, 0, 1500, "Car", Color.ORANGE))
+    controller.context.setPlayer()
+    "land on own Street" in {
+      val street = Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE))
+      controller.board = Board(controller.board.fields.updated(3, street))
+      controller.currentPlayerIndex should be (0)
+      controller.movePlayer(3)
+      controller.actualField should be (Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE)))
+      controller.context.state.isInstanceOf[NextPlayerState] should be (true)
+      controller.nextPlayer()
+    }
+    "land on one of two Untility Street owned by different players" in {
+      val street = Street(12, "Elektrizitätswerk", NeighbourhoodTypes.Utility, 150, 0, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE))
+      controller.board = Board(controller.board.fields.updated(12, street))
+      controller.currentPlayerIndex should be (1)
+      controller.movePlayer(12)
+      controller.actualField should be (Street(12, "Elektrizitätswerk", NeighbourhoodTypes.Utility, 150, 0, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE)))
+      controller.nextPlayer()
+    }
+    "land on one of two utility Streets owned by the same player" in {
+      controller.currentPlayerIndex should be (0)
+      controller.nextPlayer()
+      val street = Street(28, "Wasserwerk", NeighbourhoodTypes.Utility, 150, 0, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE))
+      controller.board = Board(controller.board.fields.updated(28, street))
+      controller.currentPlayerIndex should be (1)
+      controller.movePlayer(16)
+      controller.actualField should be (Street(28, "Wasserwerk", NeighbourhoodTypes.Utility, 150, 0, Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE)))
+      controller.nextPlayer()
+    }
+  }
+  "A third Controller" when {
+    val board = Board(Variable.START_BOARD)
+    val controller = new Controller(board)
+    controller.players = Vector[Player](Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE), Player("player2", 1, 2, 0, 1500, "Car", Color.ORANGE))
+    controller.context.setPlayer()
+    "land on Tax field" in {
+      controller.movePlayer(4)
+      controller.actualField should be (Tax(4, "Einkommenssteuer", 200))
+      controller.context.state.isInstanceOf[NextPlayerState] should be (true)
+      controller.nextPlayer()
+    }
+    "land on 'Ereignisfeld'" in {
+      controller.currentPlayerIndex should be (1)
+      val chanceCards: List[ChanceCard] = List[ChanceCard](
+        ChanceCard(2, "Gemeinschaftsfeld", 1, 100, 0, -1, "Ereigniskarte: Die Bank gibt dir 100$.\n"),
+        ChanceCard(2, "Gemeinschaftsfeld", 2, 50, 0, -1, "Ereigniskarte: Du hast eine Fashion-Wettbewerb gewonnen.\n Erhalte 50$.\n"),
+        ChanceCard(2, "Gemeinschaftsfeld", 3, -30, 30, 0, "Ereigniskarte: Gib dem anderen Spieler 30.\n"),
+        ChanceCard(2, "Gemeinschaftsfeld", 4, 0, 0, -1, "Ereigniskarte: Gehe ins Gefängnis!\n"),
+        ChanceCard(2, "Gemeinschaftsfeld", 3, -30, 30, 0, "Ereigniskarte: Gib dem anderen Spieler 30.\n")
+      )
 
+      for (cC <- chanceCards) {
+        controller.handleChanceCard(cC)
+        cC match {
+          case ChanceCard(2, "Gemeinschaftsfeld", 1, 100, 0, -1, "Ereigniskarte: Die Bank gibt dir 100$.\n") =>
+            controller.players(1) should be (Player("player2", 1, 2, 0, 1600, "Car", Color.ORANGE))
+
+          case ChanceCard(2, "Gemeinschaftsfeld", 2, 50, 0, -1, "Ereigniskarte: Du hast eine Fashion-Wettbewerb gewonnen.\n Erhalte 50$.\n") =>
+            controller.players(1) should be (Player("player2", 1, 2, 0, 1650, "Car", Color.ORANGE))
+
+          case ChanceCard(2, "Gemeinschaftsfeld", 3, -30, 30, 0, "Ereigniskarte: Gib dem anderen Spieler 30.\n") =>
+            if (controller.players(1).equals(Player("player2", 1, 2, 0, 1620, "Car", Color.ORANGE))) {
+              controller.players(1) should be (Player("player2", 1, 2, 0, 1620, "Car", Color.ORANGE))
+              controller.players(0) should be (Player("player1", 0, 4, 0, 1330, "Cat", Color.BLUE))
+              controller.context.setState(new GoToJail)
+            } else {
+              controller.context.state.isInstanceOf[GameOverState] should be (true)
+            }
+
+          case ChanceCard(2, "Gemeinschaftsfeld", 4, 0, 0, -1, "Ereigniskarte: Gehe ins Gefängnis!\n") =>
+            controller.players(1) should be (Player("player2", 1, 10, 2, 1620, "Car", Color.ORANGE))
+            controller.context.setState(new NextPlayerState)
+            controller.players = Vector[Player](Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), Player("player2", 1, 2, 0, 10, "Car", Color.ORANGE))
+        }
+      }
+    }
+    "roll third pasch and go to jail" in {
+      controller.players = Vector[Player](Player("player1", 0, 0, 0, 1500, "Cat", Color.BLUE, 2), Player("player2", 1, 0, 0, 1500, "Car", Color.ORANGE, 2))
+      controller.context.setState(new NextPlayerState)
+      controller.rollDice()
+      while (controller.rolledNumber._1 == controller.rolledNumber._2) {
+        controller.undo
+        controller.rollDice()
+      }
+    }
   }
 }
