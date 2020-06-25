@@ -198,7 +198,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     case e: DiceRolled => history = history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
     case e: HandleStreet => history = history :+ "Möchten Sie diese Straße kaufen?\n"
     case e: OwnStreet => history = history :+ "Diese Straße gehört dir.\n"
-    case e: MoneyTransaction => history = history :+ "Transaktion" + e.money + "\n"
+    case e: MoneyTransaction => history = history :+ "Zahle " + e.money + "$\n"
     case e: DecrementJailCounter => history = history :+ "Warte " + (e.counter +1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
     case e: NextPlayer => history = history :+ controller.getActualPlayer.name +" ist dran.\n"
     case e: WaitForNextPlayer => history = history :+ "Zug beenden?\n\n"
