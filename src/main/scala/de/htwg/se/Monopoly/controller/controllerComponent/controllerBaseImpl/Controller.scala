@@ -1,6 +1,8 @@
 package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
+import com.google.inject.Inject
 import de.htwg.se.Monopoly.controller._
+import de.htwg.se.Monopoly.model.Variable
 import de.htwg.se.Monopoly.model.boardComponent.{IBoard, boardBaseImpl}
 import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.Monopoly.model.fieldComponent.IField
@@ -14,7 +16,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.swing.Publisher
 
-class Controller(var board: IBoard, var players: Vector[IPlayer] = Vector()) extends IController with Publisher {
+class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IController with Publisher {
 
   private val undoManager = new UndoManager
   var undoJail = false
@@ -23,6 +25,11 @@ class Controller(var board: IBoard, var players: Vector[IPlayer] = Vector()) ext
   var context = new Context()
   var rolledNumber: (Int, Int) = (0, 0)
   var history: Vector[String] = Vector[String]()
+
+  @Inject()
+  def this() = {
+    this(Board(Variable.START_BOARD), Vector[Player]())
+  }
 
   def setPlayers(list: Array[String]): Unit = {
     var player = new ListBuffer[Player]()

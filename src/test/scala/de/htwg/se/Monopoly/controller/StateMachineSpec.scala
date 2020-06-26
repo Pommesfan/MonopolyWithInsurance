@@ -3,9 +3,7 @@ package de.htwg.se.Monopoly.controller
 import java.awt.Color
 
 import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{Controller, FreeParking, GoToJail, LandedOnGo, NextPlayerState, StartState, VisitJail}
-import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField}
-import de.htwg.se.Monopoly.model.Variable
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
 import org.junit.runner.RunWith
@@ -15,8 +13,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class StateMachineSpec extends WordSpec with Matchers {
   "A Controller has state" when {
-    val board = Board(Variable.START_BOARD)
-    val controller = new Controller(board)
+    val controller = new Controller()
     val context = controller.context
     "new" in {
       context.state.isInstanceOf[StartState] should be (true)

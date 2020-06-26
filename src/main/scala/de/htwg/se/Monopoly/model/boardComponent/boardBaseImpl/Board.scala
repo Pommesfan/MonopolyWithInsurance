@@ -1,14 +1,22 @@
 package de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl
 
+import com.google.inject.Inject
 import de.htwg.se.Monopoly.model.boardComponent.IBoard
 import de.htwg.se.Monopoly.model.fieldComponent.IField
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField, Street, Tax}
-import de.htwg.se.Monopoly.model.NeighbourhoodTypes
+import de.htwg.se.Monopoly.model.{NeighbourhoodTypes, Variable}
 import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 
 import scala.collection.mutable
 
 case class Board(fields: Vector[IField]) extends IBoard{
+
+  @Inject()
+  def this() {
+    this(Variable.START_BOARD)
+  }
+
+  def createNewBoard(): IBoard = StartBoardFactoryMethod.createStartBoard()
 
   def getField(player: IPlayer, newPosition: Int): IField = {
     fields(newPosition).actOnPlayer(player)
