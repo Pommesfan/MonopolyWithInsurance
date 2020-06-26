@@ -29,6 +29,8 @@ trait IController extends Publisher {
   def undo(): Unit
   def redo(): Unit
   def gameToString(): String
+  def save: Unit = {}
+  def load: Unit = {}
 }
 
 import scala.swing.event.Event
@@ -53,4 +55,5 @@ case class GameOver() extends Event
 class ExitGame() extends Event
 class RedoEvent() extends Event
 class UndoEvent() extends Event
-
+class LoadEvent() extends Event
+class SaveEvent() extends Event

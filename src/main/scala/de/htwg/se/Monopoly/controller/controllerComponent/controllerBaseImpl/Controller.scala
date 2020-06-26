@@ -1,6 +1,7 @@
 package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
-import com.google.inject.Inject
+import com.google.inject.{Guice, Inject}
+import de.htwg.se.Monopoly.MonopolyModule
 import de.htwg.se.Monopoly.controller._
 import de.htwg.se.Monopoly.model.Variable
 import de.htwg.se.Monopoly.model.boardComponent.{IBoard, boardBaseImpl}
@@ -11,6 +12,7 @@ import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.{NewPlayerFactoryMethod, Player}
 import de.htwg.se.Monopoly.util.UndoManager
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl
+import de.htwg.se.Monopoly.model.fileIOComonent.IFileIO
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -25,6 +27,8 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
   var context = new Context()
   var rolledNumber: (Int, Int) = (0, 0)
   var history: Vector[String] = Vector[String]()
+  val injector = Guice.createInjector(new MonopolyModule)
+  val fileIo = injector.getInstance(classOf[IFileIO])
 
   @Inject()
   def this() = {
@@ -243,18 +247,32 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     publish(new WaitForNextPlayer)
   }
 
-  def undo: Unit = {
+  override def save(): Unit = {
+    fileIo.save(this)
+  }
+
+  override def load(): Unit = {
+    val c = fileIo.load()
+    this.board = c.board
+    this.players = c.players
+    this.currentPlayerIndex = c.currentPlayerIndex
+    this.actualField = c.actualField
+    this.rolledNumber = c.rolledNumber
+    publish(new LoadEvent)
+  }
+
+  def undo(): Unit = {
     undoManager.undoStep
     publish(new UndoEvent)
   }
 
-  def redo: Unit = {
+  def redo(): Unit = {
     undoManager.redoStep
     publish(new RedoEvent)
     publish(new WaitForNextPlayer)
   }
 
-  def gameToString: String = {
+  def gameToString(): String = {
     val string = new mutable.StringBuilder("")
     string ++= board.toString
     string ++= "\nPlayers:\n%-6s %-25s %-10s %-5s\n".format("index", "name", "money", "position")

@@ -2,7 +2,7 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.GeneralPath
 
-import de.htwg.se.Monopoly.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.io.File
 
@@ -259,7 +259,7 @@ class SwingGui(controller: IController) extends MainFrame {
 
     def addFigures(): Unit = {
       for(p <- controller.players) {
-        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(0)._1, figurePosition(0)._2)
+        figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(p.currentPosition)._1, figurePosition(p.currentPosition)._2)
       }
     }
 
@@ -268,7 +268,6 @@ class SwingGui(controller: IController) extends MainFrame {
         val position = polygonPosition(field.index)
         polygons = polygons :+ (transparent, position._1, position._2)
       }
-      repaint()
     }
 
     def updatePlayer(): Unit = {
@@ -324,13 +323,10 @@ class SwingGui(controller: IController) extends MainFrame {
       case e: UndoEvent => updatePlayer(); updateOwnerPolygon()
       case e: RedoEvent => updatePlayer(); updateOwnerPolygon()
       case ButtonClicked(`goToJailButton`) => updatePlayer()
+      case e: LoadEvent => addFigures(); addOwnerPolygon(); updateOwnerPolygon(); repaint
     }
   }
 
-  val mainPanel = new FlowPanel {
-    contents += boardPanel
-    contents += controllPanel
-  }
 
   case class GameOverDialog(parent: Window, controller: IController) extends Dialog(parent) {
     title = "Game Over"
@@ -383,17 +379,26 @@ class SwingGui(controller: IController) extends MainFrame {
 
   }
 
+  val mainPanel = new FlowPanel {
+    contents += boardPanel
+    contents += controllPanel
+  }
+
   contents = mainPanel
 
-  val menuItemUndo: MenuItem = new MenuItem(Action("Undo") { controller.undo }) {enabled = false}
-  val menuItemRedo: MenuItem = new MenuItem(Action("Redo") { controller.redo }) {enabled = false}
+  val menuItemUndo: MenuItem = new MenuItem(Action("Undo") { controller.undo() }) {enabled = false}
+  val menuItemRedo: MenuItem = new MenuItem(Action("Redo") { controller.redo() }) {enabled = false}
+
+  val menuItemSave: MenuItem = new MenuItem(Action("Save") { controller.save }) {enabled = false}
+  val menuItemLoad: MenuItem = new MenuItem(Action("Load last Game") { controller.load }) {enabled = false}
 
   menuBar = new MenuBar { menu =>
     contents += new Menu("File") {
       mnemonic = Key.F
       contents += new MenuItem(Action("New") {AddPlayerDialog(SwingGui.this, controller)})
       contents += new MenuItem(Action("Open") { })
-      contents += new MenuItem(Action("Save") { })
+      contents += menuItemSave
+      contents += menuItemLoad
       contents += new MenuItem(Action("Exit") { System.exit(0) })
     }
     contents += new Menu("Edit") {
@@ -406,9 +411,10 @@ class SwingGui(controller: IController) extends MainFrame {
   visible = true
 
   reactions += {
-    case e: NewGameEvent => redraw
+    case e: NewGameEvent => enableButtons(b0 = true)
     case e: UndoEvent => enableButtons(b3 = true); redraw
     case e: RedoEvent => enableButtons(b2 = true); redraw
+    case e: PlayerSet => enableButtons(b3 = true); redraw
     case e: PlayerSet => redraw
     case e: LandedOnField => redraw
     case e: OwnStreet => redraw
@@ -423,6 +429,7 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: PayToLeave => enableButtons(b3 = true, b5 = true)
     case e: GameOver => GameOverDialog(SwingGui.this, controller)
     case e: ExitGame => System.exit(1)
+    case e: LoadEvent => enableButtons(b3 = true); redraw
   }
 
   def redraw: Unit = {
@@ -434,8 +441,8 @@ class SwingGui(controller: IController) extends MainFrame {
     repaint()
   }
 
-  def enableButtons(b1: Boolean = false, b2: Boolean = false, b3: Boolean = false, b4: Boolean = false,
-                    b5: Boolean = false, b6: Boolean = false): Unit = {
+  def enableButtons(b0: Boolean = false, b1: Boolean = false, b2: Boolean = false, b3: Boolean = false,
+                    b4: Boolean = false, b5: Boolean = false, b6: Boolean = false): Unit = {
     buyButton.enabled = b1
     notBuyButton.enabled = b1
     nextPlayerButton.enabled = b2
@@ -445,5 +452,7 @@ class SwingGui(controller: IController) extends MainFrame {
     textArea.text = controller.actualField.name
     menuItemUndo.enabled = b6
     menuItemRedo.enabled = b6
+    menuItemSave.enabled = b3
+    menuItemLoad.enabled = b0
   }
 }

@@ -1,7 +1,7 @@
 package de.htwg.se.Monopoly.aview
 
 import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, GoToJail, NextPlayerState, PayForJail, StartState}
-import de.htwg.se.Monopoly.controller.{DecrementJailCounter, DiceRolled, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{DecrementJailCounter, DiceRolled, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SaveEvent, UndoEvent, WaitForNextPlayer}
 
 import scala.swing.Reactor
 
@@ -19,15 +19,27 @@ class Tui(controller: IController) extends Reactor {
         print("exit Game\n")
       case "z" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
-          controller.undo
+          controller.undo()
         } else {
           print("Zurück ist derzeit nicht möglich.\nBitte erst den Spielzug beenden.\n")
         }
       case "y" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
-          controller.redo
+          controller.redo()
         } else {
           print("Vorwärts ist derzeit nicht möglich.\n")
+        }
+      case "s" =>
+        if (controller.context.state.isInstanceOf[NextPlayerState]) {
+          controller.save
+        } else {
+          print("Speichern ist derzeit nicht möglich.\n")
+        }
+      case "l" =>
+        if (controller.context.state.isInstanceOf[StartState]) {
+          controller.load
+        } else {
+          print("Laden ist derzeit nicht möglich.\n")
         }
       case "d" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
@@ -60,7 +72,7 @@ class Tui(controller: IController) extends Reactor {
           controller.payToLeaveJail(controller.getActualPlayer)
         }
       case "print TUI" =>
-        printTui
+        printTui()
       case _ => print("Kein Pattern matching!")
     }
   }
@@ -72,9 +84,9 @@ class Tui(controller: IController) extends Reactor {
 
   reactions += {
     case e: NewGameEvent => print("Wilkommen zu einer neuen Runde Monopoly!\nBitte Geben Sie die Namen der Spieler an!\n(p name1 name2 ... name8)\n")
-    case e: UndoEvent => printTui; print("Nächster Spieler darf Würfeln! (d)\n")
-    case e: RedoEvent => printTui
-    case e: PlayerSet => printTui; print("Spieler 1 darf Würfeln!\n(d)\n")
+    case e: UndoEvent => printTui(); print("Nächster Spieler darf Würfeln! (d)\n")
+    case e: RedoEvent => printTui()
+    case e: PlayerSet => printTui(); print("Spieler 1 darf Würfeln!\n(d)\n")
     case e: LandedOnField => print("Du landest auf Feld Nummer " + controller.actualField + "\n")
     case e: OwnStreet => print("Diese Straße gehört dir.\n")
     case e: HandleStreet => print("Möchten Sie diese Straße kaufen? (J/N)\n")
@@ -82,7 +94,7 @@ class Tui(controller: IController) extends Reactor {
       + controller.rolledNumber._2 + " gewürfelt.\n")
     case e: MoneyTransaction => print("Zahle " + e.money + "$\n")
     case e: DecrementJailCounter => print("Warte " + (e.counter + 1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n")
-    case e: NextPlayer => printTui; print("Nächster Spieler darf Würfeln! (d)\n")
+    case e: NextPlayer => printTui(); print("Nächster Spieler darf Würfeln! (d)\n")
     case e: WaitForNextPlayer => print("Zug beenden?\n(next/n)\n")
     case e: GoToJailEvent => print("Gehe ins Gefängnis (3xPasch /Feld \"Gehe ins Gefängnis\" /Ereigniskarte)\n(jail)\n")
     case e: PayToLeave => print("Du befindest dich im Gefägnis.\nPasch würfeln(d) oder Freikaufen(pay).\n")
@@ -96,6 +108,8 @@ class Tui(controller: IController) extends Reactor {
         print(i + ": " + p.name + "\t" + p.money + "\n")
       }
       print("\nSpiel beenden (exit)\n")
+    case e: LoadEvent => controller.context.setState(new NextPlayerState); printTui(); print(controller.getActualPlayer.name +" ist dran.\n")
+    case e: SaveEvent => print("The Game was saved\n")
   }
 
   def printTui(): Unit = {
