@@ -2,8 +2,10 @@ package de.htwg.se.Monopoly
 
 import de.htwg.se.Monopoly.aview.Gui.SwingGui
 import de.htwg.se.Monopoly.aview.Tui
-import de.htwg.se.Monopoly.controller.{Controller, NewGameEvent}
-import de.htwg.se.Monopoly.model.{Player, StartBoardFactoryMethod}
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.Controller
+import de.htwg.se.Monopoly.controller.NewGameEvent
+import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.StartBoardFactoryMethod
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
 
 import scala.io.StdIn.readLine
 

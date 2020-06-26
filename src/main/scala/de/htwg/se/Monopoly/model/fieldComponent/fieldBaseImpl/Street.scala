@@ -1,13 +1,16 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl
+
+import de.htwg.se.Monopoly.model.NeighbourhoodTypes
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 
 case class Street(override val index: Int,
                   override val name: String,
                   neighbourhoodTypes: NeighbourhoodTypes.Value,
                   price: Int,
                   rent: Int,
-                  owner: Player = null) extends Field(index, name){
+                  owner: IPlayer = null) extends Field(index, name){
 
-  override def actOnPlayer(player: Player): Street = {
+  override def actOnPlayer(player: IPlayer): Street = {
     Street(index, name, neighbourhoodTypes, price, rent, owner)
   }
 

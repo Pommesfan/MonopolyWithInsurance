@@ -1,5 +1,7 @@
 package de.htwg.se.Monopoly.model
 
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.ChanceCard
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner

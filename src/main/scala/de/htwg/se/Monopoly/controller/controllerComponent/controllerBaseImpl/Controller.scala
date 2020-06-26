@@ -1,18 +1,25 @@
-package de.htwg.se.Monopoly.controller
+package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.Monopoly.model._
+import de.htwg.se.Monopoly.controller._
+import de.htwg.se.Monopoly.model.boardComponent.{IBoard, boardBaseImpl}
+import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.Board
+import de.htwg.se.Monopoly.model.fieldComponent.IField
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField, Street, Tax}
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.{NewPlayerFactoryMethod, Player}
 import de.htwg.se.Monopoly.util.UndoManager
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.swing.Publisher
 
-class Controller(var board: Board, var players: Vector[Player] = Vector()) extends Publisher {
+class Controller(var board: IBoard, var players: Vector[IPlayer] = Vector()) extends IController with Publisher {
 
   private val undoManager = new UndoManager
   var undoJail = false
   var currentPlayerIndex: Int = 0
-  var actualField: Field = SpecialField(0, "Los")
+  var actualField: IField = SpecialField(0, "Los")
   var context = new Context()
   var rolledNumber: (Int, Int) = (0, 0)
   var history: Vector[String] = Vector[String]()
@@ -33,7 +40,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     undoManager.doStep(new RollDiceCommand(this))
   }
 
-  def getActualPlayer: Player = {
+  def getActualPlayer: IPlayer = {
     players(currentPlayerIndex)
   }
 
@@ -53,20 +60,20 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     }
   }
 
-  def decrementJailCounter(p: Player): Unit = {
+  def decrementJailCounter(p: IPlayer): Unit = {
     players = players.updated(p.index, p.decrementJailCounter())
     board.fields(p.currentPosition)
     context.nextPlayer()
     publish(DecrementJailCounter(players(currentPlayerIndex).inJail))
   }
 
-  def payToLeaveJail(p: Player): Unit = {
+  def payToLeaveJail(p: IPlayer): Unit = {
     context.nextPlayer()
     players = players.updated(p.index, p.setJailCounterZero().decrementMoney(50))
     rollDice()
   }
 
-  def gameOver(player: Player): Boolean = {
+  def gameOver(player: IPlayer): Boolean = {
     if (player.money > 0) {
       return true
     }
@@ -76,12 +83,12 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     false
   }
 
-  def calculateAssets(player: Player): Unit = {
+  def calculateAssets(player: IPlayer): Unit = {
     for (field <- board.fields){
       field match {
         case s: Street =>
           if (s.owner != null & !player.equals(s.owner)) {
-            val owner: Player = players(s.owner.index)
+            val owner: IPlayer = players(s.owner.index)
             players = players.updated(owner.index, owner.incrementMoney(s.price))
           }
         case _ =>
@@ -90,7 +97,7 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     players = players.sortWith(_.money > _.money)
   }
 
-  def setPlayer(p: Player, n: Int): Field = {
+  def setPlayer(p: IPlayer, n: Int): IField = {
     players = players.updated(p.index, p.setPosition(p.currentPosition + n))
     val field = board.getField(players(currentPlayerIndex),
       players(currentPlayerIndex).currentPosition)
@@ -187,16 +194,27 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
     }
   }
 
-  def ownAllFieldsOfType(street: Street): Boolean = {
-    val sameNeighbourhood = board.getFieldsSameNeighbourhoodType(street.neighbourhoodTypes)
-    val owner = getActualPlayer
+  def ownAllFieldsOfType(field: IField): Boolean = {
     var ownAllStreetTypes = true
-    for (s <- sameNeighbourhood if ownAllStreetTypes; if !street.equals(s); if s.owner == null | owner.equals(s.owner)) {
-      ownAllStreetTypes = false
-    }
-    for (s <- sameNeighbourhood if ownAllStreetTypes) {
-      val newStreet = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent * 2, owner)
-      board = Board(board.fields.updated(s.index, newStreet))
+    field match {
+      case street: Street =>
+        val sameNeighbourhood = board.getFieldsSameNeighbourhoodType(street.neighbourhoodTypes)
+        val owner = getActualPlayer
+        for (s <- sameNeighbourhood if ownAllStreetTypes; if !street.equals(s)) {
+          s match {
+            case street: Street =>
+              if (street.owner == null | owner.equals(street.owner)) {
+                ownAllStreetTypes = false
+              }
+          }
+        }
+        for (s <- sameNeighbourhood if ownAllStreetTypes) {
+          s match {
+            case street: Street =>
+              val newStreet = fieldBaseImpl.Street(street.index, street.name, street.neighbourhoodTypes, street.price, street.rent * 2, owner)
+              board = Board(board.fields.updated(s.index, newStreet))
+          }
+        }
     }
     ownAllStreetTypes
   }
@@ -208,8 +226,8 @@ class Controller(var board: Board, var players: Vector[Player] = Vector()) exten
           publish(new NotEnoughMoney)
         } else {
           players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(s.price))
-          val street = Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, players(currentPlayerIndex))
-          board = Board(board.fields.updated(s.index, street))
+          val street = fieldBaseImpl.Street(s.index, s.name, s.neighbourhoodTypes, s.price, s.rent, players(currentPlayerIndex))
+          board = boardBaseImpl.Board(board.fields.updated(s.index, street))
           ownAllFieldsOfType(s)
           publish(new BoughtStreet)
         }

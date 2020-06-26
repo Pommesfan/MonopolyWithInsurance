@@ -1,4 +1,6 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl
+
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 
 import scala.util.Random
 
@@ -9,38 +11,38 @@ case class ChanceCard(override val index: Int, override val name: String, cardIn
   val PRETTY_BONUS = 50
   val GIVE_BONUS = 30
 
-  override def actOnPlayer(player: Player): ChanceCard = generateRandomCard(player)
+  override def actOnPlayer(player: IPlayer): ChanceCard = generateRandomCard(player)
 
-  def generateRandomCard(player: Player): ChanceCard = {
+  def generateRandomCard(player: IPlayer): ChanceCard = {
     val list = Random.shuffle(listOfChanceCard())
-    val randomChanceCard: Function[Player, ChanceCard]  = list.head
+    val randomChanceCard: Function[IPlayer, ChanceCard]  = list.head
     randomChanceCard(player)
   }
 
-  def listOfChanceCard(): List[Function[Player, ChanceCard]] = List[Function[Player, ChanceCard]](
+  def listOfChanceCard(): List[Function[IPlayer, ChanceCard]] = List[Function[IPlayer, ChanceCard]](
     bankIsGivingMoney,
     youArePrettyGivingBonus,
     giveAmountToOtherPlayers,
     goToJail
   )
 
-  def bankIsGivingMoney(player: Player): ChanceCard = {
+  def bankIsGivingMoney(player: IPlayer): ChanceCard = {
     val message = "Ereigniskarte: Die Bank gibt dir 100$.\n"
     ChanceCard(index, name, 1, BANK_MONEY_BONUS, 0, -1, message)
   }
 
-  def youArePrettyGivingBonus(player: Player): ChanceCard = {
+  def youArePrettyGivingBonus(player: IPlayer): ChanceCard = {
     val message = "Ereigniskarte: Du hast eine Fashion-Wettbewerb gewonnen.\n Erhalte 50$.\n"
     ChanceCard(index, name, 2,  PRETTY_BONUS, 0, -1, message)
   }
 
-  def giveAmountToOtherPlayers(player: Player): ChanceCard = {
+  def giveAmountToOtherPlayers(player: IPlayer): ChanceCard = {
     val playerIndex = (player. index + 1) % 2
     val message = "Ereigniskarte: Gib dem anderen Spieler 30.\n"
     ChanceCard(index, name, 3, - GIVE_BONUS, GIVE_BONUS, playerIndex, message)
   }
 
-  def goToJail(player: Player): ChanceCard = {
+  def goToJail(player: IPlayer): ChanceCard = {
     val message = "Ereigniskarte: Gehe ins Gefängnis!\n"
     ChanceCard(index, name, 4, 0, 0, -1, message)
   }

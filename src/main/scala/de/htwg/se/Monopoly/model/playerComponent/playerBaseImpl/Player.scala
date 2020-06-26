@@ -1,8 +1,11 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
 import java.awt.Color
 
-case class Player(name: String,
+import de.htwg.se.Monopoly.model.Variable
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
+
+case class Player(override val name: String,
                   override val index: Int,
                   override val currentPosition: Int = 0,
                   override val inJail: Int = 0,
@@ -37,4 +40,3 @@ case class Player(name: String,
   def setPasch(i: Int): Player = copy(pasch = i)
   override def toString:String = name
 }
-

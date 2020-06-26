@@ -2,11 +2,12 @@ package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.GeneralPath
 
-import de.htwg.se.Monopoly.controller.{BoughtStreet, Controller, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GameOverState, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.io.File
 
-import de.htwg.se.Monopoly.model.Street
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.GameOverState
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.Street
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
@@ -15,7 +16,7 @@ import javax.swing.border.BevelBorder
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
 import scala.swing.event.{ButtonClicked, Key}
 
-class SwingGui(controller: Controller) extends MainFrame {
+class SwingGui(controller: IController) extends MainFrame {
   listenTo(controller)
   val pathCar = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Car.png"
   val pathCat = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Cat.png"
@@ -331,7 +332,7 @@ class SwingGui(controller: Controller) extends MainFrame {
     contents += controllPanel
   }
 
-  case class GameOverDialog(parent: Window, controller: Controller) extends Dialog(parent) {
+  case class GameOverDialog(parent: Window, controller: IController) extends Dialog(parent) {
     title = "Game Over"
     preferredSize = new Dimension(500, 700)
     visible = true

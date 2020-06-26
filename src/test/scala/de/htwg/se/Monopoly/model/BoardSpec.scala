@@ -1,5 +1,7 @@
 package de.htwg.se.Monopoly.model
 
+import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.Board
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{SpecialField, Street}
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner

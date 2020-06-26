@@ -1,16 +1,20 @@
-package de.htwg.se.Monopoly.controller
+package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.Monopoly.model.{Board, Dice, Field, Player}
+import de.htwg.se.Monopoly.controller._
+import de.htwg.se.Monopoly.model.boardComponent.IBoard
+import de.htwg.se.Monopoly.model.diceComponent.diceBaseImpl.Dice
+import de.htwg.se.Monopoly.model.fieldComponent.IField
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 import de.htwg.se.Monopoly.util.Command
 
-class RollDiceCommand(controller: Controller) extends Command{
-  var board: Board = controller.board
-  var players: Vector[Player] = controller.players
+class RollDiceCommand(controller: IController) extends Command{
+  var board: IBoard = controller.board
+  var players: Vector[IPlayer] = controller.players
   var context: Context = controller.context
   var currentPlayerIndex: Int = controller.currentPlayerIndex
   var playerIndex: Int = controller.currentPlayerIndex
   var rolledNumber: (Int, Int) = controller.rolledNumber
-  private var actualField: Field = controller.actualField
+  private var actualField: IField = controller.actualField
   var history: Vector[String] = controller.history
   var undoJail: Boolean = controller.undoJail
 
@@ -33,12 +37,12 @@ class RollDiceCommand(controller: Controller) extends Command{
   }
 
   override def undoStep: Unit = {
-    val newBoard: Board = controller.board
-    val newPlayers: Vector[Player] = controller.players
+    val newBoard: IBoard = controller.board
+    val newPlayers: Vector[IPlayer] = controller.players
     val newContext: Context = controller.context
     val newPlayerIndex: Int = controller.currentPlayerIndex
     val newRolledNumber: (Int, Int) = controller.rolledNumber
-    val newActualField: Field = controller.actualField
+    val newActualField: IField = controller.actualField
     val newHistory: Vector[String] = controller.history
     val newUndoJail = controller.undoJail
     controller.board = board
@@ -63,12 +67,12 @@ class RollDiceCommand(controller: Controller) extends Command{
   }
 
   override def redoStep: Unit = {
-    val newBoard: Board = controller.board
-    val newPlayers: Vector[Player] = controller.players
+    val newBoard: IBoard = controller.board
+    val newPlayers: Vector[IPlayer] = controller.players
     val newContext: Context = controller.context
     val newPlayerIndex: Int = controller.currentPlayerIndex
     val newRolledNumber: (Int, Int) = controller.rolledNumber
-    val newActualField: Field = controller.actualField
+    val newActualField: IField = controller.actualField
     val newHistory: Vector[String] = controller.history
     val newUndoJail = controller.undoJail
     controller.board = board

@@ -1,6 +1,7 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
 import java.awt.Color
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
 object NewPlayerFactoryMethod {
   def createNewPlayer(s: String, index: Int): Player = {
@@ -9,9 +10,9 @@ object NewPlayerFactoryMethod {
 
     val list = s.split(" ")
     if (list.length != 1) {
-      Player(list(0), index, figure = list(1), color = colors(index))
+      playerBaseImpl.Player(list(0), index, figure = list(1), color = colors(index))
     } else {
-      Player(list(0), index, figure = figureList(index), color = colors(index))
+      playerBaseImpl.Player(list(0), index, figure = figureList(index), color = colors(index))
     }
   }
 }

@@ -1,11 +1,11 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, DecrementJailCounter, DiceRolled, GameOver, GoToJail, GoToJailEvent, HandleChanceCard, HandleStreet, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NextPlayerState, NotEnoughMoney, OwnStreet, PayForJail, PayToLeave, PlayerSet, RedoEvent, StartState, UndoEvent, WaitForNextPlayer}
-import de.htwg.se.Monopoly.util.Observer
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, GoToJail, NextPlayerState, PayForJail, StartState}
+import de.htwg.se.Monopoly.controller.{DecrementJailCounter, DiceRolled, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 
 import scala.swing.Reactor
 
-class Tui(controller: Controller) extends Reactor {
+class Tui(controller: IController) extends Reactor {
 
   listenTo(controller)
   var numPlayer: Int = 0
@@ -98,10 +98,10 @@ class Tui(controller: Controller) extends Reactor {
       print("\nSpiel beenden (exit)\n")
   }
 
-  def printTui: Unit = {
+  def printTui(): Unit = {
     var output = ""
     if(controller.context.state.isInstanceOf[NextPlayerState]) {
-      print(controller.gameToString)
+      print(controller.gameToString())
     }
     output += "Aktueller Spieler: " + controller.currentPlayerIndex + "\n"
     print(output)

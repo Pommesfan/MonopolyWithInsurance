@@ -1,6 +1,7 @@
-package de.htwg.se.Monopoly.controller
+package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.Monopoly.model.{ChanceCard, SpecialField, Street}
+import de.htwg.se.Monopoly.controller.IController
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField, Street}
 
 class Context {
   var state: State = _
@@ -14,7 +15,7 @@ class Context {
     state.nextPlayer(this)
   }
 
-  def rollDice(controller: Controller): Unit = {
+  def rollDice(controller: IController): Unit = {
     state.handleField(this, controller)
   }
 
@@ -26,11 +27,11 @@ class Context {
     state.goToJail(this)
   }
 
-  def payForJail(controller: Controller): Unit = {
+  def payForJail(controller: IController): Unit = {
     state.payForJail(this)
   }
 
-  def gameOver(controller: Controller): Unit = {
+  def gameOver(controller: IController): Unit = {
     state.gameOver(this)
   }
 }
@@ -38,7 +39,7 @@ class Context {
 trait State {
   def setPlayer(context: Context) {}
   def nextPlayer(context: Context) {}
-  def handleField(context: Context, controller: Controller) {}
+  def handleField(context: Context, controller: IController) {}
   def goToJail(context: Context) {}
   def payForJail(context: Context) {}
   def gameOver(context: Context) {}
@@ -51,7 +52,7 @@ class StartState() extends State {
 }
 
 class NextPlayerState() extends State {
-  override def handleField(context: Context, controller: Controller): Unit = {
+  override def handleField(context: Context, controller: IController): Unit = {
     val players = controller.players
     if (players(controller.currentPlayerIndex).pasch == 3) {
       context.setState(new GoToJail)

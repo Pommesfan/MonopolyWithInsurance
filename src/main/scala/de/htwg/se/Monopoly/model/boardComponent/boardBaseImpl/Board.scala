@@ -1,15 +1,21 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl
+
+import de.htwg.se.Monopoly.model.boardComponent.IBoard
+import de.htwg.se.Monopoly.model.fieldComponent.IField
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField, Street, Tax}
+import de.htwg.se.Monopoly.model.NeighbourhoodTypes
+import de.htwg.se.Monopoly.model.playerComponent.IPlayer
 
 import scala.collection.mutable
 
-case class Board(fields: Vector[Field]) {
+case class Board(fields: Vector[IField]) extends IBoard{
 
-  def getField(player: Player, newPosition: Int): Field = {
+  def getField(player: IPlayer, newPosition: Int): IField = {
     fields(newPosition).actOnPlayer(player)
   }
 
-  def getFieldsSameNeighbourhoodType(nhT: NeighbourhoodTypes.Value): Vector[Street] = {
-    var sameNeighbourhood = Vector[Street] ()
+  def getFieldsSameNeighbourhoodType(nhT: NeighbourhoodTypes.Value): Vector[IField] = {
+    var sameNeighbourhood = Vector[IField] ()
     for (f <- fields) {
       f match {
         case s: Street =>

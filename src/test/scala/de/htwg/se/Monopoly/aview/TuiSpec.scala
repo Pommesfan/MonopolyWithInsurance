@@ -2,8 +2,11 @@ package de.htwg.se.Monopoly.aview
 
 import java.awt.Color
 
-import de.htwg.se.Monopoly.controller.{BuyStreet, Controller, GameOverState, GoToJail, NextPlayerState, PayForJail, StartState}
-import de.htwg.se.Monopoly.model.{Player, SpecialField, StartBoardFactoryMethod}
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, Controller, GameOverState, GoToJail, NextPlayerState, PayForJail, StartState}
+import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.StartBoardFactoryMethod
+import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.SpecialField
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
+import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
 import org.scalatest._
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
@@ -22,7 +25,7 @@ class TuiSpec extends WordSpec with Matchers {
     }
     "set players on input 'p player1 player2'" in {
       tui.processInputLine("p player1 player2")
-      controller.players should be (Vector[Player](Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
+      controller.players should be (Vector[Player](playerBaseImpl.Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), playerBaseImpl.Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
     }
     "roll dice  and not buy street on input'd' and 'N' for player1" in {
       val old = controller.rolledNumber
@@ -94,14 +97,14 @@ class TuiSpec extends WordSpec with Matchers {
     val tui = new Tui(controller)
     "set players on input 'p player1 player2'" in {
       tui.processInputLine("p player1 player2")
-      controller.players should be(Vector[Player](Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
+      controller.players should be(Vector[Player](playerBaseImpl.Player("player1", 0, 0, 0, 1500, "Car", Color.BLUE), playerBaseImpl.Player("player2", 1, 0, 0, 1500, "Cat", Color.ORANGE)))
     }
     "player1 go to jail on input 'jail' after he landed on field 'goToJail'" in {
       controller.movePlayer(30)
       controller.actualField should be (SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
       controller.context.state.isInstanceOf[GoToJail] should be (true)
       tui.processInputLine("jail")
-      controller.getActualPlayer should be (Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
+      controller.getActualPlayer should be (playerBaseImpl.Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
       tui.processInputLine("n")
       controller.currentPlayerIndex should be (1)
     }
@@ -110,19 +113,18 @@ class TuiSpec extends WordSpec with Matchers {
       controller.actualField should be (SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
       controller.context.state.isInstanceOf[GoToJail] should be (true)
       tui.processInputLine("jail")
-      controller.getActualPlayer should be (Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
+      controller.getActualPlayer should be (playerBaseImpl.Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
       tui.processInputLine("n")
       controller.currentPlayerIndex should be (0)
     }
     "player1 in jail, pay to leave jail" in {
       controller.context.state.isInstanceOf[PayForJail] should be (true)
       tui.processInputLine("pay")
-      controller.getActualPlayer should not be (Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
+      controller.getActualPlayer should not be (playerBaseImpl.Player("player1", 0, 10, 2, 1500, "Car", Color.BLUE))
       controller.context.setState(new NextPlayerState)
       tui.processInputLine("n")
       controller.currentPlayerIndex should be (1)
     }
-    /**
     "player2 in jail, roll dice to leave jail: pasch" in {
       controller.context.state.isInstanceOf[PayForJail] should be (true)
       tui.processInputLine("d")
@@ -132,11 +134,14 @@ class TuiSpec extends WordSpec with Matchers {
         tui.processInputLine("d")
         i = controller.rolledNumber._1 == controller.rolledNumber._2
       }
-      controller.getActualPlayer should not be (Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
+      controller.getActualPlayer should not be (playerBaseImpl.Player("player2", 1, 10, 2, 1500, "Cat", Color.ORANGE))
       controller.getActualPlayer.inJail should be (0)
       controller.getActualPlayer.pasch should be (0)
       if (controller.context.state.isInstanceOf[BuyStreet]) {
         tui.processInputLine("J")
+      }
+      if (controller.context.state.isInstanceOf[GoToJail]) {
+        tui.processInputLine("jail")
       }
       tui.processInputLine("n")
       controller.undo
@@ -151,11 +156,11 @@ class TuiSpec extends WordSpec with Matchers {
         tui.processInputLine("d")
         i = controller.rolledNumber._1 != controller.rolledNumber._2
       }
-      controller.getActualPlayer should be (Player("player2", 1, 10, 1, 1500, "Cat", Color.ORANGE))
+      controller.getActualPlayer should be (playerBaseImpl.Player("player2", 1, 10, 1, 1500, "Cat", Color.ORANGE))
       controller.context.setState(new NextPlayerState)
       tui.processInputLine("n")
       controller.currentPlayerIndex should be (0)
-    }*/
+    }
   }
   "A third Monopoly Tui" should {
     val controller = new Controller(StartBoardFactoryMethod.createStartBoard(), Vector[Player]())
@@ -169,7 +174,7 @@ class TuiSpec extends WordSpec with Matchers {
       controller.context.state.isInstanceOf[StartState] should be (true)
     }
     "game Over" in {
-      controller.players = Vector[Player](Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), Player("player2", 1, 0, 0, 10, "Cat", Color.ORANGE))
+      controller.players = Vector[Player](playerBaseImpl.Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), playerBaseImpl.Player("player2", 1, 0, 0, 10, "Cat", Color.ORANGE))
       controller.context.setPlayer()
       controller.movePlayer(4)
       controller.context.state.isInstanceOf[GameOverState] should be (true)
