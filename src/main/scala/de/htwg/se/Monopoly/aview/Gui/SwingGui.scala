@@ -18,17 +18,17 @@ import scala.swing.event.{ButtonClicked, Key}
 
 class SwingGui(controller: IController) extends MainFrame {
   listenTo(controller)
-  val pathCar = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Car.png"
-  val pathCat = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Cat.png"
-  val pathDog = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Dog.png"
-  val pathFingerhut = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Fingerhut.png"
-  val pathHut = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/hut.png"
-  val pathShip = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Ship.png"
-  val pathShoe = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Shoe.png"
-  val pathWheelbarrow = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/wheelbarrow.png"
+  val pathCar = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Car.png"
+  val pathCat = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Cat.png"
+  val pathDog = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Dog.png"
+  val pathFingerhut = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Fingerhut.png"
+  val pathHut = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/hut.png"
+  val pathShip = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Ship.png"
+  val pathShoe = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Shoe.png"
+  val pathWheelbarrow = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/wheelbarrow.png"
 
-  val pathBoard = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/Monopoly_board.jpg"
-  val gameOverPath = "src/main/scala/de/htwg/se/monopoly/aview/Gui/images/GameOver.png"
+  val pathBoard = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/Monopoly_board.jpg"
+  val gameOverPath = "src/main/scala/de/htwg/se/Monopoly/aview/Gui/images/GameOver.png"
 
   val transparent = new Color(0, 0, 0, 0)
   title = "Monopoly"
@@ -71,7 +71,10 @@ class SwingGui(controller: IController) extends MainFrame {
     }
   }
 
-
+  /**
+   * DicePanel, teil vom ControllPanel
+   * @return
+   */
   val diceButton = new Button(Action("Würfeln") { controller.rollDice()})
   def dicePanel: FlowPanel = new FlowPanel {
     contents += diceButton
@@ -96,6 +99,10 @@ class SwingGui(controller: IController) extends MainFrame {
     }
   }
 
+  /**
+   * HistoryField
+   * @return
+   */
   val textArea: TextArea = new TextArea {
     text = "%s".format(controller.actualField.name)
     resizable = false
@@ -131,6 +138,15 @@ class SwingGui(controller: IController) extends MainFrame {
     border = CompoundBorder(CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1)), EmptyBorder(5))
   }
 
+  /**
+   * PlayerPanel
+   * @param namePlayer
+   * @param money
+   * @param jail
+   * @param figure
+   * @return
+   */
+
   def playerPanel(namePlayer: String, index: Int, money: Int, jail: Int, figure: String, color: Color): GridBagPanel = new GridBagPanel {
     if (controller.currentPlayerIndex == index & !controller.context.state.isInstanceOf[GameOverState]) {
       border = CompoundBorder(EmptyBorder(10), new BevelBorder(BevelBorder.RAISED))
@@ -163,7 +179,10 @@ class SwingGui(controller: IController) extends MainFrame {
     add(new Label() {icon = scaledImageIcon(getPath(figure), 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
   }
 
-
+  /**
+   * ControllPanel with dice, history and Player
+   * @return
+   */
   def controllPanel() = new BoxPanel(Orientation.Vertical) {
     contents += dicePanel
     contents += Swing.VStrut(2)
@@ -173,6 +192,11 @@ class SwingGui(controller: IController) extends MainFrame {
       contents += playerPanel(n.name, n.index, n.money, n.inJail, n.figure, n.color)
     }
   }
+
+  /**
+   * Board Panel
+   * @return
+   */
 
   def board: BoxPanel = new BoxPanel(Orientation.Horizontal) {
     contents += new Label() {icon = scaledImageIcon(pathBoard, 690, 690)}
