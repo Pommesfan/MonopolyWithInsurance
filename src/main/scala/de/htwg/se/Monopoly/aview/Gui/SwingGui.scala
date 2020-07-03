@@ -9,7 +9,7 @@ import java.io.File
 import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.GameOverState
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.Street
 
-import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Frame, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
+import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
 import javax.swing.border.BevelBorder
 
@@ -327,7 +327,6 @@ class SwingGui(controller: IController) extends MainFrame {
     }
   }
 
-
   case class GameOverDialog(parent: Window, controller: IController) extends Dialog(parent) {
     title = "Game Over"
     preferredSize = new Dimension(500, 700)
@@ -379,6 +378,7 @@ class SwingGui(controller: IController) extends MainFrame {
 
   }
 
+
   val mainPanel = new FlowPanel {
     contents += boardPanel
     contents += controllPanel
@@ -415,7 +415,6 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: UndoEvent => enableButtons(b3 = true); redraw
     case e: RedoEvent => enableButtons(b2 = true); redraw
     case e: PlayerSet => enableButtons(b3 = true); redraw
-    case e: PlayerSet => redraw
     case e: LandedOnField => redraw
     case e: OwnStreet => redraw
     case e: HandleStreet => redraw

@@ -25,5 +25,6 @@ object Monopoly {
         tui.processInputLine(input)
       } while (input != "exit")
     }
+    System.exit(0)
   }
 }

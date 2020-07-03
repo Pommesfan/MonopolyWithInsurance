@@ -1,0 +1,55 @@
+Docker
+
+--> Unter Windows Quick start terminal
+
+yvii789
+_____________________________
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker login
+Authenticating with existing credentials...
+Login did not succeed, error: Error response from daemon: Get https://registry-1.docker.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username (yvii789): yvii789
+Password:
+Error response from daemon: Get https://registry-1.docker.io/v2/: net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker-machine restart default
+
+_____________________________
+docker images
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker images
+REPOSITORY             TAG                  IMAGE ID            CREATED             SIZE
+monopoly               v1                   c6def8cafc29        9 hours ago         872MB
+hseeberger/scala-sbt   8u181_2.12.8_1.2.8   45e0242f49ae        14 months ago       781MB
+hello-world            latest               fce289e99eb9        15 months ago       1.84kB
+hseeberger/scala-sbt   8u181_2.12.7_1.2.6   5d5aba6e5537        17 months ago       759MB
+
+_____________________________
+alle container
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
+_____________________________
+löschen laufender container (image kann erst gelöscht werden, wenn kein Container mehr dazu läuft)
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker rm Container-ID
+
+_____________________________
+löschen image
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker rmi Image-ID
+
+_____________________________
+build images
+(punkt am ende nicht vergessen)
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker build -t monopoly:withoutGui .
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker build -t yvii789/monopoly:withoutGui .
+
+_____________________________
+run container
+(--rm löscht container nach beenden; -it stdin ermöglichen)
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker run -it --rm monopoly:withoutGui
+
+(normaler start, nach exit stopt container)
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker run monopoly:withoutGui
+
+vcxsrv --> Disable access control
+docker run -ti -e DISPLAY=(eigene IP):0.0 monopoly:withGui
+C:\Users\yvonn\Documents\Hochschule\Code und Programme\3_Semester_SS_19\de.htwg.se.Monopoly>docker run -ti -e DISPLAY=(IP-Adresse):0 monopoly:withGui
