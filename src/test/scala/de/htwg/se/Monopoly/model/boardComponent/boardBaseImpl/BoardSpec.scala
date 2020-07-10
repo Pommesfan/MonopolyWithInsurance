@@ -1,9 +1,9 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl
 
-import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.Board
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{SpecialField, Street}
-import org.scalatest._
+import de.htwg.se.Monopoly.model.{NeighbourhoodTypes, Variable}
 import org.junit.runner.RunWith
+import org.scalatest._
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

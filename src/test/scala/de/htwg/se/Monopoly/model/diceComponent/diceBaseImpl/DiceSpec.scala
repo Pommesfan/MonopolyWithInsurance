@@ -1,8 +1,7 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.diceComponent.diceBaseImpl
 
-import de.htwg.se.Monopoly.model.diceComponent.diceBaseImpl.Dice
-import org.scalatest._
 import org.junit.runner.RunWith
+import org.scalatest._
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])

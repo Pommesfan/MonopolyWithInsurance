@@ -1,8 +1,8 @@
-package de.htwg.se.Monopoly.model
+package de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
-import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
-import org.scalatest._
+import de.htwg.se.Monopoly.model.Variable
 import org.junit.runner.RunWith
+import org.scalatest._
 import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
