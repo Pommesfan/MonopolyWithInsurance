@@ -80,7 +80,7 @@ class BoardSpec extends WordSpec with Matchers {
   "New Board" when {
     val board = new Board()
     "new created" should {
-      "have all fields" in {
+      "have all fields " in {
         board.fields should have length (40)
         board.fields(3) should be(Street(3, "Turmstrasse", NeighbourhoodTypes.Brown, 60, 4))
         board.fields(30) should be(SpecialField(30, "Gefängnis: Gehen Sie ins Gefängnis"))
