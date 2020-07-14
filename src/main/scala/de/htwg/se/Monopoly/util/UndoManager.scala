@@ -11,7 +11,6 @@ class UndoManager {
 
   def undoStep: Unit = {
     undoStack match {
-      case  Nil =>
       case head::stack => {
         head.undoStep
         undoStack=stack
@@ -22,7 +21,6 @@ class UndoManager {
 
   def redoStep: Unit = {
     redoStack match {
-      case Nil =>
       case head::stack => {
         head.redoStep
         redoStack=stack

@@ -16,8 +16,6 @@ case class Board(fields: Vector[IField]) extends IBoard{
     this(Variable.START_BOARD)
   }
 
-  def createNewBoard(): IBoard = StartBoardFactoryMethod.createStartBoard()
-
   def getField(player: IPlayer, newPosition: Int): IField = {
     fields(newPosition).actOnPlayer(player)
   }

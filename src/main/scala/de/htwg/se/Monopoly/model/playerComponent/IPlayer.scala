@@ -22,5 +22,5 @@ trait IPlayer{
   def setJailCounterZero(): Player
   def setPasch(i: Int): Player
 
-  override def toString: String = super.toString
+  //override def toString: String = super.toString
 }
