@@ -1,6 +1,6 @@
 package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
-import de.htwg.se.Monopoly.controller.IController
+import de.htwg.se.Monopoly.controller.{ExitGame, IController}
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.{ChanceCard, SpecialField, Street}
 
 class Context {
@@ -34,6 +34,9 @@ class Context {
   def gameOver(controller: IController): Unit = {
     state.gameOver(this)
   }
+  def exit(controller: IController): Unit = {
+    state.exit(this)
+  }
 }
 
 trait State {
@@ -43,6 +46,7 @@ trait State {
   def goToJail(context: Context) {}
   def payForJail(context: Context) {}
   def gameOver(context: Context) {}
+  def exit(context: Context) {}
 }
 
 class StartState() extends State {
@@ -96,11 +100,19 @@ class NextPlayerState() extends State {
   override def gameOver(context: Context): Unit = {
     context.setState(new GameOverState)
   }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
+  }
 }
 
 class BuyStreet() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
+  }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
   }
 }
 
@@ -111,6 +123,10 @@ class PayOtherPlayer() extends State {
 
   override def gameOver(context: Context): Unit = {
     context.setState(new GameOverState)
+  }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
   }
 }
 
@@ -124,11 +140,19 @@ class LandedOnGo() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
   }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
+  }
 }
 
 class VisitJail() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
+  }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
   }
 }
 
@@ -136,12 +160,23 @@ class FreeParking() extends State {
   override def nextPlayer(context: Context): Unit = {
     context.setState(new NextPlayerState)
   }
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
+  }
 }
 
 class PayForJail() extends State {
   override def nextPlayer(context: Context): Unit =
     context.setState(new NextPlayerState)
+
+  override def exit(context: Context): Unit = {
+    context.setState(new ExitGameState)
+  }
 }
 
 class GameOverState() extends State {
+}
+
+class ExitGameState() extends State {
 }

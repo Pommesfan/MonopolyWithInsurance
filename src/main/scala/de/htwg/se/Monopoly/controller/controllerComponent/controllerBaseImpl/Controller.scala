@@ -33,6 +33,7 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
   @Inject()
   def this() = {
     this(Board(Variable.START_BOARD), Vector[Player]())
+    publish(new NewGameEvent)
   }
 
   def setPlayers(list: Array[String]): Unit = {
@@ -249,6 +250,7 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
 
   override def save(): Unit = {
     fileIo.save(this)
+    publish(new SaveEvent)
   }
 
   override def load(): Unit = {
@@ -270,6 +272,10 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     undoManager.redoStep
     publish(new RedoEvent)
     publish(new WaitForNextPlayer)
+  }
+
+  def exit(): Unit = {
+    publish(new ExitGame)
   }
 
   def gameToString(): String = {

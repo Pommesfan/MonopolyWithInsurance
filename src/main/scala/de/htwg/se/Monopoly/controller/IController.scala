@@ -28,6 +28,7 @@ trait IController extends Publisher {
   def buyStreet(): Unit
   def undo(): Unit
   def redo(): Unit
+  def exit(): Unit
   def gameToString(): String
   def save: Unit = {}
   def load: Unit = {}

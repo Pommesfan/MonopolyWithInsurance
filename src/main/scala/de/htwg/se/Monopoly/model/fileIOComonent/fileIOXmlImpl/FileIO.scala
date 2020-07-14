@@ -59,7 +59,7 @@ class FileIO extends IFileIO{
     for (f <- fieldSeq) {
       val fType = (f \ "@type").text
       fType match {
-        case "class de.htwg.se.monopoly.model.fieldComponent.fieldBaseImpl.Street" =>
+        case "class de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.Street" =>
           board = board :+ Street(
             (f \ "index").text.toInt,
             (f \ "name").text,
@@ -68,7 +68,7 @@ class FileIO extends IFileIO{
             (f \ "rent").text.toInt,
             new Player((f \ "owner").text)
           )
-        case "class de.htwg.se.monopoly.model.fieldComponent.fieldBaseImpl.ChanceCard" =>
+        case "class de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.ChanceCard" =>
           board = board :+ ChanceCard(
             (f \ "index").text.toInt,
             (f \ "name").text,
@@ -78,13 +78,13 @@ class FileIO extends IFileIO{
             (f \ "otherPlayerIndex").text.toInt,
             (f \ "info").text
           )
-        case "class de.htwg.se.monopoly.model.fieldComponent.fieldBaseImpl.Tax" =>
+        case "class de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.Tax" =>
           board = board :+ Tax(
             (f \ "index").text.toInt,
             (f \ "name").text,
             (f \ "taxAmount").text.toInt
           )
-        case "class de.htwg.se.monopoly.model.fieldComponent.fieldBaseImpl.SpecialField" =>
+        case "class de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.SpecialField" =>
           board = board :+ SpecialField(
             (f \ "index").text.toInt,
             (f \ "name").text

@@ -2,7 +2,8 @@ package de.htwg.se.Monopoly.aview
 
 import java.awt.Color
 
-import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, Controller, GameOverState, GoToJail, NextPlayerState, PayForJail, StartState}
+import de.htwg.se.Monopoly.controller.ExitGame
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, Controller, ExitGameState, GameOverState, GoToJail, NextPlayerState, PayForJail, StartState}
 import de.htwg.se.Monopoly.model.boardComponent.boardBaseImpl.StartBoardFactoryMethod
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.SpecialField
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
@@ -160,6 +161,10 @@ class TuiSpec extends WordSpec with Matchers {
       controller.context.setState(new NextPlayerState)
       tui.processInputLine("n")
       controller.currentPlayerIndex should be (0)
+    }
+    "exit Game" in {
+      controller.exit()
+      controller.context.state.isInstanceOf[ExitGameState] should be(true)
     }
   }
   "A third Monopoly Tui" should {

@@ -15,6 +15,9 @@ class StateMachineSpec extends WordSpec with Matchers {
   "A Controller has state" when {
     val controller = new Controller()
     val context = controller.context
+
+    val loadController = new Controller()
+    val loadContext = loadController.context
     "new" in {
       context.state.isInstanceOf[StartState] should be (true)
     }
@@ -70,6 +73,20 @@ class StateMachineSpec extends WordSpec with Matchers {
         context.rollDice(controller)
         context.state.isInstanceOf[GoToJail] should be (true)
         context.nextPlayer()
+      }
+    }
+
+    "next Player" should {
+      "save old" in {
+        context.state.isInstanceOf[NextPlayerState] should be (true)
+        controller.save()
+      }
+      "load new" in {
+        loadContext.state.isInstanceOf[StartState] should be (true)
+      }
+      "load saved Game" in {
+        loadController.load()
+        loadController should be equals(controller)
       }
     }
   }

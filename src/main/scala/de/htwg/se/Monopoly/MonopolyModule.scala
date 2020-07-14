@@ -14,6 +14,6 @@ class MonopolyModule extends AbstractModule with ScalaModule {
     bind[IController].to[Controller]
     bind[IBoard].to[Board]
 
-    bind[IFileIO].to[fileIOXmlImpl.FileIO]
+    bind[IFileIO].to[fileIOJsonImpl.FileIO]
   }
 }

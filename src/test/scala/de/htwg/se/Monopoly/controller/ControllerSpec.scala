@@ -42,6 +42,10 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.movePlayer(3)
       controller.context.state.isInstanceOf[GameOverState] should be (true)
     }
+    "GameOver" in {
+      controller.gameOver(Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE))
+      controller.context.state.isInstanceOf[GameOverState] should be (true)
+    }
   }
   "A second Controller" when {
     val controller = new Controller()
@@ -84,7 +88,7 @@ class ControllerSpec extends WordSpec with Matchers {
       controller.actualField should be (Tax(4, "Einkommenssteuer", 200))
       controller.context.state.isInstanceOf[NextPlayerState] should be (true)
       controller.nextPlayer()
-    }/**
+    }
     "land on 'Ereignisfeld'" in {
       controller.currentPlayerIndex should be (1)
       val chanceCards: List[ChanceCard] = List[ChanceCard](
@@ -119,6 +123,6 @@ class ControllerSpec extends WordSpec with Matchers {
             controller.players = Vector[Player](playerBaseImpl.Player("player1", 0, 0, 0, 10, "Cat", Color.BLUE), playerBaseImpl.Player("player2", 1, 2, 0, 10, "Car", Color.ORANGE))
         }
       }
-    }*/
+    }
   }
 }

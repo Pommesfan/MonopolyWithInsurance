@@ -1,7 +1,7 @@
 package de.htwg.se.Monopoly.aview
 
-import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, GoToJail, NextPlayerState, PayForJail, StartState}
-import de.htwg.se.Monopoly.controller.{DecrementJailCounter, DiceRolled, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SaveEvent, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.{BuyStreet, ExitGameState, GoToJail, NextPlayerState, PayForJail, StartState}
+import de.htwg.se.Monopoly.controller.{DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SaveEvent, UndoEvent, WaitForNextPlayer}
 
 import scala.swing.Reactor
 
@@ -16,7 +16,7 @@ class Tui(controller: IController) extends Reactor {
       case "help" =>
         printf("%-10s%s\n%-10s%s\n", "e", "exit", "p", "new Players")
       case "exit" =>
-        print("exit Game\n")
+        controller.exit()
       case "z" =>
         if (controller.context.state.isInstanceOf[NextPlayerState]) {
           controller.undo()
@@ -110,6 +110,7 @@ class Tui(controller: IController) extends Reactor {
       print("\nSpiel beenden (exit)\n")
     case e: LoadEvent => controller.context.setState(new NextPlayerState); printTui(); print(controller.getActualPlayer.name +" ist dran.\n")
     case e: SaveEvent => print("The Game was saved\n")
+    case e: ExitGame => controller.context.setState(new ExitGameState); print("exit Game\n")
   }
 
   def printTui(): Unit = {
