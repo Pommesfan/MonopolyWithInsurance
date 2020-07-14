@@ -30,8 +30,8 @@ trait IController extends Publisher {
   def redo(): Unit
   def exit(): Unit
   def gameToString(): String
-  def save: Unit = {}
-  def load: Unit = {}
+  def save: Unit
+  def load: Unit
 }
 
 import scala.swing.event.Event
