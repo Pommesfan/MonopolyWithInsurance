@@ -114,7 +114,8 @@ class FileIO extends IFileIO{
         (p \ "money").as[Int],
         (p \ "figure").as[String],
         col,
-        (p \ "pasch").as[Int]
+        (p \ "pasch").as[Int],
+        None
       )
     }
     players

@@ -120,7 +120,7 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
       case s: Street => handleStreet(s)
       case c: ChanceCard => handleChanceCard(c)
       case sp: SpecialField => handleSpecialField(sp)
-      case t: Tax => handleTax(t)
+      case t: Tax => handleTax(t, n)
     }
     field
   }
@@ -180,9 +180,13 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     }
   }
 
-  def handleTax(t: Tax): Unit = {
+  def handleTax(t: Tax, rolledEyes:Int = -1): Unit = {
     context.state match {
       case _ =>
+        if(players(currentPlayerIndex).insurance.nonEmpty && rolledEyes > 0) {
+          val insurance = players(currentPlayerIndex).insurance.get
+          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(insurance.absorbTax(t.taxAmount, rolledEyes)))
+        }
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
         if (!gameOver(players(currentPlayerIndex))) {
           return

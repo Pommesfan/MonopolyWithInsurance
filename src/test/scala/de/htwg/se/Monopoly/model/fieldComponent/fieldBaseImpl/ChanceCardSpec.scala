@@ -29,8 +29,8 @@ class ChanceCardSpec extends WordSpec with Matchers {
     "act on Player" should {
       val chanceCard1 = ChanceCard(2, "Gemeinschaftsfeld", 0, 0, 0, -1)
       val chanceCard2 = ChanceCard(22, "Ereignisfeld", 0, 0, 0, -1)
-      val player1 = Player("Player1", 0, 2, inJail = 0, 1500)
-      val player2 = Player("Player2", 1, 22, inJail = 0, 1000)
+      val player1 = Player("Player1", 0, 2, inJail = 0, 1500, insurance = None)
+      val player2 = Player("Player2", 1, 22, inJail = 0, 1000, insurance = None)
       "get a community chest" in {
         chanceCard1.actOnPlayer(player1)
       }

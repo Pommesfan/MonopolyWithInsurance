@@ -1,5 +1,7 @@
 package de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
+import de.htwg.se.Monopoly.controller.InsuranceImplement.InsuranceA
+
 import java.awt.Color
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl
 
@@ -10,9 +12,9 @@ object NewPlayerFactoryMethod {
 
     val list = s.split(" ")
     if (list.length != 1) {
-      playerBaseImpl.Player(list(0), index, figure = list(1), color = colors(index))
+      playerBaseImpl.Player(list(0), index, figure = list(1), color = colors(index), insurance = None)
     } else {
-      playerBaseImpl.Player(list(0), index, figure = figureList(index), color = colors(index))
+      playerBaseImpl.Player(list(0), index, figure = figureList(index), color = colors(index), insurance = None)
     }
   }
 }

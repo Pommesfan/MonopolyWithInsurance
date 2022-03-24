@@ -115,7 +115,8 @@ class FileIO extends IFileIO{
         (p \ "money").text.toInt,
         (p \ "figure").text,
         col,
-        (p \ "pasch").text.toInt
+        (p \ "pasch").text.toInt,
+        None
       )
     }
     players

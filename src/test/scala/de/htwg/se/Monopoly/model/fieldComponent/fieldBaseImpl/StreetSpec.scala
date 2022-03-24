@@ -23,7 +23,7 @@ class StreetSpec extends WordSpec with Matchers {
     }
     "visit from Player" should {
       val player1 = new Player("Yvonne")
-      val player2 = Player("Nicole", index = 1, currentPosition = 10, money = 1500)
+      val player2 = Player("Nicole", index = 1, currentPosition = 10, money = 1500, insurance = None)
       val street1 = fieldBaseImpl.Street(1, "Badstraße", NeighbourhoodTypes.Brown, 60, 2)
       val street2 = fieldBaseImpl.Street(3, "Turmstraße", NeighbourhoodTypes.Brown, 60, 4, player1)
       "is available" in {

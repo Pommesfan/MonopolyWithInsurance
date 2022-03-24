@@ -1,7 +1,8 @@
 package de.htwg.se.Monopoly.model.playerComponent
 
-import java.awt.Color
+import de.htwg.se.Monopoly.controller.I_Insurance
 
+import java.awt.Color
 import de.htwg.se.Monopoly.model.playerComponent.playerBaseImpl.Player
 
 trait IPlayer{
@@ -13,6 +14,7 @@ trait IPlayer{
   val figure: String
   val color: Color
   val pasch: Int
+  val insurance: Option[I_Insurance]
 
   def setPosition(newPosition: Int): Player
   def incrementMoney(amount: Int): Player
