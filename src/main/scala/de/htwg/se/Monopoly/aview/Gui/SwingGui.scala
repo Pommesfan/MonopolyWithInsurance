@@ -215,7 +215,7 @@ class SwingGui(controller: IController) extends MainFrame {
   }
 
   reactions += {
-    case e: NewGameEvent => controller.history = controller.history :+ "Wilkommen zu einer neuen Runde Monopoly!\n"
+    case e: NewGameEvent => controller.history = controller.history :+ " Wilkommen zu einer neuen Runde Monopoly!\n"
     case e: PlayerSet => controller.history = controller.history :+ controller.getActualPlayer.name + "darf beginnen.\n"
     case e: DiceRolled => controller.history = controller.history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
     case e: HandleStreet => controller.history = controller.history :+ "Möchten Sie diese Straße kaufen?\n"
