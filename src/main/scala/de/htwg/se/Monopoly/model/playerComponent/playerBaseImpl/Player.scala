@@ -45,5 +45,7 @@ case class Player(override val name: String,
   def decrementJailCounter(): Player = copy(inJail= inJail - 1)
   def setJailCounterZero(): Player = copy(inJail = 0, pasch = 0)
   def setPasch(i: Int): Player = copy(pasch = i)
+  def setInsurance(i:I_Insurance): Player = copy(insurance = Some(i))
+  def removeInsurance: Player = copy(insurance = None)
   override def toString:String = name
 }

@@ -23,6 +23,8 @@ trait IPlayer{
   def decrementJailCounter(): Player
   def setJailCounterZero(): Player
   def setPasch(i: Int): Player
+  def setInsurance(i:I_Insurance): Player
+  def removeInsurance: Player
 
   //override def toString: String = super.toString
 }

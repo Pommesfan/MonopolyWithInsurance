@@ -71,6 +71,9 @@ class Tui(controller: IController) extends Reactor {
         if (controller.context.state.isInstanceOf[PayForJail]) {
           controller.payToLeaveJail(controller.getActualPlayer)
         }
+      case "insurance A" => controller.setInsurance(1)
+      case "insurance B" => controller.setInsurance(2)
+      case "resign insurance" => controller.resignInsurance
       case "print TUI" =>
         printTui()
       case _ => print("Kein Pattern matching!")

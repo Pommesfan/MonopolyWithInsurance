@@ -2,6 +2,7 @@ package de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl
 
 import com.google.inject.{Guice, Inject}
 import de.htwg.se.Monopoly.MonopolyModule
+import de.htwg.se.Monopoly.controller.InsuranceImplement.{InsuranceA, InsuranceB}
 import de.htwg.se.Monopoly.controller._
 import de.htwg.se.Monopoly.model.Variable
 import de.htwg.se.Monopoly.model.boardComponent.{IBoard, boardBaseImpl}
@@ -292,4 +293,14 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     string ++= actualField.toString
     string.toString()
   }
+
+  def setInsurance(idx:Int): Unit = if(players(currentPlayerIndex).insurance == None) {
+    val insurance = idx match {
+      case 1 => new InsuranceA
+      case 2 => new InsuranceB
+    }
+    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).setInsurance(insurance).decrementMoney(insurance.startCost))
+  }
+
+  def resignInsurance: Unit =  players = players.updated(currentPlayerIndex, players(currentPlayerIndex).removeInsurance)
 }

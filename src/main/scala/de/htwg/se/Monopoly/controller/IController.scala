@@ -32,6 +32,8 @@ trait IController extends Publisher {
   def gameToString(): String
   def save: Unit
   def load: Unit
+  def setInsurance(idx:Int): Unit
+  def resignInsurance: Unit
 }
 
 import scala.swing.event.Event
