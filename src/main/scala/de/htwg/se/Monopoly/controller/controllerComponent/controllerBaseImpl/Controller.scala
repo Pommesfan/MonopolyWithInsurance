@@ -186,7 +186,9 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
       case _ =>
         if(players(currentPlayerIndex).insurance.nonEmpty && rolledEyes > 0) {
           val insurance = players(currentPlayerIndex).insurance.get
-          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(insurance.absorbTax(t.taxAmount, rolledEyes)))
+          val amount = insurance.absorbTax(t.taxAmount, rolledEyes)
+          players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(amount))
+          publish(InsurancePays(amount))
         }
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(t.taxAmount))
         if (!gameOver(players(currentPlayerIndex))) {
@@ -300,6 +302,7 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
       case 2 => new InsuranceB
     }
     players = players.updated(currentPlayerIndex, players(currentPlayerIndex).setInsurance(insurance).decrementMoney(insurance.startCost))
+    publish(SignInsurance(insurance.startCost))
   }
 
   def resignInsurance: Unit =  players = players.updated(currentPlayerIndex, players(currentPlayerIndex).removeInsurance)

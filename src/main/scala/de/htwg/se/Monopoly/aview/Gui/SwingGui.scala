@@ -1,18 +1,16 @@
 package de.htwg.se.Monopoly.aview.Gui
 
 import java.awt.geom.GeneralPath
+import de.htwg.se.Monopoly.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, WaitForNextPlayer}
 
-import de.htwg.se.Monopoly.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, UndoEvent, WaitForNextPlayer}
 import java.awt.{Color, Image}
 import java.io.File
-
 import de.htwg.se.Monopoly.controller.controllerComponent.controllerBaseImpl.GameOverState
 import de.htwg.se.Monopoly.model.fieldComponent.fieldBaseImpl.Street
 
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
 import javax.swing.border.BevelBorder
-
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
 import scala.swing.event.{ButtonClicked, Key}
 
@@ -229,6 +227,8 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: LandedOnField => controller.history = controller.history :+ "Du landest auf Feld Nummer " + controller.actualField
     case e: GoToJailEvent => controller.history = controller.history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
     case e: PayToLeave => controller.history = controller.history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
+    case e: SignInsurance => controller.history = controller.history :+ ("Startgebühr Versicherungsabschluss: " + e.amount + "\n")
+    case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "€\n"
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
