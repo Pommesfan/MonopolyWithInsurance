@@ -115,8 +115,10 @@ class SwingGui(controller: IController) extends MainFrame {
   val nextPlayerButton: Button = new Button(Action("Zug beenden") {controller.nextPlayer()}) {enabled = false}
   val goToJailButton: Button = new Button(Action("Gehe ins Gefängnis!") {controller.publish(new WaitForNextPlayer)}) {enabled = false}
   val payReleaseButton: Button = new Button(Action("Freikaufen (50$)") {controller.payToLeaveJail(controller.getActualPlayer)}) {enabled = false}
+  val buttonInsuranceA: Button = new Button(Action("Versicherung A") {controller.setInsurance(0)}) {enabled = false}
+  val buttonInsuranceB: Button = new Button(Action("Versicherung B") {controller.setInsurance(1)}) {enabled = false}
 
-  def interactionPanel: GridPanel = new GridPanel(4, 1) {
+  def interactionPanel: GridPanel = new GridPanel(5, 1) {
     val buyBottunPanel: GridPanel = new GridPanel(1, 2) {
       preferredSize = new Dimension(200, 30)
       contents += buyButton
@@ -129,10 +131,17 @@ class SwingGui(controller: IController) extends MainFrame {
       contents += payReleaseButton
       border = EmptyBorder(2, 0, 2, 0)
     }
+    val insuranceButtonPanel: GridPanel = new GridPanel(1, 2) {
+      preferredSize = new Dimension(200, 30)
+      contents += buttonInsuranceA
+      contents += buttonInsuranceB
+      border = EmptyBorder(2, 0, 2, 0)
+    }
     contents += textArea
     contents += buyBottunPanel
     contents += jailButtonPanel
     contents += nextPlayerButton
+    contents += insuranceButtonPanel
     border = CompoundBorder(CompoundBorder(EmptyBorder(10), LineBorder(java.awt.Color.BLACK, 1)), EmptyBorder(5))
   }
 
