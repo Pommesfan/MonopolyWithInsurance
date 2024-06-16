@@ -1,7 +1,7 @@
 package de.htwg.se.MonopolyWithInsurance.aview
 
 import de.htwg.se.MonopolyWithInsurance.controller.controllerComponent.controllerBaseImpl.{BuyStreet, ExitGameState, GoToJail, NextPlayerState, PayForJail, StartState}
-import de.htwg.se.MonopolyWithInsurance.controller.{DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SaveEvent, SignInsurance, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.MonopolyWithInsurance.controller.{DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SaveEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
 
 import scala.swing.Reactor
 
@@ -102,6 +102,7 @@ class Tui(controller: IController) extends Reactor {
     case e: GoToJailEvent => print("Gehe ins Gefängnis (3xPasch /Feld \"Gehe ins Gefängnis\" /Ereigniskarte)\n(jail)\n")
     case e: PayToLeave => print("Du befindest dich im Gefägnis.\nPasch würfeln(d) oder Freikaufen(pay).\n")
     case e: SignInsurance => println("Startgebühr Versicherungsabschluss: " + e.amount + "\n")
+    case e: UnsignInsurance => println("Versicherung gekündigt")
     case e: InsurancePays => println("Die Versicherung bezahlt: " + e.amount + "€\n")
     case e: HandleChanceCard => print(e.message)
     case e: NotEnoughMoney => print("Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n")

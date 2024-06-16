@@ -47,12 +47,13 @@ class BoughtStreet extends Event
 class OwnStreet extends Event
 case class MoneyTransaction(money: Int) extends Event
 case class DecrementJailCounter(counter: Int) extends Event
-class NextPlayer extends Event
+case class NextPlayer(insurance: Int) extends Event
 class WaitForNextPlayer extends Event
 class LandedOnField extends Event
 class GoToJailEvent extends Event
 class PayToLeave extends Event
 case class SignInsurance(amount: Int) extends Event
+case class UnsignInsurance() extends Event
 case class InsurancePays(amount: Int) extends Event
 case class HandleChanceCard(message: String) extends Event
 case class NotEnoughMoney() extends Event

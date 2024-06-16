@@ -206,7 +206,14 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     }
     actualField = board.fields(players(currentPlayerIndex).currentPosition)
     context.nextPlayer()
-    publish(new NextPlayer)
+
+    def currentPlayer = players(currentPlayerIndex)
+    def getInsuranceIndex = currentPlayer.insurance match {
+      case Some(insurance) => insurance.numberOfInsurance()
+      case None => 0
+    }
+
+    publish(new NextPlayer(getInsuranceIndex))
     if(getActualPlayer.inJail != 0) {
       publish(new PayToLeave)
       context.payForJail(this)
@@ -296,13 +303,18 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     string.toString()
   }
 
-  def setInsurance(idx:Int): Unit = if(players(currentPlayerIndex).insurance == None) {
-    val insurance = idx match {
-      case 1 => new InsuranceA
-      case 2 => new InsuranceB
+  def setInsurance(idx:Int): Unit = {
+    if(players(currentPlayerIndex).insurance == None) {
+      val insurance = idx match {
+        case 1 => new InsuranceA
+        case 2 => new InsuranceB
+      }
+      players = players.updated(currentPlayerIndex, players(currentPlayerIndex).setInsurance(insurance).decrementMoney(insurance.startCost))
+      publish(SignInsurance(insurance.startCost))
+    } else {
+      players = players.updated(currentPlayerIndex, players(currentPlayerIndex).removeInsurance)
+      publish(UnsignInsurance())
     }
-    players = players.updated(currentPlayerIndex, players(currentPlayerIndex).setInsurance(insurance).decrementMoney(insurance.startCost))
-    publish(SignInsurance(insurance.startCost))
   }
 
   def resignInsurance: Unit =  players = players.updated(currentPlayerIndex, players(currentPlayerIndex).removeInsurance)

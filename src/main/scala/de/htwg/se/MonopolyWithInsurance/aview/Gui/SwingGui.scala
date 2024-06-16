@@ -1,7 +1,7 @@
 package de.htwg.se.MonopolyWithInsurance.aview.Gui
 
 import java.awt.geom.GeneralPath
-import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, WaitForNextPlayer}
+import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
 
 import java.awt.{Color, Image}
 import java.io.File
@@ -31,7 +31,7 @@ class SwingGui(controller: IController) extends MainFrame {
   val gameOverPath = prefix +"aview/Gui/images/GameOver.png"
 
   val transparent = new Color(0, 0, 0, 0)
-  title = "MonopolyWithInsurance"
+  title = "Monopoly mit Versicherung"
   preferredSize = new Dimension(1050, 770)
 
   def shapePanel(width: Int, height: Int, color: Color = transparent): Panel = new Panel {
@@ -117,8 +117,8 @@ class SwingGui(controller: IController) extends MainFrame {
   val nextPlayerButton: Button = new Button(Action("Zug beenden") {controller.nextPlayer()}) {enabled = false}
   val goToJailButton: Button = new Button(Action("Gehe ins Gefängnis!") {controller.publish(new WaitForNextPlayer)}) {enabled = false}
   val payReleaseButton: Button = new Button(Action("Freikaufen (50$)") {controller.payToLeaveJail(controller.getActualPlayer)}) {enabled = false}
-  val buttonInsuranceA: Button = new Button(Action("Versicherung A") {controller.setInsurance(0)}) {enabled = false}
-  val buttonInsuranceB: Button = new Button(Action("Versicherung B") {controller.setInsurance(1)}) {enabled = false}
+  val buttonInsuranceA: Button = new Button(Action("Versicherung A") {controller.setInsurance(1)}) {enabled = true}
+  val buttonInsuranceB: Button = new Button(Action("Versicherung B") {controller.setInsurance(2)}) {enabled = true}
 
   def interactionPanel: GridPanel = new GridPanel(5, 1) {
     val buyBottunPanel: GridPanel = new GridPanel(1, 2) {
@@ -239,6 +239,7 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: GoToJailEvent => controller.history = controller.history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
     case e: PayToLeave => controller.history = controller.history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
     case e: SignInsurance => controller.history = controller.history :+ ("Startgebühr Versicherungsabschluss: " + e.amount + "\n")
+    case e: UnsignInsurance => controller.history = controller.history :+ "Versicherung gekündigt\n"
     case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "€\n"
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
@@ -457,13 +458,22 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: DiceRolled => redraw
     case e: MoneyTransaction => redraw
     case e: DecrementJailCounter =>
-    case e: NextPlayer => enableButtons(b3 = true, b6 = true); redraw
+    case e: NextPlayer => enableButtons(b3 = true, b6 = true);
+      enable_insurance_buttons(e.insurance == 1 || e.insurance == 0, e.insurance == 2 || e.insurance == 0);
+      redraw
     case e: WaitForNextPlayer => enableButtons(b2 = true, b6 = true); redraw
     case e: GoToJailEvent => enableButtons(b4 = true); redraw
     case e: PayToLeave => enableButtons(b3 = true, b5 = true)
     case e: GameOver => GameOverDialog(SwingGui.this, controller)
     case e: ExitGame => System.exit(1)
     case e: LoadEvent => enableButtons(b3 = true); redraw
+    case e: SignInsurance => enable_insurance_buttons(false, false)
+    case e: UnsignInsurance => enable_insurance_buttons(false, false)
+  }
+
+  private def enable_insurance_buttons(b1: Boolean, b2: Boolean): Unit = {
+    buttonInsuranceA.enabled = b1
+    buttonInsuranceB.enabled = b2
   }
 
   def redraw: Unit = {
