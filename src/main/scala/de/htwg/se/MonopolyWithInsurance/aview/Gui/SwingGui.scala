@@ -13,6 +13,7 @@ import javax.swing.ImageIcon
 import javax.swing.border.BevelBorder
 import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
 import scala.swing.event.{ButtonClicked, Key}
+import scala.util.control.Breaks
 
 class SwingGui(controller: IController) extends MainFrame {
   listenTo(controller)
@@ -226,7 +227,7 @@ class SwingGui(controller: IController) extends MainFrame {
   }
 
   reactions += {
-    case e: NewGameEvent => controller.history = controller.history :+ " Wilkommen zu einer neuen Runde Monopoly!\n"
+    case e: NewGameEvent => controller.history = controller.history :+ " Wilkommen zu einer neuen Runde Monopoly!\n"; getPlayerNames()
     case e: PlayerSet => controller.history = controller.history :+ controller.getActualPlayer.name + " darf beginnen.\n"
     case e: DiceRolled => controller.history = controller.history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
     case e: HandleStreet => controller.history = controller.history :+ "Möchten Sie diese Straße kaufen?\n"
@@ -243,6 +244,65 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "€\n"
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
+  }
+
+  private def getPlayerNames(): Unit = {
+    val numberOfPlayers = 8
+    val textfieldWidth = 15
+
+    val textFields = List.fill(numberOfPlayers)(new TextField(textfieldWidth))
+
+    def startButtonClicked(): Unit = {
+      var names = Array[String]()
+      val breakLoop = new Breaks
+      breakLoop.breakable {
+        for(t <- textFields) {
+          val name = t.text
+          if(name.isEmpty) {
+            breakLoop.break()
+          }
+          names = names :+ name
+        }
+      }
+      controller.setPlayers(names)
+    }
+
+    var frame: Frame = null //can access frame inside to close
+    frame = new Frame {
+      contents = new GridBagPanel {
+        def constraints(x: Int, y: Int,
+                        insets: Insets = new Insets(0, 0, 0, 0),
+                        gridwidth: Int = 1, gridheight: Int = 1,
+                        weightx: Double = 0.0, weighty: Double = 0.0,
+                        fill: GridBagPanel.Fill.Value = GridBagPanel.Fill.None)
+        : Constraints = {
+          val c = new Constraints
+          c.gridx = x
+          c.gridy = y
+          c.gridwidth = gridwidth
+          c.gridheight = gridheight
+          c.weightx = weightx
+          c.weighty = weighty
+          c.fill = fill
+          c.anchor = GridBagPanel.Anchor.NorthWest
+          c.insets = insets
+          c
+        }
+
+        for (i <- 0 until numberOfPlayers) {
+          add(new Label("Spieler " + (i+1).toString), constraints(0, i * 30))
+          add(textFields(i), constraints(40, i * 30))
+        }
+
+        val startButton = new Button(Action("Spiel Starten") {
+          startButtonClicked()
+          frame.close()
+        })
+        add(startButton, constraints(20, 30 * numberOfPlayers + 50))
+      }
+    }
+
+    frame.visible = true
   }
 
 
