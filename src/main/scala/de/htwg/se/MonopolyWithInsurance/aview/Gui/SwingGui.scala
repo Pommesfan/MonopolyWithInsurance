@@ -11,7 +11,7 @@ import de.htwg.se.MonopolyWithInsurance.model.fieldComponent.fieldBaseImpl.Stree
 import scala.swing.{BoxPanel, Button, Dialog, Dimension, FlowPanel, Graphics2D, Label, Menu, MenuBar, Orientation, Panel, ScrollPane, Swing, TextArea, _}
 import javax.swing.ImageIcon
 import javax.swing.border.BevelBorder
-import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder}
+import scala.swing.Swing.{CompoundBorder, EmptyBorder, LineBorder, onEDT}
 import scala.swing.event.{ButtonClicked, Key}
 import scala.util.control.Breaks
 
@@ -20,16 +20,16 @@ class SwingGui(controller: IController) extends MainFrame {
   val prefix = "src/main/scala/de/htwg/se/MonopolyWithInsurance/"
 
   val pathCar = prefix + "aview/Gui/images/Car.png"
-  val pathCat = prefix +"aview/Gui/images/Cat.png"
-  val pathDog = prefix +"aview/Gui/images/Dog.png"
-  val pathFingerhut = prefix +"aview/Gui/images/Fingerhut.png"
-  val pathHut = prefix +"aview/Gui/images/hut.png"
-  val pathShip = prefix +"aview/Gui/images/Ship.png"
-  val pathShoe = prefix +"aview/Gui/images/Shoe.png"
-  val pathWheelbarrow = prefix +"aview/Gui/images/wheelbarrow.png"
+  val pathCat = prefix + "aview/Gui/images/Cat.png"
+  val pathDog = prefix + "aview/Gui/images/Dog.png"
+  val pathFingerhut = prefix + "aview/Gui/images/Fingerhut.png"
+  val pathHut = prefix + "aview/Gui/images/hut.png"
+  val pathShip = prefix + "aview/Gui/images/Ship.png"
+  val pathShoe = prefix + "aview/Gui/images/Shoe.png"
+  val pathWheelbarrow = prefix + "aview/Gui/images/wheelbarrow.png"
 
-  val pathBoard = prefix +"aview/Gui/images/Monopoly_board.jpg"
-  val gameOverPath = prefix +"aview/Gui/images/GameOver.png"
+  val pathBoard = prefix + "aview/Gui/images/Monopoly_board.jpg"
+  val gameOverPath = prefix + "aview/Gui/images/GameOver.png"
 
   val transparent = new Color(0, 0, 0, 0)
   title = "Monopoly mit Versicherung"
@@ -43,6 +43,7 @@ class SwingGui(controller: IController) extends MainFrame {
     xLayoutAlignment = 0
     yLayoutAlignment = 0
     border = LineBorder(java.awt.Color.BLACK, 1)
+
     override def paint(g: Graphics2D): Unit = {
       g.setColor(color)
       g.fillPolygon(Array(ax, bx, cy), Array(ax, cy, bx), 3)
@@ -60,7 +61,7 @@ class SwingGui(controller: IController) extends MainFrame {
   }
 
   def getPath(figure: String): String = {
-    figure match{
+    figure match {
       case "Car" => pathCar
       case "Cat" => pathCat
       case "Dog" => pathDog
@@ -74,17 +75,25 @@ class SwingGui(controller: IController) extends MainFrame {
 
   /**
    * DicePanel, teil vom ControllPanel
+   *
    * @return
    */
-  val diceButton = new Button(Action("Würfeln") { controller.rollDice()})
+  val diceButton = new Button(Action("Würfeln") {
+    controller.rollDice()
+  })
+
   def dicePanel: FlowPanel = new FlowPanel {
     contents += diceButton
     contents += Swing.HStrut(10)
     val dice1: String = rolledDice(controller.rolledNumber._1)
     val dice2: String = rolledDice(controller.rolledNumber._2)
-    contents +=  new Label() {icon = scaledImageIcon(dice1, 80, 80)}
+    contents += new Label() {
+      icon = scaledImageIcon(dice1, 80, 80)
+    }
     contents += Swing.HStrut(10)
-    contents +=  new Label() {icon = scaledImageIcon(dice2, 80, 80)}
+    contents += new Label() {
+      icon = scaledImageIcon(dice2, 80, 80)
+    }
     border = EmptyBorder(5)
   }
 
@@ -102,6 +111,7 @@ class SwingGui(controller: IController) extends MainFrame {
 
   /**
    * HistoryField
+   *
    * @return
    */
   val textArea: TextArea = new TextArea {
@@ -111,15 +121,43 @@ class SwingGui(controller: IController) extends MainFrame {
     lineWrap = true
     wordWrap = true
     editable = false
-    border = LineBorder(java.awt.Color.BLACK,1)
+    border = LineBorder(java.awt.Color.BLACK, 1)
   }
-  val buyButton: Button = new Button(Action("Kaufen") {controller.buyStreet()}) {enabled = false}
-  val notBuyButton: Button = new Button(Action("Nicht Kaufen"){controller.publish(new WaitForNextPlayer)}) {enabled = false}
-  val nextPlayerButton: Button = new Button(Action("Zug beenden") {controller.nextPlayer()}) {enabled = false}
-  val goToJailButton: Button = new Button(Action("Gehe ins Gefängnis!") {controller.publish(new WaitForNextPlayer)}) {enabled = false}
-  val payReleaseButton: Button = new Button(Action("Freikaufen (50$)") {controller.payToLeaveJail(controller.getActualPlayer)}) {enabled = false}
-  val buttonInsuranceA: Button = new Button(Action("Versicherung A") {controller.setInsurance(1)}) {enabled = true}
-  val buttonInsuranceB: Button = new Button(Action("Versicherung B") {controller.setInsurance(2)}) {enabled = true}
+  val buyButton: Button = new Button(Action("Kaufen") {
+    controller.buyStreet()
+  }) {
+    enabled = false
+  }
+  val notBuyButton: Button = new Button(Action("Nicht Kaufen") {
+    controller.publish(new WaitForNextPlayer)
+  }) {
+    enabled = false
+  }
+  val nextPlayerButton: Button = new Button(Action("Zug beenden") {
+    controller.nextPlayer()
+  }) {
+    enabled = false
+  }
+  val goToJailButton: Button = new Button(Action("Gehe ins Gefängnis!") {
+    controller.publish(new WaitForNextPlayer)
+  }) {
+    enabled = false
+  }
+  val payReleaseButton: Button = new Button(Action("Freikaufen (50$)") {
+    controller.payToLeaveJail(controller.getActualPlayer)
+  }) {
+    enabled = false
+  }
+  val buttonInsuranceA: Button = new Button(Action("Versicherung A") {
+    controller.setInsurance(1)
+  }) {
+    enabled = true
+  }
+  val buttonInsuranceB: Button = new Button(Action("Versicherung B") {
+    controller.setInsurance(2)
+  }) {
+    enabled = true
+  }
 
   def interactionPanel: GridPanel = new GridPanel(5, 1) {
     val buyBottunPanel: GridPanel = new GridPanel(1, 2) {
@@ -150,6 +188,7 @@ class SwingGui(controller: IController) extends MainFrame {
 
   /**
    * PlayerPanel
+   *
    * @param namePlayer
    * @param money
    * @param jail
@@ -163,6 +202,7 @@ class SwingGui(controller: IController) extends MainFrame {
     } else {
       border = CompoundBorder(EmptyBorder(10), EmptyBorder(1))
     }
+
     def constraints(x: Int, y: Int,
                     insets: Insets = new Insets(0, 0, 0, 0),
                     gridwidth: Int = 1, gridheight: Int = 1,
@@ -183,14 +223,23 @@ class SwingGui(controller: IController) extends MainFrame {
     }
 
     add(shapePanel(20, 20, color = color), constraints(0, 0))
-    add(new Label() {text = namePlayer}, constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
-    add(new Label() {text = money.toString}, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
-    add(new Label() {text = jail.toString}, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
-    add(new Label() {icon = scaledImageIcon(getPath(figure), 30, 30)}, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {
+      text = namePlayer
+    }, constraints(1, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {
+      text = money.toString
+    }, constraints(2, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {
+      text = jail.toString
+    }, constraints(3, 0, insets = new Insets(0, 10, 0, 10)))
+    add(new Label() {
+      icon = scaledImageIcon(getPath(figure), 30, 30)
+    }, constraints(4, 0, insets = new Insets(0, 10, 0, 10)))
   }
 
   /**
    * ControllPanel with dice, history and Player
+   *
    * @return
    */
   def controllPanel() = new BoxPanel(Orientation.Vertical) {
@@ -198,24 +247,27 @@ class SwingGui(controller: IController) extends MainFrame {
     contents += Swing.VStrut(2)
     contents += interactionPanel
     border = LineBorder(java.awt.Color.BLACK, 1)
-    for(n <- controller.players) {
+    for (n <- controller.players) {
       contents += playerPanel(n.name, n.index, n.money, n.inJail, n.figure, n.color)
     }
   }
 
   /**
    * Board Panel
+   *
    * @return
    */
 
   def board: BoxPanel = new BoxPanel(Orientation.Horizontal) {
-    contents += new Label() {icon = scaledImageIcon(pathBoard, 690, 690)}
+    contents += new Label() {
+      icon = scaledImageIcon(pathBoard, 690, 690)
+    }
   }
 
   def gameHistory(v: Vector[String]) = new TextArea(10, 45) {
     maximumSize = new Dimension(200, 300)
     minimumSize = new Dimension(200, 300)
-    for(v <- v) {
+    for (v <- v) {
       text += v
     }
     resizable = false
@@ -227,14 +279,14 @@ class SwingGui(controller: IController) extends MainFrame {
   }
 
   reactions += {
-    case e: NewGameEvent => controller.history = controller.history :+ " Wilkommen zu einer neuen Runde Monopoly!\n"; getPlayerNames()
+    case e: NewGameEvent => controller.history = controller.history :+ " Wilkommen zu einer neuen Runde Monopoly!\n"; PlayerNamesDialog(SwingGui.this, controller)
     case e: PlayerSet => controller.history = controller.history :+ controller.getActualPlayer.name + " darf beginnen.\n"
     case e: DiceRolled => controller.history = controller.history :+ "Du hast eine " + controller.rolledNumber._1 + " und eine " + controller.rolledNumber._2 + " gewürfelt.\n"
     case e: HandleStreet => controller.history = controller.history :+ "Möchten Sie diese Straße kaufen?\n"
     case e: OwnStreet => controller.history = controller.history :+ "Diese Straße gehört dir.\n"
     case e: MoneyTransaction => controller.history = controller.history :+ "Zahle " + e.money + "$\n"
-    case e: DecrementJailCounter => controller.history = controller.history :+ "Warte " + (e.counter +1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
-    case e: NextPlayer => controller.history = controller.history :+ controller.getActualPlayer.name +" ist dran.\n"
+    case e: DecrementJailCounter => controller.history = controller.history :+ "Warte " + (e.counter + 1) + " Runden bis du aus dem Gefägnis frei kommst\noder kaufe dich in der nächsten Runde frei.\n"
+    case e: NextPlayer => controller.history = controller.history :+ controller.getActualPlayer.name + " ist dran.\n"
     case e: WaitForNextPlayer => controller.history = controller.history :+ "Zug beenden?\n\n"
     case e: LandedOnField => controller.history = controller.history :+ "Du landest auf Feld Nummer " + controller.actualField
     case e: GoToJailEvent => controller.history = controller.history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
@@ -245,66 +297,6 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
-
-  private def getPlayerNames(): Unit = {
-    val numberOfPlayers = 8
-    val textfieldWidth = 15
-
-    val textFields = List.fill(numberOfPlayers)(new TextField(textfieldWidth))
-
-    def startButtonClicked(): Unit = {
-      var names = Array[String]()
-      val breakLoop = new Breaks
-      breakLoop.breakable {
-        for(t <- textFields) {
-          val name = t.text
-          if(name.isEmpty) {
-            breakLoop.break()
-          }
-          names = names :+ name
-        }
-      }
-      controller.setPlayers(names)
-    }
-
-    var frame: Frame = null //can access frame inside to close
-    frame = new Frame {
-      contents = new GridBagPanel {
-        def constraints(x: Int, y: Int,
-                        insets: Insets = new Insets(0, 0, 0, 0),
-                        gridwidth: Int = 1, gridheight: Int = 1,
-                        weightx: Double = 0.0, weighty: Double = 0.0,
-                        fill: GridBagPanel.Fill.Value = GridBagPanel.Fill.None)
-        : Constraints = {
-          val c = new Constraints
-          c.gridx = x
-          c.gridy = y
-          c.gridwidth = gridwidth
-          c.gridheight = gridheight
-          c.weightx = weightx
-          c.weighty = weighty
-          c.fill = fill
-          c.anchor = GridBagPanel.Anchor.NorthWest
-          c.insets = insets
-          c
-        }
-
-        for (i <- 0 until numberOfPlayers) {
-          add(new Label("Spieler " + (i+1).toString), constraints(0, i * 30))
-          add(textFields(i), constraints(40, i * 30))
-        }
-
-        val startButton = new Button(Action("Spiel Starten") {
-          startButtonClicked()
-          frame.close()
-        })
-        add(startButton, constraints(20, 30 * numberOfPlayers + 50))
-      }
-    }
-
-    frame.visible = true
-  }
-
 
   def boardPanel: GridBagPanel = new GridBagPanel {
     def constraints(x: Int, y: Int,
@@ -325,10 +317,11 @@ class SwingGui(controller: IController) extends MainFrame {
       c.insets = insets
       c
     }
+
     add(shapePanel(120, 220), constraints(0, 0))
     add(new ScrollPane(gameHistory(controller.history)), constraints(1, 1))
-    add(panel, constraints(0 , 0, gridwidth= 11, gridheight = 11))
-    add(board, constraints(0 , 0, gridwidth= 11, gridheight = 11))
+    add(panel, constraints(0, 0, gridwidth = 11, gridheight = 11))
+    add(board, constraints(0, 0, gridwidth = 11, gridheight = 11))
   }
 
   var paths = List[GeneralPath]()
@@ -340,21 +333,21 @@ class SwingGui(controller: IController) extends MainFrame {
     requestFocus()
 
     val figurePosition: List[(Int, Int)] =
-      List((10,5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
+      List((10, 5), (85, 5), (140, 5), (200, 5), (255, 5), (310, 5), (365, 5), (425, 5), (480, 5), (535, 5),
         (635, 5), (615, 80), (615, 135), (615, 195), (615, 250), (615, 305), (615, 360), (615, 420), (615, 475), (615, 530),
         (615, 615), (535, 615), (480, 615), (425, 615), (365, 615), (310, 615), (255, 615), (200, 615), (140, 615), (85, 615), (10, 615),
         (10, 530), (10, 475), (10, 420), (10, 360), (10, 305), (10, 250), (10, 195), (10, 135), (10, 80))
     var figures: Vector[(Image, Int, Int)] = Vector[(Image, Int, Int)]() //imgX, imgY, scaledImage
 
     val polygonPosition: List[(Int, Int)] =
-      List[(Int, Int)]((0, 0), (92, 0), (148,0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
+      List[(Int, Int)]((0, 0), (92, 0), (148, 0), (204, 0), (260, 0), (316, 0), (372, 0), (428, 0), (484, 0), (540, 0), (596, 0),
         (612, 92), (612, 148), (612, 204), (612, 260), (612, 316), (612, 372), (612, 428), (612, 484), (612, 540), (596, 596),
         (540, 612), (484, 612), (428, 612), (372, 612), (316, 612), (260, 612), (204, 612), (148, 612), (92, 612), (0, 596),
         (0, 540), (0, 484), (0, 428), (0, 372), (0, 316), (0, 260), (0, 204), (0, 148), (0, 92))
     var polygons: Vector[(Color, Int, Int)] = Vector[(Color, Int, Int)]()
 
     def addFigures(): Unit = {
-      for(p <- controller.players) {
+      for (p <- controller.players) {
         figures = figures :+ (scaledImage(getPath(p.figure), 70, 70), figurePosition(p.currentPosition)._1, figurePosition(p.currentPosition)._2)
       }
     }
@@ -367,7 +360,7 @@ class SwingGui(controller: IController) extends MainFrame {
     }
 
     def updatePlayer(): Unit = {
-      for(p <- controller.players) {
+      for (p <- controller.players) {
         if (p.inJail != 0) {
           figures = figures.updated(p.index, (figures(p.index)._1, 590, 15))
         } else {
@@ -381,7 +374,7 @@ class SwingGui(controller: IController) extends MainFrame {
       for (field <- controller.board.fields) {
         field match {
           case s: Street =>
-            if(s.owner != null) {
+            if (s.owner != null) {
               polygons = polygons.updated(s.index, (s.owner.color, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
             } else {
               polygons = polygons.updated(s.index, (transparent, polygonPosition(s.index)._1, polygonPosition(s.index)._2))
@@ -393,14 +386,14 @@ class SwingGui(controller: IController) extends MainFrame {
     }
 
     override def paint(g: Graphics2D): Unit = {
-      for(path <- paths) {
+      for (path <- paths) {
         g.draw(path)
       }
       g.draw(currentPath)
-      for(f <- figures) {
+      for (f <- figures) {
         g.drawImage(f._1, f._2, f._3, null)
       }
-      for(p <- polygons) {
+      for (p <- polygons) {
         val x = p._2
         val y = p._3
         g.setColor(p._1)
@@ -428,8 +421,10 @@ class SwingGui(controller: IController) extends MainFrame {
     preferredSize = new Dimension(500, 700)
     visible = true
 
-    val gameOverPanel:FlowPanel = new FlowPanel {
-      contents += new Label {icon = scaledImageIcon(gameOverPath, 300, 150)}
+    val gameOverPanel: FlowPanel = new FlowPanel {
+      contents += new Label {
+        icon = scaledImageIcon(gameOverPath, 300, 150)
+      }
     }
 
     val sortedPlayerPanel: GridBagPanel = new GridBagPanel {
@@ -451,9 +446,10 @@ class SwingGui(controller: IController) extends MainFrame {
         c.insets = insets
         c
       }
+
       preferredSize = new Dimension(300, 500)
       var place = 0
-      for(p <- controller.players) {
+      for (p <- controller.players) {
         place += 1
         add(new Label(place.toString + ". Platz"), constraints(0, place, fill = GridBagPanel.Fill.Both))
         add(playerPanel(p.name, p.index, p.money, p.inJail, p.figure, p.color), constraints(1, place, fill = GridBagPanel.Fill.Both))
@@ -462,7 +458,9 @@ class SwingGui(controller: IController) extends MainFrame {
 
     val buttonPanel: FlowPanel = new FlowPanel {
       maximumSize = new Dimension(50, 150)
-      val exitButton = new Button(Action("Beenden") {dispose(); controller.publish(new ExitGame)})
+      val exitButton = new Button(Action("Beenden") {
+        dispose(); controller.publish(new ExitGame)
+      })
       contents += exitButton
     }
 
@@ -472,6 +470,61 @@ class SwingGui(controller: IController) extends MainFrame {
       add(buttonPanel, BorderPanel.Position.South)
     }
 
+  }
+
+  case class PlayerNamesDialog(parent: Window, controller: IController) extends Dialog(parent) {
+    title = "Spielernamen eingeben"
+    visible = true
+    val numberOfPlayers = 8
+    val textfieldWidth = 15
+
+    val textFields = List.fill(numberOfPlayers)(new TextField(textfieldWidth))
+
+    def startButtonClicked(): Unit = {
+      var names = Array[String]()
+      val breakLoop = new Breaks
+      breakLoop.breakable {
+        for (t <- textFields) {
+          val name = t.text
+          if (name.isEmpty) {
+            breakLoop.break()
+          }
+          names = names :+ name
+        }
+      }
+      controller.setPlayers(names)
+    }
+
+    contents = new GridBagPanel {
+      def constraints(x: Int, y: Int,
+                      insets: Insets = new Insets(0, 0, 0, 0),
+                      gridwidth: Int = 1, gridheight: Int = 1,
+                      weightx: Double = 0.0, weighty: Double = 0.0,
+                      fill: GridBagPanel.Fill.Value = GridBagPanel.Fill.None)
+      : Constraints = {
+        val c = new Constraints
+        c.gridx = x
+        c.gridy = y
+        c.gridwidth = gridwidth
+        c.gridheight = gridheight
+        c.weightx = weightx
+        c.weighty = weighty
+        c.fill = fill
+        c.anchor = GridBagPanel.Anchor.NorthWest
+        c.insets = insets
+        c
+      }
+
+      for (i <- 0 until numberOfPlayers) {
+        add(new Label("Spieler " + (i + 1).toString), constraints(0, i * 30))
+        add(textFields(i), constraints(40, i * 30))
+      }
+
+      val startButton = new Button(Action("Spiel Starten") {
+        startButtonClicked()
+      })
+      add(startButton, constraints(20, 30 * numberOfPlayers + 50))
+    }
   }
 
 
