@@ -119,11 +119,30 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     publish(new LandedOnField)
     field match {
       case s: Street => handleStreet(s)
-      case c: ChanceCard => handleChanceCard(c)
-      case sp: SpecialField => handleSpecialField(sp)
+      case c: ChanceCard => handleChanceCard(c, n)
+      case sp: SpecialField => handleSpecialField(sp, n)
       case t: Tax => handleTax(t, n)
     }
     field
+  }
+
+  def handleGoToJail(dice: Int): Unit = {
+    def gotoJail() = {
+      players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
+      publish(new GoToJailEvent)
+    }
+
+    players(currentPlayerIndex).insurance match {
+      case Some(insurance) =>
+        val res = insurance.preventJail(dice)
+        res match {
+          case Some(restPayment) =>
+            players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(restPayment))
+            publish(JailPreventedEvent(restPayment))
+          case None => gotoJail()
+        }
+      case None => gotoJail()
+    }
   }
 
   def handleStreet(s: Street): Unit = {
@@ -152,12 +171,12 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     }
   }
 
-  def handleChanceCard(c: ChanceCard) : Unit = {
+  def handleChanceCard(c: ChanceCard, dice: Int) : Unit = {
     publish(HandleChanceCard(c.info))
-    context.state match {
+    def state = context.state
+    state match {
       case _: GoToJail =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
-        publish(new GoToJailEvent)
+        handleGoToJail(dice)
       case _ =>
         players = players.updated(currentPlayerIndex, players(currentPlayerIndex).incrementMoney(c.getMoney))
         if (c.otherPlayerIndex != -1) {
@@ -170,14 +189,13 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
     }
   }
 
-  def handleSpecialField(sp: SpecialField): Unit = {
+  def handleSpecialField(sp: SpecialField, dice: Int): Unit = {
     context.state match {
       case _: LandedOnGo => publish(new WaitForNextPlayer)
       case _: VisitJail => publish(new WaitForNextPlayer)
       case _: FreeParking => publish(new WaitForNextPlayer)
       case _: GoToJail =>
-        players = players.updated(currentPlayerIndex, players(currentPlayerIndex).goToJail())
-        publish(new GoToJailEvent)
+        handleGoToJail(dice)
     }
   }
 
@@ -213,7 +231,7 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
       case None => 0
     }
 
-    publish(new NextPlayer(getInsuranceIndex))
+    publish(NextPlayer(getInsuranceIndex))
     if(getActualPlayer.inJail != 0) {
       publish(new PayToLeave)
       context.payForJail(this)

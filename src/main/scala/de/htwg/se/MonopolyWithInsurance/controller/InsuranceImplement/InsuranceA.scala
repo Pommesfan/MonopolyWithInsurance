@@ -7,4 +7,6 @@ class InsuranceA extends I_Insurance{
   override def pay_contribution: Int = 10
   override def absorbTax(taxAmount:Int, rolledEyes:Int): Int = if(rolledEyes % 2 == 0) taxAmount else taxAmount / 2
   override def numberOfInsurance(): Int = 1
+  override def absorbPenalty(): Unit = ???
+  override def preventJail(dice: Int): Option[Int] = None
 }

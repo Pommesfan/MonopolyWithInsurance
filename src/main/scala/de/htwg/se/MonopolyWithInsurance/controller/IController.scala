@@ -51,6 +51,7 @@ case class NextPlayer(insurance: Int) extends Event
 class WaitForNextPlayer extends Event
 class LandedOnField extends Event
 class GoToJailEvent extends Event
+case class JailPreventedEvent(restPayment: Int) extends Event
 class PayToLeave extends Event
 case class SignInsurance(amount: Int) extends Event
 case class UnsignInsurance() extends Event

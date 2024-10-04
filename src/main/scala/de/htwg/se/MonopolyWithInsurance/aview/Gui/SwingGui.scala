@@ -1,7 +1,7 @@
 package de.htwg.se.MonopolyWithInsurance.aview.Gui
 
 import java.awt.geom.GeneralPath
-import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
+import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, JailPreventedEvent, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
 
 import java.awt.{Color, Image}
 import java.io.File
@@ -291,9 +291,10 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: LandedOnField => controller.history = controller.history :+ "Du landest auf Feld Nummer " + controller.actualField
     case e: GoToJailEvent => controller.history = controller.history :+ "Gehe ins Gefängnis (3xPasch /Feld Gehen ins Gefängnis /Ereigniskarte)\n"
     case e: PayToLeave => controller.history = controller.history :+ "Du befindest dich im Gefägnis.\nPasch würfeln oder Freikaufen.\n"
-    case e: SignInsurance => controller.history = controller.history :+ ("Startgebühr Versicherungsabschluss: " + e.amount + "\n")
+    case e: SignInsurance => controller.history = controller.history :+ ("Startgebühr Versicherungsabschluss: " + e.amount + "$\n")
     case e: UnsignInsurance => controller.history = controller.history :+ "Versicherung gekündigt\n"
-    case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "€\n"
+    case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "$\n"
+    case e: JailPreventedEvent => controller.history = controller.history :+"Versicherung verhindert Gefängnis. Selbstzahlung: " + e.restPayment + "$\n"
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
   }
@@ -580,8 +581,9 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: GameOver => GameOverDialog(SwingGui.this, controller)
     case e: ExitGame => System.exit(1)
     case e: LoadEvent => enableButtons(b3 = true); redraw
-    case e: SignInsurance => enable_insurance_buttons(false, false)
+    case e: SignInsurance => enable_insurance_buttons(false, false); redraw
     case e: UnsignInsurance => enable_insurance_buttons(false, false)
+    case e: JailPreventedEvent => enableButtons(b2 = true); redraw
   }
 
   private def enable_insurance_buttons(b1: Boolean, b2: Boolean): Unit = {

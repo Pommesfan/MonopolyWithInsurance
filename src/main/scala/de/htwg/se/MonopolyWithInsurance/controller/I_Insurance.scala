@@ -5,4 +5,6 @@ trait I_Insurance {
   def pay_contribution: Int
   def absorbTax(taxAmount:Int, rolledEyes:Int): Int
   def numberOfInsurance(): Int
+  def preventJail(dice: Int): Option[Int]
+  def absorbPenalty()
 }
