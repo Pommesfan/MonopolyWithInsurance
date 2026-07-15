@@ -9,4 +9,5 @@ class InsuranceA extends I_Insurance{
   override def numberOfInsurance(): Int = 1
   override def absorbPenalty(): Unit = ???
   override def preventJail(dice: Int): Option[Int] = None
+  override def riskLoadingChancecard(): Option[Int] = Some(4)
 }

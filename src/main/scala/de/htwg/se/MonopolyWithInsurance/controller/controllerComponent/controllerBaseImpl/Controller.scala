@@ -174,6 +174,16 @@ class Controller(var board: IBoard, var players: Vector[IPlayer]) extends IContr
   def handleChanceCard(c: ChanceCard, dice: Int) : Unit = {
     publish(HandleChanceCard(c.info))
     def state = context.state
+    players(currentPlayerIndex).insurance match {
+      case Some(insurance) =>
+        insurance.riskLoadingChancecard() match {
+          case Some(value) =>
+            players = players.updated(currentPlayerIndex, players(currentPlayerIndex).decrementMoney(value))
+            publish(ChanceCardRiskLoadingEvent(value))
+          case _ =>
+        }
+      case _ =>
+    }
     state match {
       case _: GoToJail =>
         handleGoToJail(dice)

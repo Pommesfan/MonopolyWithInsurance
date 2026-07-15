@@ -1,7 +1,7 @@
 package de.htwg.se.MonopolyWithInsurance.aview.Gui
 
 import java.awt.geom.GeneralPath
-import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, JailPreventedEvent, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
+import de.htwg.se.MonopolyWithInsurance.controller.{BoughtStreet, ChanceCardRiskLoadingEvent, DecrementJailCounter, DiceRolled, ExitGame, GameOver, GoToJailEvent, HandleChanceCard, HandleStreet, IController, InsurancePays, JailPreventedEvent, LandedOnField, LoadEvent, MoneyTransaction, NewGameEvent, NextPlayer, NotEnoughMoney, OwnStreet, PayToLeave, PlayerSet, RedoEvent, SignInsurance, UndoEvent, UnsignInsurance, WaitForNextPlayer}
 
 import java.awt.{Color, Image}
 import java.io.File
@@ -294,6 +294,7 @@ class SwingGui(controller: IController) extends MainFrame {
     case e: SignInsurance => controller.history = controller.history :+ ("Startgebühr Versicherungsabschluss: " + e.amount + "$\n")
     case e: UnsignInsurance => controller.history = controller.history :+ "Versicherung gekündigt\n"
     case e: InsurancePays => controller.history = controller.history :+ "Die Versicherung zahlt: " + e.amount + "$\n"
+    case e: ChanceCardRiskLoadingEvent => controller.history = controller.history :+ "Risikozuschlag Ereignis-/Gemeinschafts-Feld: " + e.amount + "$\n"
     case e: JailPreventedEvent => controller.history = controller.history :+"Versicherung verhindert Gefängnis. Selbstzahlung: " + e.restPayment + "$\n"
     case e: HandleChanceCard => controller.history = controller.history :+ e.message
     case e: NotEnoughMoney => controller.history = controller.history :+ "Du kannst diese Straße nicht kaufen, da du nicht genug Geld besitzt.\n"
